@@ -3,7 +3,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {BastaStorageContext} from "../hooks/Context/ContextAPI";
 
 function Login() {
-  const {loginData, setLoginData, handleLogin, errorRegister} =
+  const {loginData, setLoginData, handleLogin, loginError} =
     useContext(BastaStorageContext);
 
   const handleChange = (e) => {
@@ -39,7 +39,9 @@ function Login() {
           >
             Login
           </button>
-          {/* <p>{errorRegister ? "field not match" : ""}</p> */}
+          <p className=" text-center text-red-500 ">
+              {loginError}
+            </p>
 
           <p className="text-center text-sm text-gray-600 mt-4">
             Don’t have an account?{" "}

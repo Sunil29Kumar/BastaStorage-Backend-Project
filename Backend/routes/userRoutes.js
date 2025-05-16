@@ -19,6 +19,8 @@ router.post("/register", async (req, res, next) => {
   // checking user is already exist
   const alreadyUserExist = await userCollection.findOne({email});
   if (alreadyUserExist) {
+    console.log("Email is already in use");
+
     return res.status(400).json({error: "Email is already in use"});
   }
 
@@ -81,7 +83,7 @@ router.post("/login", async (req, res) => {
   const userCollection = await db.collection("users");
 
   const user = await userCollection.findOne(
-    {email},
+    {email, password},
     {projection: {password: 1}}
   );
 

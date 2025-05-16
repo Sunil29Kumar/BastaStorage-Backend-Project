@@ -257,7 +257,12 @@ function ContextAPI({children}) {
         body: JSON.stringify(registerData),
       });
       const data = await response.json();
-      if (data.error) {
+      console.log(data);
+      setErrorRegister({
+        error: data,
+      });
+
+      if (data.details) {
         setErrorRegister({
           errorDescription:
             data.details.errInfo.details.schemaRulesNotSatisfied[0]
@@ -266,7 +271,10 @@ function ContextAPI({children}) {
             data.details.errInfo.details.schemaRulesNotSatisfied[0]
               .propertiesNotSatisfied[0].propertyName,
         });
-        console.log(data);
+      } else if (data.error == "Email is already in use") {
+        setErrorRegister({
+          error: data.error,
+        });
       } else {
         console.log(data);
         navigate("/Login");
@@ -293,15 +301,17 @@ function ContextAPI({children}) {
         },
         body: JSON.stringify(loginData),
       });
+      const data = await response.json();
       if (response.ok) {
-        const data = await response.json();
         console.log(data);
         setLoggedIn(true);
         navigate("/");
       } else if (response.status == 200) {
         getDirectoryItems();
+        setLoginError("")
       } else {
-        console.log("Login failed.");
+        setLoginError(data.error)
+        console.log(loginError);
       }
     } catch (error) {
       console.error("Login Error:", error);

@@ -28,8 +28,8 @@ function Register() {
             placeholder="Name"
             value={registerData.name}
             onChange={handleChange}
-            // pattern=".{3,255}"
-            // title="Name Must contain minimun 3 character"
+            pattern=".{3,255}"
+            title="Name Must contain minimun 3 character"
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -48,19 +48,15 @@ function Register() {
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errorRegister.errorFieldName === "email" && (
-            <p className=" text-center text-red-500 ">
-              {errorRegister.errorDescription}
-            </p>
-          )}
+          <p className=" text-center text-red-500 ">{errorRegister.error}</p>
           <input
             type="password"
             name="password"
             placeholder="Password"
             value={registerData.password}
             onChange={handleChange}
-            // pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$"
-            // title="Password must have 8+ characters with uppercase, lowercase, number and special character"
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$"
+            title="Password must have 8+ characters with uppercase, lowercase, number and special character"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errorRegister.errorFieldName === "password" && (
