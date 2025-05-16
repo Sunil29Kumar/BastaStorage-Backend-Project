@@ -1,6 +1,7 @@
 import express from "express";
 import checkAuth from "../middleware/authMiddleware.js";
 import {ObjectId} from "mongodb";
+import {client} from "../database/db.js";
 
 const router = express.Router();
 
@@ -15,44 +16,57 @@ router.post("/register", async (req, res, next) => {
   const userCollection = await db.collection("users");
   const directoriesCollection = await db.collection("directories");
 
-  const userId = new ObjectId();
-  const rootDirId = new ObjectId();
-
   // checking user is already exist
   const alreadyUserExist = await userCollection.findOne({email});
   if (alreadyUserExist) {
     return res.status(400).json({error: "Email is already in use"});
   }
 
-  try {
-    await userCollection.insertOne({
-      _id: userId,
-      rootDirId,
-      name,
-      email,
-      password,
-      userTimeStamp: {
-        userCreatedAt: new Date(),
-        userLoginAt: [],
-        userLogoutAt: [],
-      },
-    });
+  const session = client.startSession();
 
-    await directoriesCollection.insertOne({
-      _id: rootDirId,
-      parentDirId: null,
-      userId,
-      name: `root-${email}`,
-      folderTimeStamp: {
-        folderCreatedAt: new Date(),
-        opened: [],
-        lastModified: [],
-        lastDownload: [],
+  try {
+    const userId = new ObjectId();
+    const rootDirId = new ObjectId();
+
+    session.startTransaction();
+
+    await userCollection.insertOne(
+      {
+        _id: userId,
+        rootDirId,
+        name,
+        email,
+        password,
+        userTimeStamp: {
+          userCreatedAt: new Date(),
+          userLoginAt: [],
+          userLogoutAt: [],
+        },
       },
-    });
+      {session}
+    );
+
+    await directoriesCollection.insertOne(
+      {
+        _id: rootDirId,
+        parentDirId: null,
+        userId,
+        name: `root-${email}`,
+        folderTimeStamp: {
+          folderCreatedAt: new Date(),
+          opened: [],
+          lastModified: [],
+          lastDownload: [],
+        },
+      },
+      {session}
+    );
+
+    session.commitTransaction();
 
     return res.status(200).json({message: "User Register!"});
   } catch (err) {
+    session.abortTransaction();
     if (err.code === 121) {
       return res.status(400).json({error: "invalid fields", details: err});
     }
