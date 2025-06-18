@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {ObjectId} from "mongodb";
 import {rm} from "fs/promises";
 
