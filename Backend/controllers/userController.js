@@ -1,34 +1,31 @@
-
 import {ObjectId} from "mongodb";
-import {client} from "../database/db.js";
-export const registerUser =async (req, res, next) => {
+import User from "../models/userModel.js";
+import Directory from "../models/directoryModel.js";
+import mongoose from "mongoose";
+
+export const registerUser = async (req, res, next) => {
   const {name, email, password} = req.body;
-  const db = req.db;
+
 
   if (!name || !email || !password) {
     return res.status(400).json({error: "All files are required"});
   }
 
-  const userCollection = await db.collection("users");
-  const directoriesCollection = await db.collection("directories");
-
   // checking user is already exist
-  const alreadyUserExist = await userCollection.findOne({email});
+  const alreadyUserExist = await User.findOne({email});
   if (alreadyUserExist) {
-    console.log("Email is already in use");
-
     return res.status(400).json({error: "Email is already in use"});
   }
 
-  const session = client.startSession();
+  const session = await mongoose.startSession();
 
   try {
-    const userId = new ObjectId();
-    const rootDirId = new ObjectId();
+    const userId = new mongoose.Types.ObjectId();
+    const rootDirId = new mongoose.Types.ObjectId();
 
     session.startTransaction();
 
-    await userCollection.insertOne(
+    await User.insertOne(
       {
         _id: userId,
         rootDirId,
@@ -44,7 +41,7 @@ export const registerUser =async (req, res, next) => {
       {session}
     );
 
-    await directoriesCollection.insertOne(
+    await Directory.insertOne(
       {
         _id: rootDirId,
         parentDirId: null,
@@ -60,7 +57,7 @@ export const registerUser =async (req, res, next) => {
       {session}
     );
 
-    session.commitTransaction();
+    await session.commitTransaction();
 
     return res.status(200).json({message: "User Register!"});
   } catch (err) {
@@ -70,17 +67,15 @@ export const registerUser =async (req, res, next) => {
     }
     next(err);
   }
-}
+};
 
-export const loginUser =async (req, res) => {
+export const loginUser = async (req, res) => {
   const {email, password} = req.body;
-  const db = req.db;
-  const userCollection = await db.collection("users");
 
-  const user = await userCollection.findOne(
+  const user = await User.findOne(
     {email, password},
     {projection: {password: 1}}
-  );
+  ).lean();
 
   if (!user) {
     return res.status(404).json({error: "Invalid email or password"});
@@ -90,23 +85,19 @@ export const loginUser =async (req, res) => {
     httpOnly: true,
   });
 
-  await userCollection.updateOne(
+  await User.updateOne(
     {email},
     {$push: {"userTimeStamp.userLoginAt": new Date()}}
   );
 
   return res.json({message: "login success"});
-}
+};
 
 export const logoutUser = async (req, res) => {
-  const db = req.db;
-
-  const userCollection = await db.collection("users");
-
   res.clearCookie("uid", "");
-  await userCollection.updateOne(
+  await User.updateOne(
     {_id: new ObjectId(req.user._id)},
     {$push: {"userTimeStamp.userLogoutAt": new Date()}}
   );
   return res.status(200).json({message: "user log out"});
-}
+};

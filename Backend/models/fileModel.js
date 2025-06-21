@@ -4,7 +4,7 @@ const fileSchema = await mongoose.Schema(
   {
     parentDirId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "File", // assuming file belongs to a folder
+      ref: "File",
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -19,7 +19,7 @@ const fileSchema = await mongoose.Schema(
       type: String,
     },
     size: {
-      type: mongoose.Schema.Types.Long || Number, // if using `long`, need plugin
+      type: mongoose.Schema.Types.Long || Number,
     },
     timeStamp: {
       fileCreatedAt: {
@@ -40,4 +40,4 @@ const fileSchema = await mongoose.Schema(
 );
 
 const File = mongoose.model("File", fileSchema);
-export default File
+export default File;
