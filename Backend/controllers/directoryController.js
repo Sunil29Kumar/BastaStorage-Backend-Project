@@ -1,23 +1,24 @@
 import mongoose from "mongoose";
 import {ObjectId} from "mongodb";
 import {rm} from "fs/promises";
+import Directorie from "../models/directoryModel.js";
+import File from "../models/fileModel.js";
 
 export const createDirectory = async (req, res) => {
   const user = req.user;
   const parentDirId = req.params.parentDirId || user.rootDirId;
   const dirname = req.headers.dirname || "folder";
-  const db = req.db;
 
   try {
-    const parentDir = await db
-      .collection("directories")
-      .findOne({_id: new ObjectId(parentDirId)});
+    const parentDir = await Directorie.findOne({
+      _id: new ObjectId(parentDirId),
+    });
 
     if (!parentDir) {
       return res.status(404).json({message: "parentdir is undefinde"});
     }
 
-    const directoriesData = await db.collection("directories").insertOne({
+    await Directorie.insertOne({
       parentDirId: parentDir._id,
       userId: user._id,
       name: dirname,
@@ -38,13 +39,11 @@ export const createDirectory = async (req, res) => {
 export const getDirectoryById = async (req, res) => {
   const user = req.user;
   const id = req.params.id || user.rootDirId;
-  const db = req.db;
-  const directoriesCollection = db.collection("directories");
 
   try {
-    const directoryData = await directoriesCollection.findOne({
+    const directoryData = await Directorie.findOne({
       _id: new ObjectId(id),
-    });
+    }).lean();
 
     if (!directoryData) {
       return res
@@ -52,22 +51,17 @@ export const getDirectoryById = async (req, res) => {
         .json({error: "Directory not found or you do not have access to it!"});
     }
 
-    const files = await db
-      .collection("files")
-      .find({parentDirId: directoryData._id})
-      .toArray();
+    const files = await File.find({parentDirId: directoryData._id}).lean();
     if (!files) {
       return res.status(404).json({message: "files is undefind"});
     }
 
-    const directories = await directoriesCollection
-      .find({
-        parentDirId: new ObjectId(id),
-      })
-      .toArray();
+    const directories = await Directorie.find({
+      parentDirId: new ObjectId(id),
+    }).lean();
 
     // updating directory opened date
-    await directoriesCollection.updateOne(
+    await Directorie.updateOne(
       {_id: new ObjectId(id), userId: req.user._id},
       {$push: {"folderTimeStamp.opened": new Date()}}
     );
@@ -91,10 +85,9 @@ export const updateDirectoryById = async (req, res) => {
   const user = req.user;
 
   const {newDirName} = req.body;
-  const db = req.db;
 
   try {
-    const dirData = await db.collection("directories").updateOne(
+    const dirData = await Directorie.updateOne(
       {_id: new ObjectId(id), userId: user._id},
       {
         $set: {name: newDirName},
@@ -114,41 +107,47 @@ export const deleteDirectoryById = async (req, res) => {
   let directoriesCollection = db.collection("directories");
   let filesCollection = db.collection("files");
 
-  const checkIsUserDirectory = await directoriesCollection.findOne(
-    {_id: new ObjectId(id), userId: req.user._id},
-    {projection: {_id: 1}}
-  );
-  if (!checkIsUserDirectory) {
-    return res.json({message: "id not matach"});
-  }
-
-  async function deleteDirectoriesRecursive(dirId) {
-    let files = await filesCollection
-      .find({parentDirId: new ObjectId(dirId)}, {projection: {extension: 1}})
-      .toArray();
-    let directory = await directoriesCollection
-      .find({parentDirId: new ObjectId(dirId)}, {projection: {name: 1}})
-      .toArray();
-
-    for (const subDir of directory) {
-      // console.log("directory name:", subDir);
-      let {files: childFiles, directory: childDirectories} =
-        await deleteDirectoriesRecursive(subDir._id);
-      files = [...files, ...childFiles];
-      directory = [...directory, ...childDirectories];
-    }
-    return {files, directory};
-  }
-
   try {
+    const checkIsUserDirectory = await Directorie.findOne({
+      _id: new ObjectId(id),
+      userId: req.user._id,
+    }).select("_id");
+    if (!checkIsUserDirectory) {
+      return res.json({message: "id not matach"});
+    }
+
+    async function deleteDirectoriesRecursive(dirId) {
+      let files = await File.find(
+        {parentDirId: new ObjectId(dirId)}
+        // {projection: {extension: 1}}
+      )
+        .select("extension")
+        .lean();
+      let directory = await Directorie.find(
+        {parentDirId: new ObjectId(dirId)},
+        // {projection: {name: 1}}
+      )
+        .select("name")
+        .lean();
+
+      for (const subDir of directory) {
+        // console.log("directory name:", subDir);
+        let {files: childFiles, directory: childDirectories} =
+          await deleteDirectoriesRecursive(subDir._id);
+        files = [...files, ...childFiles];
+        directory = [...directory, ...childDirectories];
+      }
+      return {files, directory};
+    }
+
     const {files, directory} = await deleteDirectoriesRecursive(id);
 
     for (const {_id, extension} of files) {
       await rm(`./storage/${_id.toString()}${extension}`);
     }
 
-    await filesCollection.deleteMany({_id: {$in: files.map(({_id}) => _id)}});
-    await directoriesCollection.deleteMany({
+    await File.deleteMany({_id: {$in: files.map(({_id}) => _id)}});
+    await Directorie.deleteMany({
       _id: {$in: [...directory.map(({_id}) => _id), new ObjectId(id)]},
     });
     return res.status(200).json({message: "folder Delete"});

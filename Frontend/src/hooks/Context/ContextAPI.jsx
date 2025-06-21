@@ -177,7 +177,7 @@ function ContextAPI({children}) {
       method: "DELETE",
       credentials: "include",
     });
-    const data = response.json();
+    const data = await response.json();
     console.log(data);
     getDirectoryItems();
   }
