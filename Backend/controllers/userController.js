@@ -2,19 +2,15 @@ import {ObjectId} from "mongodb";
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
+import crypto from "crypto";
+
+export const secretKey = "sunil-bastaStorage-app-kumar";
 
 export const registerUser = async (req, res, next) => {
   const {name, email, password} = req.body;
 
-
   if (!name || !email || !password) {
     return res.status(400).json({error: "All files are required"});
-  }
-
-  // checking user is already exist
-  const alreadyUserExist = await User.findOne({email});
-  if (alreadyUserExist) {
-    return res.status(400).json({error: "Email is already in use"});
   }
 
   const session = await mongoose.startSession();
@@ -64,11 +60,17 @@ export const registerUser = async (req, res, next) => {
     session.abortTransaction();
     if (err.code === 121) {
       return res.status(400).json({error: "invalid fields", details: err});
+    } else if (err.code === 11000) {
+      if (err.keyValue.email) {
+        return res.status(400).json({error: "Email is already in use"});
+      }
+    } else {
+      next(err);
     }
-    next(err);
   }
 };
 
+// login user
 export const loginUser = async (req, res) => {
   const {email, password} = req.body;
 
@@ -81,8 +83,24 @@ export const loginUser = async (req, res) => {
     return res.status(404).json({error: "Invalid email or password"});
   }
 
-  res.cookie("uid", user._id, {
+  const cookiepayload = JSON.stringify({
+    id: user._id.toString(),
+    expiry: Math.floor(Date.now() / 1000 + 10),
+  });
+
+  const signature = crypto
+    .createHash("sha256")
+    .update(cookiepayload)
+    .update(secretKey)
+    .digest("base64");
+
+  const signedCookiePayload = `${Buffer.from(cookiepayload).toString(
+    "base64url"
+  )}.${signature}`;
+
+  res.cookie("token", signedCookiePayload, {
     httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 365,
   });
 
   await User.updateOne(
@@ -93,8 +111,9 @@ export const loginUser = async (req, res) => {
   return res.json({message: "login success"});
 };
 
+// logout use
 export const logoutUser = async (req, res) => {
-  res.clearCookie("uid", "");
+  res.clearCookie("token");
   await User.updateOne(
     {_id: new ObjectId(req.user._id)},
     {$push: {"userTimeStamp.userLogoutAt": new Date()}}

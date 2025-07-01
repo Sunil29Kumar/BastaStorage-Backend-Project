@@ -93,12 +93,6 @@ function ContextAPI({children}) {
     setFilesList(data.files);
 
     console.log(dirId);
-
-    // const currentFolder = directoriesList.find((folder) => folder.id === dirId);
-    // if (currentFolder) {
-    //   setCurrentFolderName(currentFolder.name);
-    // } else setCurrentFolderName("Home");
-    // console.log(currentFolder);
   }
   useEffect(() => {
     getDirectoryItems();
@@ -290,6 +284,35 @@ function ContextAPI({children}) {
   }
 
   // Login post Request
+  // async function handleLogin(e) {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await fetch(`${BASE_URL}/user/login`, {
+  //       method: "POST",
+  //       credentials: "include",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(loginData),
+  //     });
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       await getDirectoryItems();
+  //       console.log(data);
+  //       setLoggedIn(true);
+  //       navigate("/");
+  //     } else if (response.status == 200) {
+  //       setLoginError("");
+  //     } else {
+  //       setLoginError(data.error);
+  //       console.log(loginError);
+  //     }
+  //   } catch (error) {
+  //     console.error("Login Error:", error);
+  //   }
+  // }
+
+  // ss
   async function handleLogin(e) {
     e.preventDefault();
     try {
@@ -301,17 +324,26 @@ function ContextAPI({children}) {
         },
         body: JSON.stringify(loginData),
       });
+
       const data = await response.json();
+
       if (response.ok) {
-        console.log(data);
-        setLoggedIn(true);
-        navigate("/");
-      } else if (response.status == 200) {
-        getDirectoryItems();
-        setLoginError("")
+        // ✅ login success — now fetch user data
+        const res = await fetch(`${BASE_URL}/user`, {
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const userData = await res.json();
+          setStoreUserData(userData); // 🎯 set in context
+          setLoggedIn(true); // 🎯 set login flag
+          await getDirectoryItems(); // 🎯 fetch directory data also
+          navigate("/");
+        } else {
+          console.error("User data fetch failed");
+        }
       } else {
-        setLoginError(data.error)
-        console.log(loginError);
+        setLoginError(data.error);
       }
     } catch (error) {
       console.error("Login Error:", error);
