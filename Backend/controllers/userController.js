@@ -14,6 +14,11 @@ export const registerUser = async (req, res, next) => {
 
   const session = await mongoose.startSession();
 
+  const hashPassword = crypto
+    .createHash("sha256")
+    .update(password)
+    .digest("base64url");
+
   try {
     const userId = new mongoose.Types.ObjectId();
     const rootDirId = new mongoose.Types.ObjectId();
@@ -26,7 +31,7 @@ export const registerUser = async (req, res, next) => {
         rootDirId,
         name,
         email,
-        password,
+        password: hashPassword,
         userTimeStamp: {
           userCreatedAt: new Date(),
           userLoginAt: [],
@@ -73,8 +78,15 @@ export const registerUser = async (req, res, next) => {
 export const loginUser = async (req, res) => {
   const {email, password} = req.body;
 
+  const newHasePassword = crypto
+    .createHash("sha256")
+    .update(password)
+    .digest("base64url");
+
+  console.log(newHasePassword);
+
   const user = await User.findOne(
-    {email, password},
+    {email, password:newHasePassword},
     {projection: {password: 1}}
   ).lean();
 
@@ -90,7 +102,7 @@ export const loginUser = async (req, res) => {
   res.cookie("token", cookiepayload, {
     httpOnly: true,
     signed: true,
-    maxAge: 1000 * 60 * 60 * 24 * 365,
+    maxAge: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
   });
 
   await User.updateOne(
