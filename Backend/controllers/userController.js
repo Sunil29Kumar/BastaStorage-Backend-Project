@@ -101,7 +101,11 @@ export const loginUser = async (req, res) => {
   res.cookie("token", cookiepayload, {
     httpOnly: true,
     signed: true,
+<<<<<<< HEAD
     maxAge: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+=======
+    maxAge: 1000 * 60 * 60 * 24 * 365,
+>>>>>>> 5aefed5712a71a556aad1fd24ee8e2b4978b438a
   });
 
   await User.updateOne(
