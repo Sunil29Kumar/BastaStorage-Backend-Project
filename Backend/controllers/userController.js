@@ -4,8 +4,7 @@ import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
 
-export const secretKey = "sunil-bastaStorage-app-kumar";
-
+// register user
 export const registerUser = async (req, res, next) => {
   const {name, email, password} = req.body;
 
@@ -14,6 +13,11 @@ export const registerUser = async (req, res, next) => {
   }
 
   const session = await mongoose.startSession();
+
+  const hashPassword = crypto
+    .createHash("sha256")
+    .update(password)
+    .digest("base64url");
 
   try {
     const userId = new mongoose.Types.ObjectId();
@@ -27,7 +31,7 @@ export const registerUser = async (req, res, next) => {
         rootDirId,
         name,
         email,
-        password,
+        password: hashPassword,
         userTimeStamp: {
           userCreatedAt: new Date(),
           userLoginAt: [],
@@ -74,8 +78,14 @@ export const registerUser = async (req, res, next) => {
 export const loginUser = async (req, res) => {
   const {email, password} = req.body;
 
+  const newHasePassword = crypto
+    .createHash("sha256")
+    .update(password)
+    .digest("base64url");
+  
+
   const user = await User.findOne(
-    {email, password},
+    {email, password:newHasePassword},
     {projection: {password: 1}}
   ).lean();
 
@@ -88,19 +98,10 @@ export const loginUser = async (req, res) => {
     expiry: Math.floor(Date.now() / 1000 + 10),
   });
 
-  const signature = crypto
-    .createHash("sha256")
-    .update(cookiepayload)
-    .update(secretKey)
-    .digest("base64");
-
-  const signedCookiePayload = `${Buffer.from(cookiepayload).toString(
-    "base64url"
-  )}.${signature}`;
-
-  res.cookie("token", signedCookiePayload, {
+  res.cookie("token", cookiepayload, {
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 365,
+    signed: true,
+    maxAge: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
   });
 
   await User.updateOne(

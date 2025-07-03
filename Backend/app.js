@@ -6,14 +6,16 @@ import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import checkAuth from "./middleware/authMiddleware.js";
 import connectDB from "./database/db.js";
-import "./database/mongooseConnect.js"
+import "./database/mongooseConnect.js";
+
+export const secretKey = "sunil-bastaStorage-app-kumar";
 
 try {
   const db = await connectDB();
 
   const app = express();
 
-  app.use(cookieParser());
+  app.use(cookieParser(secretKey));
   // parsing data comming from frontend body
   app.use(express.json());
   // allowing cors
