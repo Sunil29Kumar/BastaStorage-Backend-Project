@@ -82,8 +82,7 @@ export const loginUser = async (req, res) => {
     .createHash("sha256")
     .update(password)
     .digest("base64url");
-
-  console.log(newHasePassword);
+  
 
   const user = await User.findOne(
     {email, password:newHasePassword},
