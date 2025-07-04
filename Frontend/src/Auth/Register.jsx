@@ -55,7 +55,7 @@ function Register() {
             placeholder="Password"
             value={registerData.password}
             onChange={handleChange}
-            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$"
+            // pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$"
             title="Password must have 8+ characters with uppercase, lowercase, number and special character"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />

@@ -5,19 +5,20 @@ import fileRoutes from "./routes/fileRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import checkAuth from "./middleware/authMiddleware.js";
-import connectDB from "./database/db.js";
-import "./database/mongooseConnect.js";
+import {connectDB} from "./database/db.js";
 
 export const secretKey = "sunil-bastaStorage-app-kumar";
 
 try {
-  const db = await connectDB();
+  await connectDB();
 
   const app = express();
 
   app.use(cookieParser(secretKey));
+
   // parsing data comming from frontend body
   app.use(express.json());
+
   // allowing cors
   app.use(
     cors({
@@ -25,11 +26,6 @@ try {
       credentials: true,
     })
   );
-
-  app.use((req, res, next) => {
-    req.db = db;
-    next();
-  });
 
   app.use("/directory", checkAuth, directoryRoutes);
   app.use("/file", checkAuth, fileRoutes);

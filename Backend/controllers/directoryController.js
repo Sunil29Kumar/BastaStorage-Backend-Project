@@ -103,9 +103,6 @@ export const updateDirectoryById = async (req, res) => {
 
 export const deleteDirectoryById = async (req, res) => {
   const id = req.params.id || req.user.rootDirId;
-  const db = req.db;
-  let directoriesCollection = db.collection("directories");
-  let filesCollection = db.collection("files");
 
   try {
     const checkIsUserDirectory = await Directorie.findOne({

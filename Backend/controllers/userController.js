@@ -14,10 +14,9 @@ export const registerUser = async (req, res, next) => {
 
   const session = await mongoose.startSession();
 
-  const hashPassword = crypto
-    .createHash("sha256")
-    .update(password)
-    .digest("base64url");
+  const salt = crypto.randomBytes(16);
+
+  const hashPassword = crypto.pbkdf2Sync(password, salt, 100000, 32, "sha256");
 
   try {
     const userId = new mongoose.Types.ObjectId();
@@ -31,7 +30,9 @@ export const registerUser = async (req, res, next) => {
         rootDirId,
         name,
         email,
-        password: hashPassword,
+        password: `${hashPassword.toString("base64url")}.${salt.toString(
+          "base64url"
+        )}`,
         userTimeStamp: {
           userCreatedAt: new Date(),
           userLoginAt: [],
@@ -78,36 +79,32 @@ export const registerUser = async (req, res, next) => {
 export const loginUser = async (req, res) => {
   const {email, password} = req.body;
 
-  const newHasePassword = crypto
-    .createHash("sha256")
-    .update(password)
-    .digest("base64url");
-  
-
-  const user = await User.findOne(
-    {email, password:newHasePassword},
-    {projection: {password: 1}}
-  ).lean();
+  const user = await User.findOne({email});
 
   if (!user) {
     return res.status(404).json({error: "Invalid email or password"});
   }
 
+  const [enterPassword, salt] = user.password.split(".");
+
+  const newEnterHashPassword = crypto
+    .pbkdf2Sync(password, Buffer.from(salt, "base64url"), 100000, 32, "sha256")
+    .toString("base64url");
+
+
+  if (newEnterHashPassword !== enterPassword) {
+    return res.status(404).json({err: "invalid credentials"});
+  }
+
   const cookiepayload = JSON.stringify({
     id: user._id.toString(),
-    expiry: Math.floor(Date.now() / 1000 + 10),
+    expiry: Math.floor(Date.now() / 1000 + 100000),
   });
 
   res.cookie("token", cookiepayload, {
     httpOnly: true,
     signed: true,
-
-    maxAge: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-
-    maxAge: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-
-    maxAge: 1000 * 60 * 60 * 24 * 365,
-
+    maxAge: 60 * 10000 * 60 * 24 * 7,
   });
 
   await User.updateOne(

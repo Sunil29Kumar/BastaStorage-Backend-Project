@@ -1,11 +1,12 @@
-import connectDB from "./db.js";
-import {client} from "./db.js";
+import mongoose from "mongoose";
+import {connectDB} from "./db.js";
 
-const db = await connectDB();
-const command = "collMod";
+await connectDB();
+const client = mongoose.connection.getClient();
 
 try {
-  // users schema validation
+  const command = "collMod";
+  const db = mongoose.connection.db;
   await db.command({
     [command]: "users",
     validator: {
@@ -33,7 +34,7 @@ try {
           },
           password: {
             bsonType: "string",
-            pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$",
+            // pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$",
             description:
               "Password must have 6+ characters with uppercase, lowercase, number and special character",
           },
