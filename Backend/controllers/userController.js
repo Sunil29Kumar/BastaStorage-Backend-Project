@@ -4,6 +4,8 @@ import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
+import Session from "../models/sessionModel.js";
+
 
 // register user
 export const registerUser = async (req, res, next) => {
@@ -16,6 +18,7 @@ export const registerUser = async (req, res, next) => {
   const session = await mongoose.startSession();
 
   const hashStoredPassword = await bcrypt.hash(password, 12);
+  console.log(hashStoredPassword);
 
   try {
     const userId = new mongoose.Types.ObjectId();
@@ -82,19 +85,14 @@ export const loginUser = async (req, res) => {
     return res.status(404).json({error: "Invalid email or password"});
   }
 
-  const salt = user.password.substring(0, 29);
-  const compareHashEnterPassword = await bcrypt.compare(password, salt);
-
-  if (!compareHashEnterPassword) {
-    return res.status(404).json({err: "invalid credentials"});
+  const isPsswordValid = await user.comparePassword(password);
+  if (!isPsswordValid) {
+    return res.status(404).json({error: "Invalid credentials"});
   }
 
-  const cookiepayload = JSON.stringify({
-    id: user._id.toString(),
-    expiry: Math.floor(Date.now() / 1000 + 100000),
-  });
+  const session = await Session.create({userId: user._id});
 
-  res.cookie("token", cookiepayload, {
+  res.cookie("sid", session.id, {
     httpOnly: true,
     signed: true,
     maxAge: 60 * 10000 * 60 * 24 * 7,
@@ -110,10 +108,15 @@ export const loginUser = async (req, res) => {
 
 // logout use
 export const logoutUser = async (req, res) => {
-  res.clearCookie("token");
+  const {sid} = req.signedCookies
+  console.log(sid);
+  
+  await Session.findByIdAndDelete(sid)
+  res.clearCookie("sid");
   await User.updateOne(
     {_id: new ObjectId(req.user._id)},
     {$push: {"userTimeStamp.userLogoutAt": new Date()}}
   );
+
   return res.status(200).json({message: "user log out"});
 };

@@ -1,23 +1,28 @@
+import Session from "../models/sessionModel.js";
 import User from "../models/userModel.js";
 import crypto from "crypto";
 
 export default async function checkAuth(req, res, next) {
-  const {token} = req.signedCookies;
+  const {sid} = req.signedCookies;
   try {
-    if (!token) {
+    if (!sid) {
       return res.status(401).json({error: "User not logged in"});
     }
 
-    const {id, expiry} = JSON.parse(token);
-    const currentTimeInSecond = Math.floor(Date.now() / 1000);
-
-    if (currentTimeInSecond > expiry) {
-      res.clearCookie("token");
-      console.log("session expired");
-      return res.status(401).json({error: "Not logged in Session Expired"});
+    const activeSessions = await Session.find({userId: user._id});
+    if (activeSessions.length >= 2) {
+      activeSessions[0].deleteOne()
+      return res
+        .status(401)
+        .json({error: "Accoutn already use in anothre device"});
+    }
+    const session = await Session.findById(sid);
+    if (!session) {
+      res.clearCookie("sid");
+      return res.status(401).json({error: "User not found"});
     }
 
-    const user = await User.findOne({_id: id}).lean();
+    const user = await User.findById(session.userId).lean();
 
     if (!user) {
       return res.status(401).json({error: "User not found"});
