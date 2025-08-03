@@ -75,6 +75,20 @@ function ContextAPI({children}) {
   const [randomAccountBGcolor, setRandomAccountBGcolor] =
     useState(randomRGBcolor);
 
+  // get OPT
+
+  const [otp, setOtp] = useState("");
+
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCountDown, setOtpCountDown] = useState(0);
+  const [otpError, setOtpError] = useState("");
+  const [sentOtpMessage, setSentOtpMessage] = useState("");
+
+  const [isOtpWrong, setIsOtpWrong] = useState(true);
+  // verify otp
+  const [isVerifyOtpWrong, setIsVerifyOtpWrong] = useState(true);
+  const [verifyOtpMessage, setVerifyOtpMessage] = useState("");
+
   //                                                 --------------------------------
   //                                  main code starrt
   // ---------------------------------
@@ -248,7 +262,7 @@ function ContextAPI({children}) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(registerData),
+        body: JSON.stringify({...registerData,otp}),
       });
       const data = await response.json();
       console.log(data);
@@ -283,36 +297,7 @@ function ContextAPI({children}) {
     }
   }
 
-  // Login post Request
-  // async function handleLogin(e) {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await fetch(`${BASE_URL}/user/login`, {
-  //       method: "POST",
-  //       credentials: "include",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(loginData),
-  //     });
-  //     const data = await response.json();
-  //     if (response.ok) {
-  //       await getDirectoryItems();
-  //       console.log(data);
-  //       setLoggedIn(true);
-  //       navigate("/");
-  //     } else if (response.status == 200) {
-  //       setLoginError("");
-  //     } else {
-  //       setLoginError(data.error);
-  //       console.log(loginError);
-  //     }
-  //   } catch (error) {
-  //     console.error("Login Error:", error);
-  //   }
-  // }
-
-  // ss
+  // login user
   async function handleLogin(e) {
     e.preventDefault();
     try {
@@ -384,6 +369,69 @@ function ContextAPI({children}) {
     setLoggedIn(false);
     navigate("/");
     getDirectoryItems();
+  }
+
+  // logout form all device
+  async function logoutFromAllDevice() {
+    const response = await fetch(`${BASE_URL}/user/logoutAllDevice`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    setLoggedIn(false);
+    navigate("/");
+    getDirectoryItems();
+  }
+
+  // get OPT
+  async function sendOPT(email) {
+    try {
+      const response = await fetch(`${BASE_URL}/auth/sendOtp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({email}),
+      });
+      const data = await response.json();
+      console.log(data.message);
+      if (response.ok) {
+        setSentOtpMessage(data.message);
+        setOtpSent(true);
+        setOtpCountDown(60);
+        setOtpError("");
+        setIsOtpWrong(false);
+      } else {
+        setOtpSent(false);
+        setOtpCountDown(0);
+        setOtpError(data.error);
+        setIsOtpWrong(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // verify opt
+  async function verifyUserOtp({email, otp}) {
+    const response = await fetch(`${BASE_URL}/auth/verifyOtp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({email, otp}),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setIsVerifyOtpWrong(false);
+      setVerifyOtpMessage(data.message);
+    } else {
+      setIsVerifyOtpWrong(true);
+      setVerifyOtpMessage(data.error);
+    }
+    console.log(data);
   }
 
   return (
@@ -461,6 +509,22 @@ function ContextAPI({children}) {
         handleLogin,
         handleLogout,
         cancleUpload,
+        logoutFromAllDevice,
+        // otp
+        otp,
+        setOtp,
+        sendOPT,
+        otpSent,
+        otpCountDown,
+        otpError,
+        isOtpWrong,
+        sentOtpMessage,
+        // verify otp
+        verifyUserOtp,
+        setVerifyOtpMessage,
+        verifyOtpMessage,
+        isVerifyOtpWrong,
+        setIsVerifyOtpWrong
       }}
     >
       {children}

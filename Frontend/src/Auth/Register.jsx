@@ -1,6 +1,7 @@
 import {useContext} from "react";
 import {Link} from "react-router-dom";
 import {BastaStorageContext} from "../hooks/Context/ContextAPI";
+import OTP from "./OTP.jsx";
 
 function Register() {
   const {
@@ -9,6 +10,8 @@ function Register() {
     handleRegister,
     errorRegister,
     setErrorRegister,
+    otpError,
+    isVerifyOtpWrong,
   } = useContext(BastaStorageContext);
 
   const handleChange = (e) => {
@@ -48,6 +51,8 @@ function Register() {
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p className=" text-center text-red-500 ">{otpError}</p>
+
           <p className=" text-center text-red-500 ">{errorRegister.error}</p>
           <input
             type="password"
@@ -64,23 +69,27 @@ function Register() {
               {errorRegister.errorDescription}
             </p>
           )}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            Register
-          </button>
-
-          <p className="text-center text-sm text-gray-600 mt-4">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-blue-600 hover:underline font-medium"
+          {!isVerifyOtpWrong && (
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
             >
-              Login
-            </Link>
-          </p>
+              Register
+            </button>
+          )}
         </form>
+        <p className=" mt-4 ">
+          <OTP email={registerData.email} />
+        </p>
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   );

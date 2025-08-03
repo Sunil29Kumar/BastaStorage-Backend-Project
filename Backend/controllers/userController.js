@@ -5,20 +5,23 @@ import mongoose from "mongoose";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import Session from "../models/sessionModel.js";
-
+import {sendOTP} from "../utils/sendOTP.js";
+import OTP from "../models/otpModel.js";
 
 // register user
 export const registerUser = async (req, res, next) => {
-  const {name, email, password} = req.body;
+  const {name, email, password, otp} = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({error: "All files are required"});
   }
 
-  const session = await mongoose.startSession();
+  const otpRecord = await OTP.findOne({email, otp});
+  if (!otpRecord) {
+    return res.status(400).json({message: "invalide otp enter again"});
+  }
 
-  const hashStoredPassword = await bcrypt.hash(password, 12);
-  console.log(hashStoredPassword);
+  const session = await mongoose.startSession();
 
   try {
     const userId = new mongoose.Types.ObjectId();
@@ -26,13 +29,13 @@ export const registerUser = async (req, res, next) => {
 
     session.startTransaction();
 
-    await User.insertOne(
+    const user = new User(
       {
         _id: userId,
         rootDirId,
         name,
         email,
-        password: hashStoredPassword,
+        password,
         userTimeStamp: {
           userCreatedAt: new Date(),
           userLoginAt: [],
@@ -41,6 +44,7 @@ export const registerUser = async (req, res, next) => {
       },
       {session}
     );
+    await user.save();
 
     await Directory.insertOne(
       {
@@ -78,7 +82,6 @@ export const registerUser = async (req, res, next) => {
 // login user
 export const loginUser = async (req, res) => {
   const {email, password} = req.body;
-
   const user = await User.findOne({email});
 
   if (!user) {
@@ -86,8 +89,18 @@ export const loginUser = async (req, res) => {
   }
 
   const isPsswordValid = await user.comparePassword(password);
+  console.log("matchpassword = ", isPsswordValid);
+
   if (!isPsswordValid) {
     return res.status(404).json({error: "Invalid credentials"});
+  }
+
+  const activeSessions = await Session.find({userId: user._id}).sort({
+    createdAt: 1,
+  });
+
+  if (activeSessions.length >= 2) {
+    await Session.findByIdAndDelete(activeSessions[0]._id);
   }
 
   const session = await Session.create({userId: user._id});
@@ -108,15 +121,24 @@ export const loginUser = async (req, res) => {
 
 // logout use
 export const logoutUser = async (req, res) => {
-  const {sid} = req.signedCookies
-  console.log(sid);
-  
-  await Session.findByIdAndDelete(sid)
+  const {sid} = req.signedCookies;
+
+  await Session.findByIdAndDelete(sid);
   res.clearCookie("sid");
   await User.updateOne(
-    {_id: new ObjectId(req.user._id)},
+    {_id: new mongoose.Types.ObjectId(req.user.id)},
     {$push: {"userTimeStamp.userLogoutAt": new Date()}}
   );
 
   return res.status(200).json({message: "user log out"});
+};
+
+// logout from all device
+export const logoutAllDevice = async (req, res) => {
+  const {sid} = req.signedCookies;
+  const session = await Session.findById(sid);
+  await Session.deleteMany({userId: session.userId});
+  res.clearCookie("sid");
+
+  return res.status(200).json({message: "user log out from all device"});
 };

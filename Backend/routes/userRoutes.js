@@ -1,6 +1,11 @@
 import express from "express";
 import checkAuth from "../middleware/authMiddleware.js";
-import { loginUser, logoutUser, registerUser } from "../controllers/userController.js";
+import {
+  loginUser,
+  logoutAllDevice,
+  logoutUser,
+  registerUser,
+} from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -17,4 +22,6 @@ router.get("/", checkAuth, (req, res) => {
 // logout
 router.get("/logout", checkAuth, logoutUser);
 
+// logout From all device
+router.get("/logoutAllDevice", checkAuth, logoutAllDevice);
 export default router;

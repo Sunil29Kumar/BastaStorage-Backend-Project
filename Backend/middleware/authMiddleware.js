@@ -8,26 +8,27 @@ export default async function checkAuth(req, res, next) {
     if (!sid) {
       return res.status(401).json({error: "User not logged in"});
     }
-
-    const activeSessions = await Session.find({userId: user._id});
-    if (activeSessions.length >= 2) {
-      activeSessions[0].deleteOne()
-      return res
-        .status(401)
-        .json({error: "Accoutn already use in anothre device"});
-    }
     const session = await Session.findById(sid);
     if (!session) {
       res.clearCookie("sid");
       return res.status(401).json({error: "User not found"});
     }
-
     const user = await User.findById(session.userId).lean();
 
     if (!user) {
       return res.status(401).json({error: "User not found"});
     }
 
+    // const activeSessions = await Session.find({userId: user._id});
+    // if (activeSessions.length >= 3) {
+    //   activeSessions[0].deleteOne();
+
+    //   return res
+    //     .status(401)
+    //     .json({error: "Accoutn already use in anothre device"});
+    // }
+
+   
     req.user = user;
     next();
   } catch (err) {
