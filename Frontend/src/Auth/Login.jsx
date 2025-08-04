@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import LoginWithGoogle from "./LoginWithGoogle";
+import LoginWithGithub from "./LoginWithGithub";
 // import OTP from "./OTP";
 
 function Login() {
@@ -57,12 +58,16 @@ function Login() {
             </Link>
           </p>
         </div>
-         <div className="flex items-center my-6">
+        <div className="flex items-center my-6">
           <div className="flex-grow border-t border-gray-300"></div>
           <span className="mx-4 text-gray-500 font-medium">OR</span>
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
-        <LoginWithGoogle /> 
+        <div className=" w-[100%] flex justify-evenly items-center  ">
+
+          <LoginWithGoogle />
+          <LoginWithGithub />
+        </div>
       </div>
     </div>
   );

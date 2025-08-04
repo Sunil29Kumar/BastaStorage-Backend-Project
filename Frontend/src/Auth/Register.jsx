@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import OTP from "./OTP.jsx";
 import LoginWithGoogle from "./LoginWithGoogle.jsx";
+import LoginWithGithub from "./LoginWithGithub.jsx";
 
 function Register() {
   const {
@@ -52,9 +53,14 @@ function Register() {
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <p className=" text-center text-red-500 ">{otpError}</p>
+          {otpError && (
+            <p className=" text-center text-red-500 ">{otpError}</p>
 
-          <p className=" text-center text-red-500 ">{errorRegister.error}</p>
+          )}
+
+          {errorRegister.error && (
+            <p className=" text-center text-red-500 ">{errorRegister.error}</p>
+          )}
           <input
             type="password"
             name="password"
@@ -100,7 +106,11 @@ function Register() {
           <span className="mx-4 text-gray-500 font-medium">OR</span>
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
-        <LoginWithGoogle />
+        <div className=" w-[100%] flex justify-evenly items-center  ">
+
+          <LoginWithGoogle />
+          <LoginWithGithub />
+        </div>
       </div>
 
     </div>

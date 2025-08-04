@@ -468,6 +468,14 @@ function ContextAPI({ children }) {
   }
 
 
+
+  // Login with Github 
+  const loginWithGithub = () => {
+    window.location.href = `http://localhost:2000/auth/github`;
+  }
+
+
+
   return (
     <BastaStorageContext.Provider
       value={{
@@ -561,7 +569,10 @@ function ContextAPI({ children }) {
         setIsVerifyOtpWrong,
 
         // login with google 
-        loginWithGoogle
+        loginWithGoogle,
+
+        // login with Github: 
+        loginWithGithub,
       }}
     >
       {children}

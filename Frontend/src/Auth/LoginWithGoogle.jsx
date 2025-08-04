@@ -9,7 +9,7 @@ function LoginWithGoogle() {
     const { loginWithGoogle } = useContext(BastaStorageContext)
 
     return (
-        <div className=' w-full flex justify-center items-center ' >
+        <div className=' ' >
 
             <GoogleLogin
                 onSuccess={async credentialResponse => {
@@ -23,7 +23,6 @@ function LoginWithGoogle() {
                     console.log('Login Failed');
                 }}
                 useOneTap
-                // useOneTap 
                 theme='filled_blue'
                 text='icon'
 

@@ -5,6 +5,7 @@ import User from "../models/userModel.js";
 import mongoose from "mongoose";
 import Directory from "../models/directoryModel.js";
 import Session from "../models/sessionModel.js";
+import { fetchGithubUser } from "../utils/githubAuthService.js";
 
 export const sendOTPUser = async (req, res, next) => {
   const { email } = req.body;
@@ -56,7 +57,7 @@ export const loginWithGoogle = async (req, res, next) => {
     res.cookie("sid", createSession.id, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 10000 * 60 * 24 * 7,
+      maxAge: 60 * 1000 * 60 * 24 * 7,
     });
 
     return res.status(200).json({ message: "User Logged In" });
@@ -70,7 +71,7 @@ export const loginWithGoogle = async (req, res, next) => {
 
     session.startTransaction();
 
-    const user = await User.insertOne(
+    const user = new User(
       {
         _id: userId,
         rootDirId,
@@ -83,10 +84,9 @@ export const loginWithGoogle = async (req, res, next) => {
           userLogoutAt: [],
         },
       },
-      { session }
     );
-    await user.save();
-    await Directory.insertOne(
+    await user.save({ session });
+    const directory = new Directory(
       {
         _id: rootDirId,
         parentDirId: null,
@@ -99,8 +99,8 @@ export const loginWithGoogle = async (req, res, next) => {
           lastDownload: [],
         },
       },
-      { session }
     );
+    await directory.save({ session });
 
 
     const createSession = await Session.create({ userId });
@@ -108,19 +108,118 @@ export const loginWithGoogle = async (req, res, next) => {
     res.cookie("sid", createSession.id, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 10000 * 60 * 24 * 7,
+      maxAge: 60 * 1000 * 60 * 24 * 7,
     });
 
     await session.commitTransaction();
 
     return res.status(200).json({ message: "User Logged In" });
+
   } catch (err) {
     session.abortTransaction();
-
-    next(err);
     return res.status(400).json({ error: "invalid fields", details: err });
+  }
 
+}
+
+
+// login with github 
+export const loginWithGithub = async (req, res, next) => {
+  const params = new URLSearchParams({
+    client_id: "Ov23liPF52IMctxkH6Jm",
+    redirect_uri: "http://localhost:2000/auth/github/callback",
+    scope: "read:user user:email",
+    allow_signup: true,
+  }).toString();
+
+  const githubAuthURL = `https://github.com/login/oauth/authorize?${params}`;
+  res.redirect(githubAuthURL);
+};
+
+// Callback handler for GitHub OAuth
+export const githubCallback = async (req, res, next) => {
+  const { code } = req.query;
+  console.log("Github Callback Code:", code);
+  if (!code) return res.status(400).send("No code provided");
+
+  const { userData, email } = await fetchGithubUser(code);
+  const { id, name, avatar_url } = userData;
+
+  const user = await User.findOne({ email }).lean();
+
+  if (user) {
+    const activeSessions = await Session.find({ userId: user._id }).sort({
+      createdAt: 1,
+    });
+
+    if (activeSessions.length >= 2) {
+      await Session.findByIdAndDelete(activeSessions[0]._id);
+    }
+    const createSession = await Session.create({ userId: user._id });
+    res.cookie("sid", createSession.id, {
+      httpOnly: true,
+      signed: true,
+      maxAge: 60 * 1000 * 60 * 24 * 7,
+    });
+
+    return res.redirect("http://localhost:5173/");
 
   }
 
+  const session = await mongoose.startSession();
+
+  try {
+    const userId = new mongoose.Types.ObjectId();
+    const rootDirId = new mongoose.Types.ObjectId();
+
+    session.startTransaction();
+
+    const user = new User(
+      {
+        _id: userId,
+        rootDirId,
+        name,
+        email,
+        picture: avatar_url,
+        userTimeStamp: {
+          userCreatedAt: new Date(),
+          userLoginAt: [],
+          userLogoutAt: [],
+        },
+      },
+    );
+    await user.save({ session });
+    const directory = new Directory(
+      {
+        _id: rootDirId,
+        parentDirId: null,
+        userId,
+        name: `root-${email}`,
+        folderTimeStamp: {
+          folderCreatedAt: new Date(),
+          opened: [],
+          lastModified: [],
+          lastDownload: [],
+        },
+      },
+    );
+    await directory.save({ session });
+
+
+    const createSession = await Session.create({ userId });
+
+    res.cookie("sid", createSession.id, {
+      httpOnly: true,
+      signed: true,
+      maxAge: 60 * 1000 * 60 * 24 * 7,
+    });
+
+    await session.commitTransaction();
+
+    return res.redirect("http://localhost:5173/");
+  }
+  catch (err) {
+    await session.abortTransaction();
+    return res.status(400).json({ error: "invalid fields", details: err });
+  }
 }
