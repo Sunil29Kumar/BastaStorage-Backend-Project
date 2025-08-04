@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {connectDB} from "./db.js";
+import { connectDB } from "./db.js";
 
 await connectDB();
 const client = mongoose.connection.getClient();
@@ -11,7 +11,7 @@ try {
     [command]: "users",
     validator: {
       $jsonSchema: {
-        required: ["_id", "rootDirId", "name", "email", "password"],
+        required: ["_id", "rootDirId", "name", "email"],
         properties: {
           _id: {
             bsonType: "objectId",
@@ -37,6 +37,9 @@ try {
             // pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$",
             description:
               "Password must have 6+ characters with uppercase, lowercase, number and special character",
+          },
+          picture: {
+            bsonType: "string",
           },
           userTimeStamp: {
             bsonType: "object",

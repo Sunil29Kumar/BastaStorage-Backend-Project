@@ -1,14 +1,15 @@
-import {useContext, useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {BastaStorageContext} from "../hooks/Context/ContextAPI";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { BastaStorageContext } from "../hooks/Context/ContextAPI";
+import LoginWithGoogle from "./LoginWithGoogle";
 // import OTP from "./OTP";
 
 function Login() {
-  const {loginData, setLoginData, handleLogin, loginError} =
+  const { loginData, setLoginData, handleLogin, loginError } =
     useContext(BastaStorageContext);
 
   const handleChange = (e) => {
-    setLoginData({...loginData, [e.target.name]: e.target.value});
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -44,15 +45,24 @@ function Login() {
           <p className=" text-center text-red-500 ">{loginError}</p>
         </form>
 
-        <p className="text-center text-sm text-gray-600  mt-4">
-          Don’t have an account?{" "}
-          <Link
-            to="/Register"
-            className="text-blue-600 hover:underline font-medium"
-          >
-            Register
-          </Link>
-        </p>
+        <div>
+
+          <p className="text-center text-sm text-gray-600  mt-4">
+            Don’t have an account?{" "}
+            <Link
+              to="/Register"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Register
+            </Link>
+          </p>
+        </div>
+         <div className="flex items-center my-6">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <span className="mx-4 text-gray-500 font-medium">OR</span>
+          <div className="flex-grow border-t border-gray-300"></div>
+        </div>
+        <LoginWithGoogle /> 
       </div>
     </div>
   );

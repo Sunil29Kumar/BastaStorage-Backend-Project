@@ -16,7 +16,7 @@ router.post("/login", loginUser);
 
 // sending user email, name to frontend
 router.get("/", checkAuth, (req, res) => {
-  return res.status(200).json({name: req.user.name, email: req.user.email});
+  return res.status(200).json({ name: req.user.name, email: req.user.email, picture: req.user.picture });
 });
 
 // logout

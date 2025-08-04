@@ -1,5 +1,5 @@
-import React, {useContext, useEffect, useRef} from "react";
-import {BastaStorageContext} from "../hooks/Context/ContextAPI";
+import React, { useContext, useEffect, useRef } from "react";
+import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
 function AccountMenu() {
   const {
@@ -27,15 +27,13 @@ function AccountMenu() {
       className=" absolute min-w-[25vw]  right-[1%] top-[11%]  shadow-xl rounded-md p-4 space-y-2 bg-blue-50 flex flex-col gap-2 "
     >
       {storeUserData && (
-        <div className=" flex flex-col items-center gap-5 ">
+        <div className=" w-full flex flex-col items-center justify-center  gap-5 ">
           <h2 className="text-[1.2vw] ">{storeUserData.email}</h2>
-          <div>
-            <p
-              style={{backgroundColor: `${randomAccountBGcolor}`}}
-              className="border-2 border-white rounded-full w-[4vw] h-[4vw] cursor-pointer bg-blue-400 flex justify-center items-center text-[2vw] "
-            >
-              {storeUserData.name.slice(0, 1).toUpperCase()}
-            </p>
+          <div className=" w-ful   flex flex-col justify-center items-center " >
+            <div className=" w-[4vw] h-[4vw] rounded-[100%] " >
+              <img src={storeUserData.picture} />
+            </div>
+
             <h2 className="font-semibold text-lg">Hi, {storeUserData.name}</h2>
           </div>
         </div>

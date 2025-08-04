@@ -22,9 +22,13 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$",
+      // pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$",
       description:
         "Password must have 6+ characters with uppercase, lowercase, number and special character",
+    },
+    picture:{
+      type: String,
+      default: "https://static.vecteezy.com/system/resources/previews/037/336/395/non_2x/user-profile-flat-illustration-avatar-person-icon-gender-neutral-silhouette-profile-picture-free-vector.jpg"
     },
     userTimeStamp: {
       userCreatedAt: {

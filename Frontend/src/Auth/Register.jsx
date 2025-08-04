@@ -1,7 +1,8 @@
-import {useContext} from "react";
-import {Link} from "react-router-dom";
-import {BastaStorageContext} from "../hooks/Context/ContextAPI";
+import { useContext } from "react";
+import { Link } from "react-router-dom";
+import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import OTP from "./OTP.jsx";
+import LoginWithGoogle from "./LoginWithGoogle.jsx";
 
 function Register() {
   const {
@@ -15,7 +16,7 @@ function Register() {
   } = useContext(BastaStorageContext);
 
   const handleChange = (e) => {
-    setRegisterData({...registerData, [e.target.name]: e.target.value});
+    setRegisterData({ ...registerData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -78,19 +79,30 @@ function Register() {
             </button>
           )}
         </form>
-        <p className=" mt-4 ">
-          <OTP email={registerData.email} />
-        </p>
-        <p className="text-center text-sm text-gray-600 mt-4">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-blue-600 hover:underline font-medium"
-          >
-            Login
-          </Link>
-        </p>
+        <div>
+
+          <p className=" mt-4 ">
+            <OTP email={registerData.email} />
+          </p>
+          <p className="text-center text-sm text-gray-600 mt-4">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Login
+            </Link>
+          </p>
+        </div>
+        {/* or  */}
+        <div className="flex items-center my-6">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <span className="mx-4 text-gray-500 font-medium">OR</span>
+          <div className="flex-grow border-t border-gray-300"></div>
+        </div>
+        <LoginWithGoogle />
       </div>
+
     </div>
   );
 }

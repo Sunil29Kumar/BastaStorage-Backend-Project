@@ -30,10 +30,10 @@ function OTP({email}) {
   return (
     <>
       {isVerifyOtpWrong && (
-        <div className="max-w-md mx-auto p-3 bg-gray-200 rounded-2xl shadow-lg space-y-4">
+        <div className="max-w-md mx-auto p-3 bg-gray-200 rounded-2xl shadow-lg space-y-4 cursor-pointer">
           {!otpSent && (
             <div onClick={() => sendOPT(email)} className="flex justify-center">
-              <button className="text-green-600 hover:text-green-700 transition">
+              <button className="text-green-600 hover:text-green-700  transition cursor-pointer">
                 Send OTP
               </button>
             </div>

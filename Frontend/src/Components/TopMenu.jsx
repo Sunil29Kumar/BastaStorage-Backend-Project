@@ -1,8 +1,8 @@
-import React, {useContext} from "react";
-import {BastaStorageContext} from "../hooks/Context/ContextAPI";
+import React, { useContext } from "react";
+import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
 function TopMenu() {
-  const {setAccountMenu, randomAccountBGcolor, storeUserData} =
+  const { setAccountMenu, randomAccountBGcolor, storeUserData } =
     useContext(BastaStorageContext);
   return (
     <div>
@@ -20,15 +20,18 @@ function TopMenu() {
         </div>
         {/* user account logo */}
         <div className="  ">
-          <p
+          <div
             onClick={() => {
               setAccountMenu(true);
             }}
-            style={{backgroundColor: `${randomAccountBGcolor}`}}
+
             className="border-2 border-white rounded-full w-[4vw] h-[4vw] cursor-pointer  flex justify-center items-center text-[2vw] font-bold "
           >
-            {storeUserData && storeUserData.name.slice(0, 1).toUpperCase()}
-          </p>
+            {storeUserData && (
+              <img src={storeUserData.picture} />
+            )}
+
+          </div>
         </div>
       </div>
     </div>

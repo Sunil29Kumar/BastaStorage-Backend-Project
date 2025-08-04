@@ -1,18 +1,18 @@
-import {createContext} from "react";
-import {useRef} from "react";
-import {useEffect, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import { createContext } from "react";
+import { useRef } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const BastaStorageContext = createContext();
 
-function ContextAPI({children}) {
+function ContextAPI({ children }) {
   const BASE_URL = "http://localhost:2000";
   const [directoriesList, setDirectoriesList] = useState([]);
   const [filesList, setFilesList] = useState([]);
 
   const [newFilename, setNewFilename] = useState("");
   const [newDirname, setNewDirname] = useState("");
-  const {dirId} = useParams();
+  const { dirId } = useParams();
   const navigate = useNavigate();
 
   // file FileProgress
@@ -206,7 +206,7 @@ function ContextAPI({children}) {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify({newFilename}),
+      body: JSON.stringify({ newFilename }),
     });
     const data = await response.json();
     console.log(data);
@@ -225,7 +225,7 @@ function ContextAPI({children}) {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify({newDirName: newFilename}),
+      body: JSON.stringify({ newDirName: newFilename }),
     });
     const data = await response.json();
     console.log(data);
@@ -262,7 +262,7 @@ function ContextAPI({children}) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({...registerData,otp}),
+        body: JSON.stringify({ ...registerData, otp }),
       });
       const data = await response.json();
       console.log(data);
@@ -392,7 +392,7 @@ function ContextAPI({children}) {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({email}),
+        body: JSON.stringify({ email }),
       });
       const data = await response.json();
       console.log(data.message);
@@ -414,14 +414,14 @@ function ContextAPI({children}) {
   }
 
   // verify opt
-  async function verifyUserOtp({email, otp}) {
+  async function verifyUserOtp({ email, otp }) {
     const response = await fetch(`${BASE_URL}/auth/verifyOtp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify({email, otp}),
+      body: JSON.stringify({ email, otp }),
     });
     const data = await response.json();
     if (response.ok) {
@@ -433,6 +433,40 @@ function ContextAPI({children}) {
     }
     console.log(data);
   }
+
+
+  // Login with Google 
+  async function loginWithGoogle(credential) {
+    const response = await fetch(`${BASE_URL}/auth/google`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ credential })
+    })
+    const data = await response.json();
+    if (response.ok) {
+      // ✅ login success — now fetch user data
+      const res = await fetch(`${BASE_URL}/user`, {
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const userData = await res.json();
+        setStoreUserData(userData); // 🎯 set in context
+        setLoggedIn(true); // 🎯 set login flag
+        await getDirectoryItems(); // 🎯 fetch directory data also
+        navigate("/");
+      } else {
+        console.error("User data fetch failed");
+      }
+    } else {
+      setLoginError(data.error);
+    }
+    return data;
+  }
+
 
   return (
     <BastaStorageContext.Provider
@@ -524,7 +558,10 @@ function ContextAPI({children}) {
         setVerifyOtpMessage,
         verifyOtpMessage,
         isVerifyOtpWrong,
-        setIsVerifyOtpWrong
+        setIsVerifyOtpWrong,
+
+        // login with google 
+        loginWithGoogle
       }}
     >
       {children}
