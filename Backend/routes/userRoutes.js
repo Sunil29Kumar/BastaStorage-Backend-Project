@@ -7,13 +7,14 @@ import {
   registerUser,
 } from "../controllers/userController.js";
 import { registerLimiter } from "../middleware/registerLimiter.js";
+import { loginLimiter } from "../middleware/loginLimiter.js";
 
 const router = express.Router();
 
 router.post("/register",registerLimiter, registerUser);
 
 // login route
-router.post("/login", loginUser);
+router.post("/login",loginLimiter, loginUser);
 
 // sending user email, name to frontend
 router.get("/", checkAuth, (req, res) => {

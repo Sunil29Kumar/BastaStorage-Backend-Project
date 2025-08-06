@@ -62,6 +62,7 @@ function ContextAPI({ children }) {
   });
   const [loginError, setLoginError] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [loginLimiter, setLoginLimiter] = useState("")
 
   // fetch LOGIN DATA : fetch user Data after login
   const [storeUserData, setStoreUserData] = useState();
@@ -317,7 +318,10 @@ function ContextAPI({ children }) {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (data.statusCode === 429) {
+        setLoginLimiter(data.error)
+      }
+      else if (response.ok) {
         // ✅ login success — now fetch user data
         const res = await fetch(`${BASE_URL}/user`, {
           credentials: "include",
@@ -479,7 +483,6 @@ function ContextAPI({ children }) {
   }
 
 
-
   // Login with Github 
   const loginWithGithub = () => {
     window.location.href = `http://localhost:2000/auth/github`;
@@ -523,7 +526,7 @@ function ContextAPI({ children }) {
         accountMenu,
         setAccountMenu,
         storeUserData,
-        setStoreUserData, 
+        setStoreUserData,
         // register 
         registerData,
         setRegisterData,
@@ -537,6 +540,8 @@ function ContextAPI({ children }) {
         setLoginError,
         loggedIn,
         setLoggedIn,
+        loginLimiter,
+        // 
         currentFolderName,
         setCurrentFolderName,
         showFileFolderMenu,

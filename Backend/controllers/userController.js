@@ -1,24 +1,24 @@
-import {ObjectId} from "mongodb";
+import { ObjectId } from "mongodb";
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import Session from "../models/sessionModel.js";
-import {sendOTP} from "../utils/sendOTP.js";
+import { sendOTP } from "../utils/sendOTP.js";
 import OTP from "../models/otpModel.js";
 
 // register user
 export const registerUser = async (req, res, next) => {
-  const {name, email, password, otp} = req.body;
+  const { name, email, password, otp } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).json({error: "All files are required"});
+    return res.status(400).json({ error: "All files are required" });
   }
 
-  const otpRecord = await OTP.findOne({email, otp});
+  const otpRecord = await OTP.findOne({ email, otp });
   if (!otpRecord) {
-    return res.status(400).json({message: "invalide otp enter again"});
+    return res.status(400).json({ message: "invalide otp enter again" });
   }
 
   const session = await mongoose.startSession();
@@ -42,7 +42,7 @@ export const registerUser = async (req, res, next) => {
           userLogoutAt: [],
         },
       },
-      {session}
+      { session }
     );
     await user.save();
 
@@ -59,19 +59,19 @@ export const registerUser = async (req, res, next) => {
           lastDownload: [],
         },
       },
-      {session}
+      { session }
     );
 
     await session.commitTransaction();
 
-    return res.status(200).json({message: "User Register!"});
+    return res.status(200).json({ message: "User Register!" });
   } catch (err) {
     session.abortTransaction();
     if (err.code === 121) {
-      return res.status(400).json({error: "invalid fields", details: err});
+      return res.status(400).json({ error: "invalid fields", details: err });
     } else if (err.code === 11000) {
       if (err.keyValue.email) {
-        return res.status(400).json({error: "Email is already in use"});
+        return res.status(400).json({ error: "Email is already in use" });
       }
     } else {
       next(err);
@@ -81,64 +81,68 @@ export const registerUser = async (req, res, next) => {
 
 // login user
 export const loginUser = async (req, res) => {
-  const {email, password} = req.body;
-  const user = await User.findOne({email});
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
 
-  if (!user) {
-    return res.status(404).json({error: "Invalid email or password"});
+    if (!user) {
+      return res.status(404).json({ error: "Invalid email or password" });
+    }
+
+    const isPsswordValid = await user.comparePassword(password);
+    console.log("matchpassword = ", isPsswordValid);
+
+    if (!isPsswordValid) {
+      return res.status(404).json({ error: "Invalid credentials" });
+    }
+
+    const activeSessions = await Session.find({ userId: user._id }).sort({
+      createdAt: 1,
+    });
+
+    if (activeSessions.length >= 2) {
+      await Session.findByIdAndDelete(activeSessions[0]._id);
+    }
+
+    const session = await Session.create({ userId: user._id });
+
+    res.cookie("sid", session.id, {
+      httpOnly: true,
+      signed: true,
+      maxAge: 60 * 10000 * 60 * 24 * 7,
+    });
+
+    await User.updateOne(
+      { email },
+      { $push: { "userTimeStamp.userLoginAt": new Date() } }
+    );
+
+    return res.json({ message: "login success" });
+  } catch (error) {
+    return res.json({ error: error.message })
   }
-
-  const isPsswordValid = await user.comparePassword(password);
-  console.log("matchpassword = ", isPsswordValid);
-
-  if (!isPsswordValid) {
-    return res.status(404).json({error: "Invalid credentials"});
-  }
-
-  const activeSessions = await Session.find({userId: user._id}).sort({
-    createdAt: 1,
-  });
-
-  if (activeSessions.length >= 2) {
-    await Session.findByIdAndDelete(activeSessions[0]._id);
-  }
-
-  const session = await Session.create({userId: user._id});
-
-  res.cookie("sid", session.id, {
-    httpOnly: true,
-    signed: true,
-    maxAge: 60 * 10000 * 60 * 24 * 7,
-  });
-
-  await User.updateOne(
-    {email},
-    {$push: {"userTimeStamp.userLoginAt": new Date()}}
-  );
-
-  return res.json({message: "login success"});
 };
 
 // logout use
 export const logoutUser = async (req, res) => {
-  const {sid} = req.signedCookies;
+  const { sid } = req.signedCookies;
 
   await Session.findByIdAndDelete(sid);
   res.clearCookie("sid");
   await User.updateOne(
-    {_id: new mongoose.Types.ObjectId(req.user.id)},
-    {$push: {"userTimeStamp.userLogoutAt": new Date()}}
+    { _id: new mongoose.Types.ObjectId(req.user.id) },
+    { $push: { "userTimeStamp.userLogoutAt": new Date() } }
   );
 
-  return res.status(200).json({message: "user log out"});
+  return res.status(200).json({ message: "user log out" });
 };
 
 // logout from all device
 export const logoutAllDevice = async (req, res) => {
-  const {sid} = req.signedCookies;
+  const { sid } = req.signedCookies;
   const session = await Session.findById(sid);
-  await Session.deleteMany({userId: session.userId});
+  await Session.deleteMany({ userId: session.userId });
   res.clearCookie("sid");
 
-  return res.status(200).json({message: "user log out from all device"});
+  return res.status(200).json({ message: "user log out from all device" });
 };

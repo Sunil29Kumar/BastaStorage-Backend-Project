@@ -1,11 +1,11 @@
 import rateLimit from "express-rate-limit";
 
 export const loginLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 2,
+  windowMs: 20 * 60 * 1000, // 10 minutes
+  max: 10,
   message: {
     statusCode: 429,
-    error: "Too many requests, please try again later after 1 hour."
+    error: "Too many requests, please try again later after 20 minutes."
   },
   standardHeaders: true,
   legacyHeaders: false,
