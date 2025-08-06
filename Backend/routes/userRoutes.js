@@ -6,10 +6,11 @@ import {
   logoutUser,
   registerUser,
 } from "../controllers/userController.js";
+import { registerLimiter } from "../middleware/registerLimiter.js";
 
 const router = express.Router();
 
-router.post("/register", registerUser);
+router.post("/register",registerLimiter, registerUser);
 
 // login route
 router.post("/login", loginUser);

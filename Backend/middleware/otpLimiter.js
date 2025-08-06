@@ -1,11 +1,11 @@
 import rateLimit from "express-rate-limit";
 
 export const otpLimiter = rateLimit({
-  windowMs: 3 * 60 * 1000, // 10 minutes
-  max: 1,
+  windowMs: 30 * 60 * 1000, // 30 minutes
+  max: 10,
   message: {
     statusCode: 429,
-    error: "Too many requests, please try again later after 10 minutes."
+    error: "Too many requests, please try again later after 30 minutes."
   },
   standardHeaders: true,
   legacyHeaders: false,

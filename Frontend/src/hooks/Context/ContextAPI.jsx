@@ -53,6 +53,7 @@ function ContextAPI({ children }) {
     password: "",
   });
   const [errorRegister, setErrorRegister] = useState({});
+  const [registerLimiterError, setRegisterLimiterError] = useState("");
 
   // Login request
   const [loginData, setLoginData] = useState({
@@ -267,12 +268,13 @@ function ContextAPI({ children }) {
         body: JSON.stringify({ ...registerData, otp }),
       });
       const data = await response.json();
-      console.log(data);
       setErrorRegister({
         error: data,
       });
-
-      if (data.details) {
+      if (data.statusCode === 429) {
+        setRegisterLimiterError(data.error);
+      }
+      else if (data.details) {
         setErrorRegister({
           errorDescription:
             data.details.errInfo.details.schemaRulesNotSatisfied[0]
@@ -285,7 +287,8 @@ function ContextAPI({ children }) {
         setErrorRegister({
           error: data.error,
         });
-      } else {
+      }
+      else {
         console.log(data);
         navigate("/Login");
         setRegisterData({
@@ -520,11 +523,14 @@ function ContextAPI({ children }) {
         accountMenu,
         setAccountMenu,
         storeUserData,
-        setStoreUserData, //
+        setStoreUserData, 
+        // register 
         registerData,
         setRegisterData,
         errorRegister,
         setErrorRegister,
+        registerLimiterError,
+        // login 
         loginData,
         setLoginData,
         loginError,
