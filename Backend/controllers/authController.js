@@ -9,7 +9,7 @@ import { fetchGithubUser } from "../utils/githubAuthService.js";
 
 export const sendOTPUser = async (req, res, next) => {
   const { email } = req.body;
-  console.log(email);
+
   if (!email) {
     return res.status(400).json({ error: "enter email" });
   }
@@ -22,7 +22,7 @@ export const sendOTPUser = async (req, res, next) => {
 // verify otp
 export const verifyOtp = async (req, res, next) => {
   const { email, otp } = req.body;
-  console.log(email, otp);
+
 
   try {
     const otpModel = await OTP.findOne({ email: email });
@@ -32,7 +32,7 @@ export const verifyOtp = async (req, res, next) => {
 
     return res.status(200).json({ message: "OTP Succesfully Match" });
   } catch (error) {
-    console.log(error);
+
     return res.status(400).json({ error: error.message });
   }
 };
@@ -139,7 +139,7 @@ export const loginWithGithub = async (req, res, next) => {
 // Callback handler for GitHub OAuth
 export const githubCallback = async (req, res, next) => {
   const { code } = req.query;
-  console.log("Github Callback Code:", code);
+
   if (!code) return res.status(400).send("No code provided");
 
   const { userData, email } = await fetchGithubUser(code);

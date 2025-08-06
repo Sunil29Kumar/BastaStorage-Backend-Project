@@ -399,7 +399,7 @@ function ContextAPI({ children }) {
       if (response.ok) {
         setSentOtpMessage(data.message);
         setOtpSent(true);
-        setOtpCountDown(60);
+        // setOtpCountDown(60);
         setOtpError("");
         setIsOtpWrong(false);
       } else {
@@ -558,6 +558,7 @@ function ContextAPI({ children }) {
         sendOPT,
         otpSent,
         otpCountDown,
+        setOtpCountDown,
         otpError,
         isOtpWrong,
         sentOtpMessage,

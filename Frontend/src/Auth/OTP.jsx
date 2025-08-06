@@ -1,15 +1,12 @@
-import React, {useState} from "react";
-import {BastaStorageContext} from "../hooks/Context/ContextAPI";
-import {useContext} from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
-function OTP({email}) {
+function OTP({ email, name, password }) {
   const {
     sendOPT,
     otpSent,
-    otpCountDown,
     otpError,
     isOtpWrong,
-
     verifyUserOtp,
     sentOtpMessage,
     setVerifyOtpMessage,
@@ -18,29 +15,61 @@ function OTP({email}) {
     setIsVerifyOtpWrong,
     otp,
     setOtp,
+    setOtpCountDown,
+    otpCountDown
   } = useContext(BastaStorageContext);
 
+  // const [otpCountDown, setOtpCountDown] = useState(0);
+
+  // Start 60s countdown whenever OTP is sent
+  useEffect(() => {
+    if (!otpSent || otpCountDown <= 0) return;
+
+    const timer = setInterval(() => {
+      setOtpCountDown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [otpSent, otpCountDown]);
+
+  const handleSendOtp = () => {
+    sendOPT(email);
+    setOtpCountDown(60); // reset countdown to 60s
+  };
+
+  // verify otp 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    verifyUserOtp({email, otp});
+    verifyUserOtp({ email, otp });
     setIsVerifyOtpWrong(true);
   };
+
+  const percentage = (otpCountDown / 60) * 100;
 
   return (
     <>
       {isVerifyOtpWrong && (
-        <div className="max-w-md mx-auto p-3 bg-gray-200 rounded-2xl shadow-lg space-y-4 cursor-pointer">
+        <div className="max-w-md mx-auto p-4 bg-gray-100 rounded-2xl shadow-md space-y-4 ">
+          {/* <div className={`max-w-md mx-auto p-4  rounded-2xl shadow-md space-y-4 ${name.length > 0 && email.length > 0 && password.length > 0 ? "bg-green-300" : "bg-gray-100"}`}> */}
           {!otpSent && (
-            <div onClick={() => sendOPT(email)} className="flex justify-center">
-              <button className="text-green-600 hover:text-green-700  transition cursor-pointer">
+            <div className="flex justify-center">
+              <button
+                onClick={handleSendOtp}
+                className="transition font-medium cursor-pointer "
+              >
                 Send OTP
               </button>
             </div>
           )}
 
           {sentOtpMessage && (
-            <p className=" text-center text-blue-500 ">{sentOtpMessage}</p>
+            <p className="text-center text-blue-500">{sentOtpMessage}</p>
           )}
 
           {otpSent && (
@@ -68,6 +97,13 @@ function OTP({email}) {
                   {verifyOtpMessage}
                 </p>
               )}
+
+              {!isVerifyOtpWrong && (
+                <p className="text-center text-green-500 text-sm">
+                  {verifyOtpMessage}
+                </p>
+              )}
+
               <div className="flex justify-center">
                 <button
                   type="submit"
@@ -76,21 +112,34 @@ function OTP({email}) {
                   Verify OTP
                 </button>
               </div>
-              {!isVerifyOtpWrong && (
-                <p className="text-center text-green-500 text-sm">
-                  {verifyOtpMessage}
-                </p>
-              )}
 
-              <div className="flex justify-center">
-                {otpCountDown == 0 && (
-                  <button
-                    onClick={() => sendOPT(email)}
-                    className="text-green-600 hover:text-green-700 cursor-pointer transition"
-                  >
-                    Resend OTP
-                  </button>
+              {/* Countdown Ring and Resend OTP */}
+              <div className="flex items-center justify-center gap-2">
+                {otpCountDown > 0 && (
+
+                  <div className="relative w-[3vh] h-[3vh] ">
+                    <div
+                      className="absolute inset-0 rounded-full transition-all flex items-center justify-center "
+                      style={{
+                        background: `conic-gradient(#22c55e ${percentage}%, #d1d5db ${percentage}% 100%)`,
+                      }}
+                    >
+                    </div>
+                  </div>
                 )}
+
+                {/* resend otp  */}
+                <button
+                  onClick={handleSendOtp}
+                  disabled={otpCountDown > 0}
+                  className={` rounded-lg font-medium transition text-[1vw] ${otpCountDown > 0
+                    ? " text-black cursor-not-allowed"
+                    : " hover:text-green-700 text-black cursor-pointer"
+                    }`}
+                >
+                  Resend OTP
+                </button>
+
               </div>
             </form>
           )}

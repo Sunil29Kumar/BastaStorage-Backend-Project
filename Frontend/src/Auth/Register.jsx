@@ -88,7 +88,7 @@ function Register() {
         <div>
 
           <p className=" mt-4 ">
-            <OTP email={registerData.email} />
+            <OTP email={registerData.email} name={registerData.name} password={registerData.password} />
           </p>
           <p className="text-center text-sm text-gray-600 mt-4">
             Already have an account?{" "}
