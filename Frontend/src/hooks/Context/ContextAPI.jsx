@@ -83,11 +83,13 @@ function ContextAPI({ children }) {
   const [otpCountDown, setOtpCountDown] = useState(0);
   const [otpError, setOtpError] = useState("");
   const [sentOtpMessage, setSentOtpMessage] = useState("");
-
   const [isOtpWrong, setIsOtpWrong] = useState(true);
   // verify otp
   const [isVerifyOtpWrong, setIsVerifyOtpWrong] = useState(true);
   const [verifyOtpMessage, setVerifyOtpMessage] = useState("");
+
+  // otp limiter error 
+  const [otpLimiterError, setOtpLimiterError] = useState("");
 
   //                                                 --------------------------------
   //                                  main code starrt
@@ -396,15 +398,21 @@ function ContextAPI({ children }) {
       });
       const data = await response.json();
       console.log(data.message);
+      if (data.statusCode === 429) {
+        setOtpLimiterError(data.error);
+        setSentOtpMessage("");
+
+      }
       if (response.ok) {
         setSentOtpMessage(data.message);
         setOtpSent(true);
-        // setOtpCountDown(60);
         setOtpError("");
+        setOtpLimiterError();
         setIsOtpWrong(false);
-      } else {
+      }
+
+      else {
         setOtpSent(false);
-        setOtpCountDown(0);
         setOtpError(data.error);
         setIsOtpWrong(true);
       }
@@ -562,6 +570,7 @@ function ContextAPI({ children }) {
         otpError,
         isOtpWrong,
         sentOtpMessage,
+        otpLimiterError,
         // verify otp
         verifyUserOtp,
         setVerifyOtpMessage,

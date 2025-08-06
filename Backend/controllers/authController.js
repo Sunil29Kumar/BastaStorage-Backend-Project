@@ -9,14 +9,17 @@ import { fetchGithubUser } from "../utils/githubAuthService.js";
 
 export const sendOTPUser = async (req, res, next) => {
   const { email } = req.body;
-
+try {
+  
   if (!email) {
     return res.status(400).json({ error: "enter email" });
   }
   const otp = await OTP.findOne({ email: email });
   sendOTP(email);
-
   return res.json({ message: `OTP Send to ${email}` });
+} catch (error) {
+  return res.status(400).json({ error: error.message });
+}
 };
 
 // verify otp
@@ -26,8 +29,11 @@ export const verifyOtp = async (req, res, next) => {
 
   try {
     const otpModel = await OTP.findOne({ email: email });
+    if (!otpModel) {
+      return res.status(400).json({ error: "OTP expired Please Resend the OTP" });
+    }
     if (otpModel.otp != otp) {
-      return res.status(400).json({ error: "OTP not Match" });
+      return res.status(400).json({ error: "OTP does not Match" });
     }
 
     return res.status(200).json({ message: "OTP Succesfully Match" });

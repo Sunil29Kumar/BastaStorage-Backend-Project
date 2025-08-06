@@ -1,4 +1,4 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const otpSchema = new Schema(
   {
@@ -13,21 +13,16 @@ const otpSchema = new Schema(
     createdAt: {
       type: Date,
       default: Date.now,
-      expires: 600,
+      expires: 60,
     },
-    // verified: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-    // attempts: {
-    //   type: Number,
-    //   default: 0,
-    // },
   },
+
   {
     timestamps: true,
   }
+
 );
+
 
 const OTP = mongoose.model("Otp", otpSchema);
 export default OTP;

@@ -16,7 +16,8 @@ function OTP({ email, name, password }) {
     otp,
     setOtp,
     setOtpCountDown,
-    otpCountDown
+    otpCountDown,
+    otpLimiterError
   } = useContext(BastaStorageContext);
 
   // const [otpCountDown, setOtpCountDown] = useState(0);
@@ -54,6 +55,11 @@ function OTP({ email, name, password }) {
 
   return (
     <>
+      {/* OPT limiter error  */}
+      {otpLimiterError && (
+        <p className="text-red-500 text-sm">{otpLimiterError}</p>
+      )}
+
       {isVerifyOtpWrong && (
         <div className="max-w-md mx-auto p-4 bg-gray-100 rounded-2xl shadow-md space-y-4 ">
           {/* <div className={`max-w-md mx-auto p-4  rounded-2xl shadow-md space-y-4 ${name.length > 0 && email.length > 0 && password.length > 0 ? "bg-green-300" : "bg-gray-100"}`}> */}
@@ -104,6 +110,7 @@ function OTP({ email, name, password }) {
                 </p>
               )}
 
+
               <div className="flex justify-center">
                 <button
                   type="submit"
@@ -127,6 +134,8 @@ function OTP({ email, name, password }) {
                     </div>
                   </div>
                 )}
+
+
 
                 {/* resend otp  */}
                 <button
