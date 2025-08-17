@@ -5,25 +5,29 @@ import {
   logoutAllDevice,
   logoutUser,
   registerUser,
+  updateUserProfile,
+  userProfile,
 } from "../controllers/userController.js";
 import { registerLimiter } from "../middleware/registerLimiter.js";
 import { loginLimiter } from "../middleware/loginLimiter.js";
 
 const router = express.Router();
 
-router.post("/register",registerLimiter, registerUser);
+router.post("/register", registerLimiter, registerUser);
 
 // login route
-router.post("/login",loginLimiter, loginUser);
-
-// sending user email, name to frontend
-router.get("/", checkAuth, (req, res) => {
-  return res.status(200).json({ name: req.user.name, email: req.user.email, picture: req.user.picture });
-});
+router.post("/login", loginLimiter, loginUser);
 
 // logout
 router.get("/logout", checkAuth, logoutUser);
 
 // logout From all device
 router.get("/logoutAllDevice", checkAuth, logoutAllDevice);
+
+// sending user email, name to frontend
+router.get("/profile", checkAuth, userProfile);
+
+//update user profile
+router.post("/profile",checkAuth, updateUserProfile);
+
 export default router;

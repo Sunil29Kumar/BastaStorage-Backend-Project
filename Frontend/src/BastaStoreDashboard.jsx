@@ -1,11 +1,11 @@
 import SideBar from "./Components/SideBar";
 import FilesFolderList from "./Components/FilesFolderList";
-import {useContext, useEffect} from "react";
-import {BastaStorageContext} from "./hooks/Context/ContextAPI";
+import { useContext, useEffect } from "react";
+import { BastaStorageContext } from "./hooks/Context/ContextAPI";
 import CreateFolderInputBox from "./Components/Create folder/CreateFolderInputBox";
 import RenameFileInputBox from "./Components/Rename file folder/RenameFileInputBox";
 import RenameFolderInputBox from "./Components/Rename file folder/RenameFolderInputBox";
-import {Link, useParams} from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import FileInformation from "./Components/File Folder List/FileInformation";
 import FolderInformation from "./Components/File Folder List/FolderInformation";
 import AccountMenu from "./Auth/AccountMenu";
@@ -13,6 +13,7 @@ import Logout from "./Auth/Logout";
 import CreateUploadFFList from "./Components/CreateUploadFFList";
 import FileProgress from "./Components/progress file folder/FileProgress";
 import FileUploadCancleMessage from "./Components/progress file folder/fileUploadCancleMessage";
+import ManageUserProfile from "./Auth/ManageUserProfile.jsx";
 
 function BastaStoreDashboard() {
   // const {dirId} = useParams();
@@ -28,6 +29,7 @@ function BastaStoreDashboard() {
     isFileInProgress,
     isFileUploaded,
     isFileUploadingCancle,
+    isManageProfileShowing
   } = useContext(BastaStorageContext);
 
   return (
@@ -45,6 +47,7 @@ function BastaStoreDashboard() {
         {showFileFolderMenu && <CreateUploadFFList />}
         {isFileInProgress && <FileProgress />}
         <FileUploadCancleMessage />
+        {isManageProfileShowing && <ManageUserProfile />}
       </div>
     </div>
   );

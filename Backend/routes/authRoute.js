@@ -1,15 +1,21 @@
 import express from "express";
-import { githubCallback, loginWithGithub, loginWithGoogle, sendOTPUser, verifyOtp } from "../controllers/authController.js";
+import { githubCallback, googleCallback, googleDriveFilesFolder, loginWithGithub, loginWithGoogle, sendOTPUser, verifyOtp } from "../controllers/authController.js";
 import { githubCallbackLimiter } from "../middleware/githubCallbackLimiter.js";
 import { googleLimiter } from "../middleware/googleCallbackLimiter.js";
 import { otpLimiter } from "../middleware/otpLimiter.js";
+import { googleDriveAuthUrl } from "../utils/googleDriveAuthService.js";
+import checkAuth from "../middleware/authMiddleware.js";
 
 const route = express.Router();
 
 route.post("/sendOtp", otpLimiter, sendOTPUser);
 route.post("/verifyOtp", verifyOtp);
-route.post("/google", googleLimiter, loginWithGoogle);
 route.get("/github", loginWithGithub);
 route.get("/github/callback", githubCallbackLimiter, githubCallback);
+route.post("/google/login", loginWithGoogle);
+
+route.get("/google/drive", googleDriveAuthUrl);
+route.get("/google/callback",checkAuth, googleCallback);
+route.get("/google/list-file",checkAuth, googleDriveFilesFolder);
 
 export default route;

@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 export async function connectDB() {
   try {
-    await mongoose.connect(
-      "mongodb://sunil:sunil@localhost:27017/BastaStorage"
-    );
+    await mongoose.connect(process.env.DB_HOST);
   } catch (error) {
     console.log(error);
     console.log("Could Not Connect to the Database");

@@ -7,6 +7,7 @@ function AccountMenu() {
     setShowLogOutBox,
     storeUserData,
     randomAccountBGcolor,
+    setIsManageProfileShowing
   } = useContext(BastaStorageContext);
 
   const accoutnRef = useRef(null);
@@ -29,9 +30,9 @@ function AccountMenu() {
       {storeUserData && (
         <div className=" w-full flex flex-col items-center justify-center  gap-5 ">
           <h2 className="text-[1.2vw] ">{storeUserData.email}</h2>
-          <div className=" w-ful   flex flex-col justify-center items-center " >
-            <div className=" w-[4vw] h-[4vw] rounded-[100%] " >
-              <img src={storeUserData.picture} />
+          <div className=" w-full flex flex-col justify-center items-center " >
+            <div className=" w-[4vw] h-[4vw] rounded-[100%] overflow-hidden " >
+              <img src={storeUserData.picture || "/user-img.png"} />
             </div>
 
             <h2 className="font-semibold text-lg">Hi, {storeUserData.name}</h2>
@@ -39,7 +40,10 @@ function AccountMenu() {
         </div>
       )}
       <div className=" flex w-[100%]  justify-center">
-        <button className="text-left cursor-pointer px-7 py-2 rounded-2xl text-gray-700 hover:bg-blue-100 hover:text-black ">
+        <button
+          onClick={() => setIsManageProfileShowing(true)}
+
+          className="text-left cursor-pointer px-7 py-2 rounded-2xl text-gray-700 hover:bg-blue-100 hover:text-black ">
           Manage You Profile
         </button>
       </div>

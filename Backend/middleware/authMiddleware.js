@@ -19,15 +19,6 @@ export default async function checkAuth(req, res, next) {
       return res.status(401).json({error: "User not found"});
     }
 
-    // const activeSessions = await Session.find({userId: user._id});
-    // if (activeSessions.length >= 3) {
-    //   activeSessions[0].deleteOne();
-
-    //   return res
-    //     .status(401)
-    //     .json({error: "Accoutn already use in anothre device"});
-    // }
-
    
     req.user = user;
     next();

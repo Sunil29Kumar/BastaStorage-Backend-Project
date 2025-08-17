@@ -36,6 +36,7 @@ export const registerUser = async (req, res, next) => {
         name,
         email,
         password,
+        picture: "",
         userTimeStamp: {
           userCreatedAt: new Date(),
           userLoginAt: [],
@@ -146,3 +147,30 @@ export const logoutAllDevice = async (req, res) => {
 
   return res.status(200).json({ message: "user log out from all device" });
 };
+
+// user profile 
+export const userProfile = async (req, res) => {
+  const userData = { name: req.user.name, email: req.user.email, picture: req.user.picture }
+  return res.status(200).json(userData);
+}
+
+// update user profile 
+export const updateUserProfile = async (req, res) => {
+  const { updateUserData } = req.body;
+  const userId = req.user._id;
+  const { sid } = req.signedCookies;
+
+  try {
+    const session = await Session.findById(sid);
+
+    if (!session) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const updateUser = await User.findByIdAndUpdate(userId, { name: updateUserData.name }, { new: true });
+
+    return res.status(200).json({ message: "Profile updated successfully" ,updateUser});
+  } catch (error) {
+
+  }
+}

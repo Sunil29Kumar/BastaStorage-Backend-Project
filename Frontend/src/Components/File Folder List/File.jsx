@@ -41,6 +41,7 @@ function File() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  
   // get file extension from filename
   const getExtension = (filename) => {
     const parts = filename.split(".");

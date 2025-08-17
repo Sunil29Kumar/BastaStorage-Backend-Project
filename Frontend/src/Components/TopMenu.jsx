@@ -25,10 +25,10 @@ function TopMenu() {
               setAccountMenu(true);
             }}
 
-            className="border-2 border-white rounded-full w-[4vw] h-[4vw] cursor-pointer  flex justify-center items-center text-[2vw] font-bold "
+            className="border-2 border-blue-400 rounded-full w-[4vw] h-[4vw] cursor-pointer  flex justify-center items-center text-[2vw] font-bold overflow-hidden "
           >
             {storeUserData && (
-              <img src={storeUserData.picture} />
+              <img src={storeUserData.picture.length <= 0 ? "/user-img.png" : storeUserData.picture} />
             )}
 
           </div>

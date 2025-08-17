@@ -1,9 +1,10 @@
 
+import dotenv from "dotenv";
+dotenv.config();
 export async function fetchGithubUser(code) {
 
-
-    const client_id = "Ov23liPF52IMctxkH6Jm";
-    const client_secret = "fc88f407d51c8ad019214011a202342e66df1026";
+    const client_id = process.env.GITHUB_CLIENT_ID;
+    const client_secret = process.env.GITHUB_CLIENT_SECRET;
 
     const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
         method: "POST",

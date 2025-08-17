@@ -1,8 +1,8 @@
-import {useContext} from "react";
-import {BastaStorageContext} from "../../hooks/Context/ContextAPI";
+import { useContext } from "react";
+import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function CreateFolder() {
-  const {setShowInputBox, setShowFileFolderMenu} =
+  const { setShowInputBox, setShowFileFolderMenu ,setIsGDBoxOpen} =
     useContext(BastaStorageContext);
 
   return (
@@ -10,6 +10,7 @@ function CreateFolder() {
       <button
         onClick={() => {
           setShowInputBox(true);
+          setIsGDBoxOpen(false);
         }}
         className="w-full cursor-pointer flex  items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition"
       >

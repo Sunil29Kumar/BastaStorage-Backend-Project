@@ -1,7 +1,7 @@
-import {createWriteStream} from "fs";
-import {rm} from "fs/promises";
+import { createWriteStream } from "fs";
+import { rm } from "fs/promises";
 import path from "path";
-import {ObjectId} from "mongodb";
+import { ObjectId } from "mongodb";
 import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 
@@ -16,7 +16,7 @@ export const createFile = async (req, res) => {
   if (!parentDirData) {
     return res
       .status(400)
-      .json({message: "Parent Directory Data is undefined"});
+      .json({ message: "Parent Directory Data is undefined" });
   }
 
   const filename = req.headers.filename || "untitled";
@@ -42,19 +42,21 @@ export const createFile = async (req, res) => {
   const fullFileName = `${fileID}${extension}`;
 
   if (!filename) {
-    return res.status(400).json({error: "Filename is required."});
+    return res.status(400).json({ error: "Filename is required." });
   }
 
   const writeStream = createWriteStream(`./storage/${fullFileName}`);
   req.pipe(writeStream);
   req.on("end", async () => {
-    return res.status(200).json({message: "File Uploaded"});
+    return res.status(200).json({ message: "File Uploaded" });
   });
   req.on("error", async () => {
-    await File.deleteOne({_id: fileData.insertedId});
-    return res.status(400).json({message: "Failed to Upload"});
+    await File.deleteOne({ _id: fileData.insertedId });
+    return res.status(400).json({ message: "Failed to Upload" });
   });
 };
+
+
 
 export const getFile = async (req, res) => {
   const id = req.params.id || res.user.rootDirId;
@@ -66,7 +68,7 @@ export const getFile = async (req, res) => {
   });
 
   if (!fileData) {
-    return res.status(404).json({message: "file not found"});
+    return res.status(404).json({ message: "file not found" });
   }
 
   const fullPath = `${process.cwd()}/storage/${id}${fileData.extension}`;
@@ -75,8 +77,8 @@ export const getFile = async (req, res) => {
   if (req.query.action === "download") {
     // download time ko database me push kar rahe hain
     await File.updateOne(
-      {_id: new ObjectId(id)},
-      {$push: {"timeStamp.lastDownload": new Date()}}
+      { _id: new ObjectId(id) },
+      { $push: { "timeStamp.lastDownload": new Date() } }
     );
 
     // response me header set kar rahe hain ki file download ho
@@ -87,16 +89,16 @@ export const getFile = async (req, res) => {
 
   // agar simple file dekh raha hai (download nahi)
   await File.updateOne(
-    {_id: new ObjectId(id)},
+    { _id: new ObjectId(id) },
     {
-      $push: {"timeStamp.opened": new Date()},
+      $push: { "timeStamp.opened": new Date() },
     }
   );
 
   // file ko browser me send kar rahe hain
   res.sendFile(fullPath, (err) => {
     if (!res.headersSent && err) {
-      return res.status(404).json({error: "File not found!"});
+      return res.status(404).json({ error: "File not found!" });
     }
   });
 };
@@ -106,21 +108,21 @@ export const renameFile = async (req, res) => {
   const newFileName = req.body.newFilename;
 
   if (!newFileName) {
-    return res.status(404).json({message: "File not found"});
+    return res.status(404).json({ message: "File not found" });
   }
 
   try {
     await File.updateOne(
-      {_id: new ObjectId(id), userId: req.user._id},
+      { _id: new ObjectId(id), userId: req.user._id },
       {
-        $set: {name: newFileName},
-        $push: {"timeStamp.lastModified": new Date()},
+        $set: { name: newFileName },
+        $push: { "timeStamp.lastModified": new Date() },
       }
     );
 
-    return res.status(200).json({message: "File Renamed"});
+    return res.status(200).json({ message: "File Renamed" });
   } catch (error) {
-    return res.status(404).json({error: "File not renamed"});
+    return res.status(404).json({ error: "File not renamed" });
   }
 };
 
@@ -135,10 +137,12 @@ export const deleteFile = async (req, res) => {
 
     await rm(`./storage/${id}${fileData.extension}`);
 
-    await File.deleteOne({_id: new ObjectId(id), userId: req.user._id});
+    await File.deleteOne({ _id: new ObjectId(id), userId: req.user._id });
 
-    return res.status(200).json({message: "File Deleted Successfully"});
+    return res.status(200).json({ message: "File Deleted Successfully" });
   } catch (err) {
-    return res.status(404).json({message: err.message});
+    return res.status(404).json({ message: err.message });
   }
 };
+
+

@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+
 export const BastaStorageContext = createContext();
 
 function ContextAPI({ children }) {
@@ -77,21 +78,32 @@ function ContextAPI({ children }) {
   const [randomAccountBGcolor, setRandomAccountBGcolor] =
     useState(randomRGBcolor);
 
+  // update user data
+  const [isUpdatedUserData, setIsUpdatedUserData] = useState(false);
+  const [userUpdateMessage, setUserUpdateMessage] = useState("");
+
   // get OPT
-
   const [otp, setOtp] = useState("");
-
   const [otpSent, setOtpSent] = useState(false);
   const [otpCountDown, setOtpCountDown] = useState(0);
   const [otpError, setOtpError] = useState("");
   const [sentOtpMessage, setSentOtpMessage] = useState("");
   const [isOtpWrong, setIsOtpWrong] = useState(true);
+
   // verify otp
   const [isVerifyOtpWrong, setIsVerifyOtpWrong] = useState(true);
   const [verifyOtpMessage, setVerifyOtpMessage] = useState("");
 
   // otp limiter error 
   const [otpLimiterError, setOtpLimiterError] = useState("");
+
+  // manage user prfoile 
+  const [isManageProfileShowing, setIsManageProfileShowing] = useState(false)
+
+  // google drive 
+  const [googleDriveFilesData, setGoogleDriveFilesData] = useState([]);
+  const [isGDBoxOpen, setIsGDBoxOpen] = useState(false);
+
 
   //                                                 --------------------------------
   //                                  main code starrt
@@ -323,7 +335,7 @@ function ContextAPI({ children }) {
       }
       else if (response.ok) {
         // ✅ login success — now fetch user data
-        const res = await fetch(`${BASE_URL}/user`, {
+        const res = await fetch(`${BASE_URL}/user/profile`, {
           credentials: "include",
         });
 
@@ -348,12 +360,14 @@ function ContextAPI({ children }) {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await fetch(`${BASE_URL}/user`, {
+        const response = await fetch(`${BASE_URL}/user/profile`, {
           credentials: "include",
         });
 
         if (response.ok) {
           const userData = await response.json();
+          console.log(userData);
+
           setStoreUserData(userData);
           setLoggedIn(true);
           await getDirectoryItems();
@@ -367,6 +381,30 @@ function ContextAPI({ children }) {
     }
     fetchUserData();
   }, []);
+
+  // update user data 
+  async function updateUserData(updateUserData) {
+    const response = await fetch(`${BASE_URL}/user/profile`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ updateUserData })
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      setIsUpdatedUserData(true);
+      setUserUpdateMessage(data.message);
+      setStoreUserData(data.updateUser)
+      console.log(storeUserData);
+
+    }
+    else {
+      setIsUpdatedUserData(false);
+    }
+  }
 
   // get Logout request
   async function handleLogout() {
@@ -449,10 +487,14 @@ function ContextAPI({ children }) {
     console.log(data);
   }
 
+  // Login with Github 
+  const loginWithGithub = () => {
+    window.location.href = `http://localhost:2000/auth/github`;
+  }
 
   // Login with Google 
   async function loginWithGoogle(credential) {
-    const response = await fetch(`${BASE_URL}/auth/google`, {
+    const response = await fetch(`${BASE_URL}/auth/google/login`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -461,17 +503,17 @@ function ContextAPI({ children }) {
       body: JSON.stringify({ credential })
     })
     const data = await response.json();
+
     if (response.ok) {
-      // ✅ login success — now fetch user data
       const res = await fetch(`${BASE_URL}/user`, {
         credentials: "include",
       });
 
       if (res.ok) {
         const userData = await res.json();
-        setStoreUserData(userData); // 🎯 set in context
-        setLoggedIn(true); // 🎯 set login flag
-        await getDirectoryItems(); // 🎯 fetch directory data also
+        setStoreUserData(userData);
+        setLoggedIn(true);
+        await getDirectoryItems();
         navigate("/");
       } else {
         console.error("User data fetch failed");
@@ -482,11 +524,58 @@ function ContextAPI({ children }) {
     return data;
   }
 
+  // Google drive 
+  const googleDriveFiles = () => {
+    const popup = window.open(
+      "http://localhost:2000/auth/google/drive",
+      "Google Drive Login",
+      `width=600,height=600,left=500,top=200`
+    ); 5
 
-  // Login with Github 
-  const loginWithGithub = () => {
-    window.location.href = `http://localhost:2000/auth/github`;
+    window.addEventListener("message", (event) => {
+      if (event.data.success) {
+        console.log(event.data.success);
+        console.log("Google Drive login successful!");
+        getGoogleDriveFilesFolder(); // files auto fetch
+      }
+      else if (event.data.error) {
+        console.log(event.data.error);
+        console.error("Google Drive login failed:", event.data.error);
+      }
+    })
+  };
+
+
+
+  // get Google Drive files
+  async function getGoogleDriveFilesFolder() {
+    const response = await fetch(`${BASE_URL}/auth/google/list-file`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      console.log("Google Drive files:", data.files);
+      setGoogleDriveFilesData(data.files);
+    } else {
+      console.error("Failed to fetch Google Drive files:", data.error);
+    }
   }
+
+  // send google drive files data to backend
+  async function sendDriveFilesData(file) {
+    const response = await fetch(`${BASE_URL}/google-drive/file`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ file })
+    });
+    console.log(await response.json());
+  }
+
 
 
 
@@ -527,6 +616,10 @@ function ContextAPI({ children }) {
         setAccountMenu,
         storeUserData,
         setStoreUserData,
+        // update user data 
+        updateUserData,
+        isUpdatedUserData,
+        userUpdateMessage,
         // register 
         registerData,
         setRegisterData,
@@ -594,6 +687,20 @@ function ContextAPI({ children }) {
 
         // login with Github: 
         loginWithGithub,
+
+        // manage user profile 
+        isManageProfileShowing,
+        setIsManageProfileShowing,
+
+        // googleDriveFiles 
+        googleDriveFiles,
+        getGoogleDriveFilesFolder,
+        googleDriveFilesData,
+        isGDBoxOpen,
+        setIsGDBoxOpen,
+
+        // sending google drive files data to backend 
+        sendDriveFilesData
       }}
     >
       {children}
