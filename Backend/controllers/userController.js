@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import Session from "../models/sessionModel.js";
 import { sendOTP } from "../utils/sendOTP.js";
 import OTP from "../models/otpModel.js";
+import multer from "multer";
 
 // register user
 export const registerUser = async (req, res, next) => {
@@ -156,21 +157,33 @@ export const userProfile = async (req, res) => {
 
 // update user profile 
 export const updateUserProfile = async (req, res) => {
-  const { updateUserData } = req.body;
   const userId = req.user._id;
   const { sid } = req.signedCookies;
+  const { name } = req.body;
 
   try {
+    // match session
     const session = await Session.findById(sid);
+    if (!session) return res.status(401).json({ error: "Unauthorized" });
 
-    if (!session) {
-      return res.status(401).json({ error: "Unauthorized" });
+    // update fields
+    let updateData = { name };
+    if (req.file) {
+      updateData.picture = `/upload/${req.file.filename}`;
     }
 
-    const updateUser = await User.findByIdAndUpdate(userId, { name: updateUserData.name }, { new: true });
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true }
+    );
 
-    return res.status(200).json({ message: "Profile updated successfully" ,updateUser});
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      updateUser
+    });
   } catch (error) {
-
+    console.log("Error updating profile:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-}
+};

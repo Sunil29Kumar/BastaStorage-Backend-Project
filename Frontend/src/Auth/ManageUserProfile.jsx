@@ -2,20 +2,21 @@ import React, { useContext, useState, useEffect } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
 function ManageUserProfile() {
-    const { setIsManageProfileShowing, storeUserData,updateUserData ,userUpdateMessage,isUpdatedUserData } = useContext(BastaStorageContext);
+    const { setIsManageProfileShowing, storeUserData, updateUserData, userUpdateMessage, isUpdatedUserData, setIsUpdatedUserData } = useContext(BastaStorageContext);
 
     const [formData, setFormData] = useState({
-        photo: "",
+        photo: {},
         name: storeUserData.name,
-        // email: "",
     });
 
-
+    // useEffect(() => {
+        // setIsUpdatedUserData(false);
+    // }, []);
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
+        console.log("file", file);
         if (file) {
-            const imgUrl = URL.createObjectURL(file);
-            setFormData({ ...formData, photo: imgUrl });
+            setFormData({ ...formData, photo: file });
         }
     };
 
@@ -26,10 +27,10 @@ function ManageUserProfile() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Updated Profile:", formData);
-        updateUserData(formData)
+        updateUserData(formData);
         setTimeout(() => {
-            setIsManageProfileShowing(false) 
+            setIsUpdatedUserData(false)
+            setIsManageProfileShowing(false)
         }, 1500);
         // yahan API call karke backend ko update kar sakte ho
     };
@@ -49,7 +50,7 @@ function ManageUserProfile() {
                 <div className="flex flex-col items-center gap-3 border-b pb-5">
                     <div className="relative w-28 h-28 rounded-full overflow-hidden shadow-lg border-4 border-blue-400">
                         <img
-                            src={storeUserData.picture || "/user-img.png"}
+                            src={storeUserData.picture ? `http://localhost:2000${storeUserData.picture}` : "/user-img.png"}
                             alt="profile"
                             className="w-full h-full object-cover"
                         />
@@ -57,7 +58,8 @@ function ManageUserProfile() {
                             <i className="ri-camera-fill text-lg"></i>
                             <input
                                 type="file"
-                                accept="image/*"
+                                // accept="image/*"
+                                name="userPhoto"
                                 onChange={handlePhotoChange}
                                 className="hidden"
                             />
@@ -119,9 +121,11 @@ function ManageUserProfile() {
                     </div>
                 </form>
             </div>
-            <div className= {` absolute bottom-[5%] left-[50%] transform -translate-x-1/2  ${isUpdatedUserData ? "block bg-green-400 text-black p-2 rounded-md " : "hidden"} `}>
-                <h1>{userUpdateMessage} </h1>
-            </div>
+            {isUpdatedUserData && (
+                <div className=" absolute top-[1%] left-[50%] transform -translate-x-1/2 block bg-green-400 text-black py-1 px-2 rounded-md " >
+                    <h1>{userUpdateMessage} </h1>
+                </div>
+            )}
         </div>
     );
 }

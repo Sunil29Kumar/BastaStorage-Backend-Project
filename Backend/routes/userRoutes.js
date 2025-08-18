@@ -10,6 +10,7 @@ import {
 } from "../controllers/userController.js";
 import { registerLimiter } from "../middleware/registerLimiter.js";
 import { loginLimiter } from "../middleware/loginLimiter.js";
+import { upload } from "../middleware/uploadUserPhoto.js";
 
 const router = express.Router();
 
@@ -28,6 +29,6 @@ router.get("/logoutAllDevice", checkAuth, logoutAllDevice);
 router.get("/profile", checkAuth, userProfile);
 
 //update user profile
-router.post("/profile",checkAuth, updateUserProfile);
+router.post("/profile",checkAuth, upload.single("userPhoto") , updateUserProfile);
 
 export default router;

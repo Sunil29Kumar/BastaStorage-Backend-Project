@@ -27,7 +27,6 @@ function ContextAPI({ children }) {
 
   // get current folder name
   const [currentFolderName, setCurrentFolderName] = useState("");
-
   const [showInputBox, setShowInputBox] = useState(false);
 
   // show file and folder rename box
@@ -71,12 +70,7 @@ function ContextAPI({ children }) {
   // logOut states
   const [showLogOutBox, setShowLogOutBox] = useState(false);
   const [accountMenu, setAccountMenu] = useState(false);
-  const r = Math.floor(Math.random() * 256);
-  const g = Math.floor(Math.random() * 256);
-  const b = Math.floor(Math.random() * 256);
-  const randomRGBcolor = `rgb(${r},${g},${b})`;
-  const [randomAccountBGcolor, setRandomAccountBGcolor] =
-    useState(randomRGBcolor);
+
 
   // update user data
   const [isUpdatedUserData, setIsUpdatedUserData] = useState(false);
@@ -384,21 +378,23 @@ function ContextAPI({ children }) {
 
   // update user data 
   async function updateUserData(updateUserData) {
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("userPhoto", updateUserData.photo); 
+    formDataToSend.append("name", updateUserData.name);     
+
     const response = await fetch(`${BASE_URL}/user/profile`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       credentials: "include",
-      body: JSON.stringify({ updateUserData })
+      body: formDataToSend
     });
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
+      console.log("new data",data);
+      
       setIsUpdatedUserData(true);
       setUserUpdateMessage(data.message);
       setStoreUserData(data.updateUser)
-      console.log(storeUserData);
 
     }
     else {
@@ -524,6 +520,7 @@ function ContextAPI({ children }) {
     return data;
   }
 
+  
   // Google drive 
   const googleDriveFiles = () => {
     const popup = window.open(
@@ -544,8 +541,6 @@ function ContextAPI({ children }) {
       }
     })
   };
-
-
 
   // get Google Drive files
   async function getGoogleDriveFilesFolder() {
@@ -620,6 +615,7 @@ function ContextAPI({ children }) {
         updateUserData,
         isUpdatedUserData,
         userUpdateMessage,
+        setIsUpdatedUserData,
         // register 
         registerData,
         setRegisterData,
@@ -645,8 +641,7 @@ function ContextAPI({ children }) {
         setIsFileInProgress,
         fileUplodingRemainingTime,
         setFileUploadingRemainingTime,
-        randomAccountBGcolor,
-        setRandomAccountBGcolor,
+
         isFileUploaded,
         setIsFileUploaded,
         isFileUploadingCancle,
