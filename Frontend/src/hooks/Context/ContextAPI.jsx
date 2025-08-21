@@ -1,0 +1,737 @@
+import { createContext } from "react";
+import { useRef } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+
+export const BastaStorageContext = createContext();
+
+function ContextAPI({ children }) {
+  const BASE_URL = "http://localhost:2000";
+  const [directoriesList, setDirectoriesList] = useState([]);
+  const [filesList, setFilesList] = useState([]);
+  const [storageData, setStorageData] = useState({})
+  const [storageFullMessage, setStorageFullMessage] = useState("");
+  const [isStorageFull, setIsStorageFull] = useState(false);
+
+  const [newFilename, setNewFilename] = useState("");
+  const [newDirname, setNewDirname] = useState("");
+  const { dirId } = useParams();
+  const navigate = useNavigate();
+
+  // file FileProgress
+  const [FileProgress, setFileProgress] = useState(0);
+  const [currentFileName, setCurrentFileName] = useState("");
+  const [isFileInProgress, setIsFileInProgress] = useState(false);
+  const [fileUplodingRemainingTime, setFileUploadingRemainingTime] =
+    useState(0);
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [isFileUploadingCancle, setIsFileUploadingCancle] = useState(false);
+
+  // get current folder name
+  const [currentFolderName, setCurrentFolderName] = useState("");
+  const [showInputBox, setShowInputBox] = useState(false);
+
+  // show file and folder rename box
+  const [showFileRenameInputBox, setShowFileRenameInputBox] = useState(false);
+  const [showFolderRenameInputBox, setShowFolderRenameInputBox] =
+    useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
+  // file informatino or show file information states
+  const [fileInfo, setFileInfo] = useState([]);
+  const [showFileInfo, setShowFileInfo] = useState(false);
+
+  // folder information or show folder information states
+  const [folderInfo, setFolderInfo] = useState([]);
+  const [showFolderInfo, setShowFolderInfo] = useState(false);
+
+  // show file folder menu after click on  + new
+  const [showFileFolderMenu, setShowFileFolderMenu] = useState(false);
+
+  // Register request
+  const [registerData, setRegisterData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [errorRegister, setErrorRegister] = useState({});
+  const [registerLimiterError, setRegisterLimiterError] = useState("");
+
+  // Login request
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+  const [loginError, setLoginError] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [loginLimiter, setLoginLimiter] = useState("")
+
+  // fetch LOGIN DATA : fetch user Data after login
+  const [storeUserData, setStoreUserData] = useState();
+
+  // logOut states
+  const [showLogOutBox, setShowLogOutBox] = useState(false);
+  const [accountMenu, setAccountMenu] = useState(false);
+
+
+  // update user data
+  const [isUpdatedUserData, setIsUpdatedUserData] = useState(false);
+  const [userUpdateMessage, setUserUpdateMessage] = useState("");
+
+  // get OPT
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCountDown, setOtpCountDown] = useState(0);
+  const [otpError, setOtpError] = useState("");
+  const [sentOtpMessage, setSentOtpMessage] = useState("");
+  const [isOtpWrong, setIsOtpWrong] = useState(true);
+
+  // verify otp
+  const [isVerifyOtpWrong, setIsVerifyOtpWrong] = useState(true);
+  const [verifyOtpMessage, setVerifyOtpMessage] = useState("");
+
+  // otp limiter error 
+  const [otpLimiterError, setOtpLimiterError] = useState("");
+
+  // manage user prfoile 
+  const [isManageProfileShowing, setIsManageProfileShowing] = useState(false)
+
+  // google drive 
+  const [googleDriveFilesData, setGoogleDriveFilesData] = useState([]);
+  const [isGDBoxOpen, setIsGDBoxOpen] = useState(false);
+
+
+  //                                                 --------------------------------
+  //                                  main code starrt
+  // ---------------------------------
+
+  // GET Request file and dir
+  async function getDirectoryItems() {
+    const response = await fetch(`${BASE_URL}/directory/${dirId || ""}`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (response.status == 401) {
+      navigate("/Register");
+    }
+
+    setDirectoriesList(data.directories);
+    setFilesList(data.files);
+    setStorageData(data.storageData);
+    console.log(data);
+    console.log(data.storageData);
+
+  }
+  useEffect(() => {
+    getDirectoryItems();
+  }, [dirId]);
+
+  // upload file
+  const xhrRef = useRef(null);
+  async function uploadFile(e) {
+    const file = e.target.files[0];
+    console.log("file = >>>>", file);
+    setCurrentFileName(file.name);
+
+    const xhr = new XMLHttpRequest();
+    xhrRef.current = xhr;
+    const uploadStartTime = new Date().getTime();
+    xhr.open("POST", `${BASE_URL}/file/${dirId || ""}`, true);
+
+    xhr.setRequestHeader("filename", file.name);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("size", file.size);
+    xhr.addEventListener("load", () => {
+      if (xhr.status === 200) {
+        getDirectoryItems();
+        setIsFileUploadingCancle(false);
+        setTimeout(() => {
+          setIsFileUploaded(true);
+          setIsFileInProgress(false);
+          setCurrentFileName("");
+          setStorageFullMessage("");
+          setFileProgress(0);
+        }, 1000);
+      }
+      else {
+        const response = JSON.parse(xhr.responseText);
+        console.error("Upload failed:", response.message);
+        // alert(response.message);
+        setIsStorageFull(true);
+        setIsFileInProgress(false);
+        setStorageFullMessage(response.message);
+        setTimeout(() => {
+          setStorageFullMessage("");
+          setIsStorageFull(false);
+        }, 1000);
+
+      }
+
+    });
+    xhr.upload.addEventListener("progress", (e) => {
+      const currentTime = new Date().getTime();
+      const timeElapsed = (currentTime - uploadStartTime) / 1000; // in second
+      const uploadSpeed = e.loaded / timeElapsed;
+      const remainingBytes = e.total - e.loaded;
+      const remainingTime = remainingBytes / uploadSpeed;
+      const totalFileProgress = (e.loaded / e.total) * 100; // total percentage %
+
+      setFileProgress(totalFileProgress.toFixed(2));
+      setFileUploadingRemainingTime(remainingTime.toFixed(1));
+      setIsFileInProgress(true);
+    });
+    xhr.send(file);
+  }
+
+  // cancle uploading
+  function cancleUpload() {
+
+    if (xhrRef.current && xhrRef.current.readyState !== XMLHttpRequest.DONE) {
+      xhrRef.current.abort();
+      console.log("Upload cancelled.");
+      setIsFileUploaded(false);
+
+      setTimeout(() => {
+        setIsFileUploadingCancle(true);
+        setIsFileInProgress(false);
+        setCurrentFileName("");
+        setFileProgress(0);
+        setFileUploadingRemainingTime(0);
+
+      }, 1000);
+    }
+  }
+
+  // delete file
+  async function handleDeleteFile(fileId) {
+    const response = await fetch(`${BASE_URL}/file/${fileId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    await getDirectoryItems();
+  }
+
+  // delete directroy
+  async function handleDeleteDirectory(directoryId) {
+    const response = await fetch(`${BASE_URL}/directory/${directoryId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    getDirectoryItems();
+  }
+
+  // rename file , directory
+  async function renameFile(id, oldFilename) {
+    console.log("Renaming folder with ID:", id, "and name:", oldFilename);
+    setNewFilename(oldFilename);
+    setSelectedId(id);
+  }
+
+  // save rename file
+  async function saveFilename(e) {
+    e.preventDefault();
+    const response = await fetch(`${BASE_URL}/file/${selectedId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ newFilename }),
+    });
+    const data = await response.json();
+    console.log(data);
+    setNewFilename("");
+    setSelectedId(null);
+    setShowFileRenameInputBox(false);
+    await getDirectoryItems();
+  }
+
+  // save rename directory
+  async function saveDirectory(e) {
+    e.preventDefault();
+    const response = await fetch(`${BASE_URL}/directory/${selectedId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ newDirName: newFilename }),
+    });
+    const data = await response.json();
+    console.log(data);
+    setNewFilename("");
+    setSelectedId(null);
+    setShowFolderRenameInputBox(false);
+    await getDirectoryItems();
+  }
+
+  // create directory
+  async function handleCreateDirectory(e) {
+    e.preventDefault();
+    const url = `${BASE_URL}/directory/${dirId || ""}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        dirname: newDirname,
+      },
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    setNewDirname("");
+    setShowInputBox(false);
+    await getDirectoryItems();
+  }
+
+  // Register Post Request
+  async function handleRegister(e) {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${BASE_URL}/user/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...registerData, otp }),
+      });
+      const data = await response.json();
+      setErrorRegister({
+        error: data,
+      });
+      if (data.statusCode === 429) {
+        setRegisterLimiterError(data.error);
+      }
+      else if (data.details) {
+        setErrorRegister({
+          errorDescription:
+            data.details.errInfo.details.schemaRulesNotSatisfied[0]
+              .propertiesNotSatisfied[0].description,
+          errorFieldName:
+            data.details.errInfo.details.schemaRulesNotSatisfied[0]
+              .propertiesNotSatisfied[0].propertyName,
+        });
+      } else if (data.error == "Email is already in use") {
+        setErrorRegister({
+          error: data.error,
+        });
+      }
+      else {
+        console.log(data);
+        navigate("/Login");
+        setRegisterData({
+          name: "",
+          email: "",
+          password: "",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // login user
+  async function handleLogin(e) {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${BASE_URL}/user/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+
+      if (data.statusCode === 429) {
+        setLoginLimiter(data.error)
+      }
+      else if (response.ok) {
+        // ✅ login success — now fetch user data
+        const res = await fetch(`${BASE_URL}/user/profile`, {
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const userData = await res.json();
+          setStoreUserData(userData); // 🎯 set in context
+          setLoggedIn(true); // 🎯 set login flag
+          await getDirectoryItems(); // 🎯 fetch directory data also
+          navigate("/");
+        } else {
+          console.error("User data fetch failed");
+        }
+      } else {
+        setLoginError(data.error);
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+    }
+  }
+
+  // get / fetch user data after login
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const response = await fetch(`${BASE_URL}/user/profile`, {
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          // console.log(userData);
+
+          setStoreUserData(userData);
+          setLoggedIn(true);
+          await getDirectoryItems();
+        } else {
+          setLoggedIn(false);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    fetchUserData();
+  }, []);
+
+  // update user data 
+  async function updateUserData(updateUserData) {
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("userPhoto", updateUserData.photo);
+    formDataToSend.append("name", updateUserData.name);
+
+    const response = await fetch(`${BASE_URL}/user/profile`, {
+      method: "POST",
+      credentials: "include",
+      body: formDataToSend
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log("new data", data);
+
+      setIsUpdatedUserData(true);
+      setUserUpdateMessage(data.message);
+      setStoreUserData(data.updateUser)
+
+    }
+    else {
+      setIsUpdatedUserData(false);
+    }
+  }
+
+  // get Logout request
+  async function handleLogout() {
+    const response = await fetch(`${BASE_URL}/user/logout`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    setLoggedIn(false);
+    navigate("/");
+    getDirectoryItems();
+  }
+
+  // logout form all device
+  async function logoutFromAllDevice() {
+    const response = await fetch(`${BASE_URL}/user/logoutAllDevice`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    setLoggedIn(false);
+    navigate("/");
+    getDirectoryItems();
+  }
+
+  // get OPT
+  async function sendOPT(email) {
+    try {
+      const response = await fetch(`${BASE_URL}/auth/sendOtp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      console.log(data.message);
+      if (data.statusCode === 429) {
+        setOtpLimiterError(data.error);
+        setSentOtpMessage("");
+
+      }
+      if (response.ok) {
+        setSentOtpMessage(data.message);
+        setOtpSent(true);
+        setOtpError("");
+        setOtpLimiterError();
+        setIsOtpWrong(false);
+      }
+
+      else {
+        setOtpSent(false);
+        setOtpError(data.error);
+        setIsOtpWrong(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // verify opt
+  async function verifyUserOtp({ email, otp }) {
+    const response = await fetch(`${BASE_URL}/auth/verifyOtp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ email, otp }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setIsVerifyOtpWrong(false);
+      setVerifyOtpMessage(data.message);
+    } else {
+      setIsVerifyOtpWrong(true);
+      setVerifyOtpMessage(data.error);
+    }
+    console.log(data);
+  }
+
+  // Login with Github 
+  const loginWithGithub = () => {
+    window.location.href = `http://localhost:2000/auth/github`;
+  }
+
+  // Login with Google 
+  async function loginWithGoogle(credential) {
+    const response = await fetch(`${BASE_URL}/auth/google/login`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ credential })
+    })
+    const data = await response.json();
+
+    if (response.ok) {
+      const res = await fetch(`${BASE_URL}/user`, {
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const userData = await res.json();
+        setStoreUserData(userData);
+        setLoggedIn(true);
+        await getDirectoryItems();
+        navigate("/");
+      } else {
+        console.error("User data fetch failed");
+      }
+    } else {
+      setLoginError(data.error);
+    }
+    return data;
+  }
+
+
+  // Google drive 
+  const googleDriveFiles = () => {
+    const popup = window.open(
+      "http://localhost:2000/auth/google/drive",
+      "Google Drive Login",
+      `width=600,height=600,left=500,top=200`
+    ); 5
+
+    window.addEventListener("message", (event) => {
+      if (event.data.success) {
+        console.log(event.data.success);
+        console.log("Google Drive login successful!");
+        getGoogleDriveFilesFolder(); // files auto fetch
+      }
+      else if (event.data.error) {
+        console.log(event.data.error);
+        console.error("Google Drive login failed:", event.data.error);
+      }
+    })
+  };
+
+  // get Google Drive files
+  async function getGoogleDriveFilesFolder() {
+    const response = await fetch(`${BASE_URL}/auth/google/list-file`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      console.log("Google Drive files:", data.files);
+      setGoogleDriveFilesData(data.files);
+    } else {
+      console.error("Failed to fetch Google Drive files:", data.error);
+    }
+  }
+
+  // send google drive files data to backend
+  async function sendDriveFilesData(file) {
+    const response = await fetch(`${BASE_URL}/google-drive/file`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ file })
+    });
+    console.log(await response.json());
+  }
+
+
+
+
+  return (
+    <BastaStorageContext.Provider
+      value={{
+        BASE_URL,
+        directoriesList,
+        setDirectoriesList,
+        filesList,
+        setFilesList,
+
+        // storage full message
+        storageData,
+        storageFullMessage,
+        isStorageFull,
+
+        FileProgress,
+        setFileProgress,
+        newFilename,
+        setNewFilename,
+        newDirname,
+        setNewDirname,
+        dirId,
+        showInputBox,
+        setShowInputBox,
+        showFileRenameInputBox,
+        setShowFileRenameInputBox,
+        showFolderRenameInputBox,
+        setShowFolderRenameInputBox,
+        selectedId,
+        setSelectedId,
+        fileInfo,
+        setFileInfo,
+        showFileInfo,
+        setShowFileInfo,
+        folderInfo,
+        setFolderInfo,
+        showFolderInfo,
+        setShowFolderInfo,
+        showLogOutBox,
+        setShowLogOutBox,
+        accountMenu,
+        setAccountMenu,
+        storeUserData,
+        setStoreUserData,
+        // update user data 
+        updateUserData,
+        isUpdatedUserData,
+        userUpdateMessage,
+        setIsUpdatedUserData,
+        // register 
+        registerData,
+        setRegisterData,
+        errorRegister,
+        setErrorRegister,
+        registerLimiterError,
+        // login 
+        loginData,
+        setLoginData,
+        loginError,
+        setLoginError,
+        loggedIn,
+        setLoggedIn,
+        loginLimiter,
+        // 
+        currentFolderName,
+        setCurrentFolderName,
+        showFileFolderMenu,
+        setShowFileFolderMenu,
+        currentFileName,
+        setCurrentFileName,
+        isFileInProgress,
+        setIsFileInProgress,
+        fileUplodingRemainingTime,
+        setFileUploadingRemainingTime,
+
+        isFileUploaded,
+        setIsFileUploaded,
+        isFileUploadingCancle,
+        setIsFileUploadingCancle,
+        getDirectoryItems,
+        uploadFile,
+        handleDeleteFile,
+        handleDeleteDirectory,
+        renameFile,
+        saveFilename,
+        saveDirectory,
+        handleCreateDirectory,
+        handleRegister,
+        handleLogin,
+        handleLogout,
+        cancleUpload,
+        logoutFromAllDevice,
+        // otp
+        otp,
+        setOtp,
+        sendOPT,
+        otpSent,
+        otpCountDown,
+        setOtpCountDown,
+        otpError,
+        isOtpWrong,
+        sentOtpMessage,
+        otpLimiterError,
+        // verify otp
+        verifyUserOtp,
+        setVerifyOtpMessage,
+        verifyOtpMessage,
+        isVerifyOtpWrong,
+        setIsVerifyOtpWrong,
+
+        // login with google 
+        loginWithGoogle,
+
+        // login with Github: 
+        loginWithGithub,
+
+        // manage user profile 
+        isManageProfileShowing,
+        setIsManageProfileShowing,
+
+        // googleDriveFiles 
+        googleDriveFiles,
+        getGoogleDriveFilesFolder,
+        googleDriveFilesData,
+        isGDBoxOpen,
+        setIsGDBoxOpen,
+
+        // sending google drive files data to backend 
+        sendDriveFilesData
+      }}
+    >
+      {children}
+    </BastaStorageContext.Provider>
+  );
+}
+
+export default ContextAPI;
