@@ -12,6 +12,7 @@ import {
 import { registerLimiter } from "../middleware/registerLimiter.js";
 import { loginLimiter } from "../middleware/loginLimiter.js";
 import { upload } from "../middleware/uploadUserPhoto.js";
+import userMiddleware from "../middleware/userMiddleware.js";
 
 const router = express.Router();
 
@@ -34,8 +35,7 @@ router.get("/user", checkAuth, userProfile);
 //update user profile
 router.post("/user", checkAuth, upload.single("userPhoto"), updateUserProfile);
 
-
 // Authorization List all users
-router.get("/users", checkAuth, getAllUsers)
+router.get("/users", checkAuth, userMiddleware, getAllUsers)
 
 export default router;

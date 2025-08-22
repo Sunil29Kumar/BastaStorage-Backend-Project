@@ -15,7 +15,7 @@ import FileProgress from "./Components/progress file folder/FileProgress";
 import FileUploadCancleMessage from "./Components/progress file folder/fileUploadCancleMessage";
 import ManageUserProfile from "./Auth/ManageUserProfile.jsx";
 import StorageFullMessage from "./Components/Total Storage/StorageFullMessage.jsx";
-import AdminDashboard from "./Admin Dash/AdminDashboard.jsx";
+
 
 function BastaStoreDashboard() {
   // const {dirId} = useParams();
@@ -52,7 +52,6 @@ function BastaStoreDashboard() {
         <FileUploadCancleMessage />
         {isManageProfileShowing && <ManageUserProfile />}
         {isStorageFull && <StorageFullMessage />}
-        {/* <AdminDashboard/> */}
       </div>
     </div>
   );

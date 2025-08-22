@@ -68,7 +68,7 @@ function ContextAPI({ children }) {
   const [loginLimiter, setLoginLimiter] = useState("")
 
   // fetch LOGIN DATA : fetch user Data after login
-  const [storeUserData, setStoreUserData] = useState();
+  const [storeUserData, setStoreUserData] = useState(null);
 
   // logOut states
   const [showLogOutBox, setShowLogOutBox] = useState(false);
@@ -379,28 +379,29 @@ function ContextAPI({ children }) {
   }
 
   // get / fetch user data after login
-  useEffect(() => {
-    async function fetchUserData() {
-      try {
-        const response = await fetch(`${BASE_URL}/user`, {
-          credentials: "include",
-        });
+  async function fetchUserData() {
+    try {
+      const response = await fetch(`${BASE_URL}/user`, {
+        credentials: "include",
+      });
 
-        if (response.ok) {
-          const userData = await response.json();
-          // console.log(userData);
+      if (response.ok) {
+        const userData = await response.json();
+        // console.log(userData);
 
-          setStoreUserData(userData);
-          setLoggedIn(true);
-          await getDirectoryItems();
-        } else {
-          setLoggedIn(false);
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      } catch (err) {
-        console.log(err);
+        setStoreUserData(userData);
+        setLoggedIn(true);
+
+        await getDirectoryItems();
+      } else {
+        setLoggedIn(false);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+    } catch (err) {
+      console.log(err);
     }
+  }
+  useEffect(() => {
     fetchUserData();
   }, []);
 
@@ -418,11 +419,10 @@ function ContextAPI({ children }) {
     });
     if (response.ok) {
       const data = await response.json();
-      console.log("new data", data);
-
       setIsUpdatedUserData(true);
       setUserUpdateMessage(data.message);
       setStoreUserData(data.updateUser)
+
 
     }
     else {
@@ -436,9 +436,15 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
+
     if (response.ok) {
       setAllUsers(data.users);
-    } else {
+    }
+    else if (response.status === 403) {
+      navigate("/");
+      setAllUsers([]);
+    }
+    else {
       console.error("Failed to fetch all users");
     }
   }
@@ -658,6 +664,7 @@ function ContextAPI({ children }) {
         setAccountMenu,
         storeUserData,
         setStoreUserData,
+        fetchUserData,
         // update user data 
         updateUserData,
         isUpdatedUserData,

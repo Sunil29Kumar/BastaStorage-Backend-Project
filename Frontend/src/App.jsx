@@ -6,7 +6,7 @@ import BastaStorageProvider from "./hooks/Context/ContextAPI";
 import Login from "./Auth/Login";
 import MyDrive from "./Components/MyDrive";
 import StorageDashboard from "./Components/Total Storage/StorageDashboard";
-import AdminDashboard from "./Admin Dash/AdminDashboard";
+import GetAllUser from "./Admin Dash/GetAllUser";
 
 function App() {
   return (
@@ -67,7 +67,7 @@ function App() {
         path="/users"
         element={
           <BastaStorageProvider>
-            <AdminDashboard />
+            <GetAllUser />
           </BastaStorageProvider>
         }
       />

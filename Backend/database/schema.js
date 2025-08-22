@@ -41,6 +41,16 @@ try {
           picture: {
             bsonType: "string",
           },
+          totalSpace: {
+            bsonType: "number",
+          },
+          usedSpace: {
+            bsonType: "number",
+          },
+          role:{
+            bsonType: "string",
+            enum: ["user", "admin", "manager"],
+          },
           userTimeStamp: {
             bsonType: "object",
             required: ["userCreatedAt", "userLoginAt", "userLogoutAt"],

@@ -28,7 +28,6 @@ const userSchema = new mongoose.Schema(
       description:
         "Password must have 6+ characters with uppercase, lowercase, number and special character",
     },
-
     picture: {
       type: String,
       default: "https://static.vecteezy.com/system/resources/previews/037/336/395/non_2x/user-profile-flat-illustration-avatar-person-icon-gender-neutral-silhouette-profile-picture-free-vector.jpg"
@@ -40,6 +39,11 @@ const userSchema = new mongoose.Schema(
     usedSpace: {
       type: Number,
       default: 0
+    },
+    role:{
+      type: String,
+      enum: ["user", "admin","manager"],
+      default: "user"
     },
     userTimeStamp: {
       userCreatedAt: {
