@@ -39,7 +39,7 @@ app.use(
 
 app.use("/directory", checkAuth, directoryRoutes);
 app.use("/file", checkAuth, fileRoutes);
-app.use("/user", userRoutes);
+app.use("/", userRoutes);
 app.use("/auth", authRoute);
 app.use("/google-drive", checkAuth, googleDriveRoute);
 

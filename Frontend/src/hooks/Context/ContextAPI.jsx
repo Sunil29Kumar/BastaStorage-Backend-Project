@@ -79,6 +79,9 @@ function ContextAPI({ children }) {
   const [isUpdatedUserData, setIsUpdatedUserData] = useState(false);
   const [userUpdateMessage, setUserUpdateMessage] = useState("");
 
+  // all users
+  const [allUsers, setAllUsers] = useState([]);
+
   // get OPT
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -379,7 +382,7 @@ function ContextAPI({ children }) {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await fetch(`${BASE_URL}/user/profile`, {
+        const response = await fetch(`${BASE_URL}/user`, {
           credentials: "include",
         });
 
@@ -408,7 +411,7 @@ function ContextAPI({ children }) {
     formDataToSend.append("userPhoto", updateUserData.photo);
     formDataToSend.append("name", updateUserData.name);
 
-    const response = await fetch(`${BASE_URL}/user/profile`, {
+    const response = await fetch(`${BASE_URL}/user`, {
       method: "POST",
       credentials: "include",
       body: formDataToSend
@@ -424,6 +427,19 @@ function ContextAPI({ children }) {
     }
     else {
       setIsUpdatedUserData(false);
+    }
+  }
+
+  // all user 
+  async function getAllUsers() {
+    const response = await fetch(`${BASE_URL}/users`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setAllUsers(data.users);
+    } else {
+      console.error("Failed to fetch all users");
     }
   }
 
@@ -647,6 +663,11 @@ function ContextAPI({ children }) {
         isUpdatedUserData,
         userUpdateMessage,
         setIsUpdatedUserData,
+
+        // all user 
+        allUsers,
+        getAllUsers,
+
         // register 
         registerData,
         setRegisterData,

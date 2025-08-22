@@ -23,7 +23,6 @@ export const registerUser = async (req, res, next) => {
   }
 
   const session = await mongoose.startSession();
-
   try {
     const userId = new mongoose.Types.ObjectId();
     const rootDirId = new mongoose.Types.ObjectId();
@@ -189,7 +188,21 @@ export const updateUserProfile = async (req, res) => {
 };
 
 // admin user 
-export const adminUser = async (req, res) => {
-  console.log("admin user");
-  return res.status(200).json({ message: "Admin access granted" });
+export const getAllUsers = async (req, res) => {
+
+  const allSessions = await Session.find().lean();
+  const allSessionsUserId = allSessions.map(session => session.userId.toString());
+
+  const users = await User.find().lean()
+  const userIdNameEmail = users.map(user => {
+    return {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      picture: user.picture,
+      isLoggedIn: allSessionsUserId.includes(user._id.toString())
+    }
+  })
+
+  return res.status(200).json({ users: userIdNameEmail });
 }

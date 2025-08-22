@@ -64,7 +64,7 @@ function App() {
       />
 
       <Route
-        path="/admin-user"
+        path="/users"
         element={
           <BastaStorageProvider>
             <AdminDashboard />

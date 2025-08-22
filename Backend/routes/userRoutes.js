@@ -1,7 +1,7 @@
 import express from "express";
 import checkAuth from "../middleware/authMiddleware.js";
 import {
-  adminUser,
+  getAllUsers,
   loginUser,
   logoutAllDevice,
   logoutUser,
@@ -17,25 +17,25 @@ const router = express.Router();
 
 // authintication 
 
-router.post("/register", registerLimiter, registerUser);
+router.post("/user/register", registerLimiter, registerUser);
 
 // login route
-router.post("/login", loginLimiter, loginUser);
+router.post("/user/login", loginLimiter, loginUser);
 
 // logout
-router.get("/logout", checkAuth, logoutUser);
+router.get("/user/logout", checkAuth, logoutUser);
 
 // logout From all device
-router.get("/logoutAllDevice", checkAuth, logoutAllDevice);
+router.get("/user/logoutAllDevice", checkAuth, logoutAllDevice);
 
 // sending user email, name to frontend
-router.get("/profile", checkAuth, userProfile);
+router.get("/user", checkAuth, userProfile);
 
 //update user profile
-router.post("/profile", checkAuth, upload.single("userPhoto"), updateUserProfile);
+router.post("/user", checkAuth, upload.single("userPhoto"), updateUserProfile);
 
 
-// Authorization 
-router.get("/", adminUser)
+// Authorization List all users
+router.get("/users", checkAuth, getAllUsers)
 
 export default router;
