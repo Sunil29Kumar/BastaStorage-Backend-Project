@@ -74,6 +74,12 @@ function ContextAPI({ children }) {
   const [showLogOutBox, setShowLogOutBox] = useState(false);
   const [accountMenu, setAccountMenu] = useState(false);
 
+  // logout user by admin and manager
+  // delete user by id by admin 
+  const [logoutDeleteByIdMessage, setLogoutDeleteByIdMessage] = useState({
+    success: "",
+    error: ""
+  });
 
   // update user data
   const [isUpdatedUserData, setIsUpdatedUserData] = useState(false);
@@ -449,6 +455,34 @@ function ContextAPI({ children }) {
     }
   }
 
+  // logout user by admin and manager
+  async function logoutUserById(userId) {
+    const response = await fetch(`${BASE_URL}/users/logout`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json", // 👈 yeh jaruri hai
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+      getAllUsers(); // Refresh user list
+    }
+    if (response.status === 403) {
+      setLogoutDeleteByIdMessage({ success: "", error: data.message });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+    }
+
+
+  }
+
   // get Logout request
   async function handleLogout() {
     const response = await fetch(`${BASE_URL}/user/logout`, {
@@ -471,6 +505,33 @@ function ContextAPI({ children }) {
     setLoggedIn(false);
     navigate("/");
     getDirectoryItems();
+  }
+
+  // delete user using id by admin 
+  async function deleteUserById(userId) {
+    const response = await fetch(`${BASE_URL}/users/delete`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+      getAllUsers(); // Refresh user list
+    }
+    if (response.status === 403) {
+      setLogoutDeleteByIdMessage({ success: "", error: data.message });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+
+    }
   }
 
   // get OPT
@@ -674,6 +735,12 @@ function ContextAPI({ children }) {
         // all user 
         allUsers,
         getAllUsers,
+
+        // logout user by admin and manager 
+        // delete user by id 
+        logoutUserById,
+        deleteUserById,
+        logoutDeleteByIdMessage,
 
         // register 
         registerData,

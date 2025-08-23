@@ -1,10 +1,12 @@
 import express from "express";
 import checkAuth from "../middleware/authMiddleware.js";
 import {
+  deleteUserById,
   getAllUsers,
   loginUser,
   logoutAllDevice,
   logoutUser,
+  logoutUserById,
   registerUser,
   updateUserProfile,
   userProfile,
@@ -37,5 +39,11 @@ router.post("/user", checkAuth, upload.single("userPhoto"), updateUserProfile);
 
 // Authorization List all users
 router.get("/users", checkAuth, userMiddleware, getAllUsers)
+
+// logout user by id throw admin and manager
+router.post("/users/logout", checkAuth, userMiddleware, logoutUserById);
+
+// delete user using id  by admin 
+router.post("/users/delete", checkAuth, userMiddleware, deleteUserById);
 
 export default router;

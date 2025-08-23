@@ -8,6 +8,10 @@ import Session from "../models/sessionModel.js";
 import { sendOTP } from "../utils/sendOTP.js";
 import OTP from "../models/otpModel.js";
 import multer from "multer";
+import Directorie from "../models/directoryModel.js";
+import File from "../models/fileModel.js";
+
+
 
 // register user
 export const registerUser = async (req, res, next) => {
@@ -206,4 +210,71 @@ export const getAllUsers = async (req, res) => {
   })
 
   return res.status(200).json({ users: userIdNameEmail });
+}
+
+
+// logout user using user id by admin or manager 
+export const logoutUserById = async (req, res) => {
+  const { userId } = req.body;
+  const currentUser = req.user
+  try {
+
+    const targetUser = await User.findById(userId);
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (currentUser.role === "manager" && targetUser.role === "admin") {
+      return res.status(403).json({ success: false, message: "You are Manager not have permission to logout Admin" });
+    }
+
+    if (targetUser._id.toString() === currentUser._id.toString()) {
+      return res.status(403).json({ success: false, message: "You cannot logout yourself" });
+    }
+
+    // delete session by userId
+    await Session.deleteMany({ userId: new mongoose.Types.ObjectId(targetUser._id) });
+
+    // push logout timestamp in user
+    await User.updateOne(
+      { _id: new mongoose.Types.ObjectId(userId) },
+      { $push: { "userTimeStamp.userLogoutAt": new Date() } }
+    );
+
+    res.status(200).json({ success: true, message: "User logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+
+// delete user using id  by admin 
+export const deleteUserById = async (req, res) => {
+  const { userId } = req.body
+  const currentUser = req.user
+  try {
+
+    const targetUser = await User.findById(userId);
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "User ID is required" });
+    }
+
+    if (targetUser._id.toString() == currentUser._id.toString()) {
+      return res.status(403).json({ success: false, message: "You cannot Delete yourself" });
+    }
+    if (currentUser.role === "manager" && targetUser.role === "admin") {
+      return res.status(403).json({ success: false, message: "You are Manager dont have permission to Delete Admin" });
+    }
+
+
+    await User.findByIdAndDelete(userId)
+    await Directorie.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
+    await Session.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
+    await File.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
+    console.log(userId);
+
+    res.json({ message: "user deleted" })
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 }

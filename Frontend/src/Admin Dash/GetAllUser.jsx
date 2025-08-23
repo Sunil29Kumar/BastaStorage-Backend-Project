@@ -2,14 +2,26 @@ import React, { useContext, useEffect } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
 function GetAllUser() {
-  const { getAllUsers, allUsers, storeUserData } = useContext(BastaStorageContext);
+  const { getAllUsers, allUsers, storeUserData, logoutUserById ,deleteUserById,logoutDeleteByIdMessage} = useContext(BastaStorageContext);
 
   useEffect(() => {
     getAllUsers();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className=" relative min-h-screen bg-gray-50 font-sans">
+      {/* error / success message  */}
+      {logoutDeleteByIdMessage?.error && (
+        <div className=" absolute bottom-2  left-[50%] translate-x-[-50%] text-[1.5vw] px-3 py-2 rounded-md bg-red-400 text-black ">
+          {logoutDeleteByIdMessage?.error}
+        </div>
+      )}
+      {logoutDeleteByIdMessage?.success && (
+        <div className=" absolute bottom-2  left-[50%] translate-x-[-50%] text-[1.5vw] px-3 py-2 rounded-md bg-green-400 text-black ">
+          {logoutDeleteByIdMessage?.success}
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
         <h1 className="text-[2vw] font-bold text-gray-800 flex gap-2 justify-center items-end ">
@@ -80,8 +92,8 @@ function GetAllUser() {
                     <td className="p-3">
                       <span
                         className={`px-2 py-1 text-[1.2vw] rounded-full ${user.role === "admin"
-                            ? "bg-red-100 text-red-600"
-                            : "bg-green-100 text-green-600"
+                          ? "bg-red-100 text-red-600"
+                          : "bg-green-100 text-green-600"
                           }`}
                       >
                         {user.role}
@@ -92,8 +104,8 @@ function GetAllUser() {
                     <td className="p-3">
                       <span
                         className={`px-2 py-1 text-xs rounded-full text-[1.2vw] ${user.isLoggedIn
-                            ? "bg-blue-100 text-blue-600"
-                            : "bg-gray-200 text-gray-600"
+                          ? "bg-blue-100 text-blue-600"
+                          : "bg-gray-200 text-gray-600"
                           }`}
                       >
                         {user.isLoggedIn ? "Online" : "Offline"}
@@ -103,9 +115,11 @@ function GetAllUser() {
                     {/* Logout Button */}
                     <td className="p-3 text-start">
                       <button
-                        className={`px-4 py-1.5 rounded-lg text-[1.2vw] font-medium transition ${user.isLoggedIn
-                            ? "bg-blue-500 hover:bg-blue-600 text-white"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        disabled={!user.isLoggedIn}
+                        onClick={() => logoutUserById(user.id)}
+                        className={`px-4 py-1.5 rounded-lg text-[1.2vw] font-medium transition  ${user.isLoggedIn
+                          ? "bg-blue-500 hover:bg-blue-700 text-white cursor-pointer "
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
                           }`}
                       >
                         Logout
@@ -114,12 +128,12 @@ function GetAllUser() {
 
                     {/* Delete Button (Admin Only) */}
                     {storeUserData?.role === "admin" && (
-                      <td className="p-3 text-start ">
+                      <td className="p-3 text-start  ">
                         <button
-                          className={`px-4 py-1.5 rounded-lg text-[1.2vw] font-medium transition ${user.isLoggedIn
-                              ? "bg-red-500 hover:bg-red-600 text-white"
-                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            }`}
+                        onClick={()=>deleteUserById(user.id)}
+                          className={`px-4 py-1.5 rounded-lg text-[1.2vw] font-medium transition cursor-pointer 
+                            bg-red-500 hover:bg-red-700 text-white
+                            `}
                         >
                           Delete
                         </button>
