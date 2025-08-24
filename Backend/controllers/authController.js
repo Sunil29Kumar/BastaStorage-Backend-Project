@@ -10,8 +10,12 @@ import { google } from "googleapis";
 import { oauth2Client } from "../utils/googleDriveAuthService.js";
 import GoogleTokens from "../models/googleTokensModel.js";
 import { getNewAccessToken } from "../utils/getNewAccessToken.js";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
+import RecoveryEmail from "../models/recoveryEmailModel.js";
 
-
+import dotenv from "dotenv";
+dotenv.config();
 
 export const sendOTPUser = async (req, res, next) => {
   const { email } = req.body;
@@ -159,6 +163,11 @@ export const loginWithGoogle = async (req, res, next) => {
   const user = await User.findOne({ email }).lean();
 
   if (user) {
+
+    if (user.isDeleted) {
+      return res.status(403).json({ error: "Your account has been deleted. Please contact support." });
+    }
+
     const activeSessions = await Session.find({ userId: user._id }).sort({
       createdAt: 1,
     });
@@ -335,3 +344,91 @@ export const googleDriveFilesFolder = async (req, res) => {
   }
 };
 
+
+
+// request recovery  
+export const requestRecovery = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    const user = await User.findOne({ email, isDeleted: true });
+    if (!user) return res.status(400).json({ error: `No deleted account found for ${email}` });
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    await RecoveryEmail.create({ email, token });
+
+
+    const link = `http://localhost:5173/recover-account?token=${token}`;
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_PASSWORD,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: '"BastaStorage" <sunil.kksdk@gmail.com>',
+      to: email,
+      subject: "Recover Your BastaStorage Account",
+      html: `
+  <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 40px;">
+    <div style="max-width: 600px; margin: auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      
+      <!-- Header -->
+      <div style="background: #4f46e5; padding: 20px; text-align: center;">
+        <h1 style="color: #fff; margin: 0;">BastaStorage</h1>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 30px; text-align: center;">
+        <h2 style="color: #333;">Recover Your Account</h2>
+        <p style="color: #555; font-size: 15px; line-height: 1.6;">
+          We noticed that your BastaStorage account is marked for recovery.  
+          To restore access, please click the button below.
+        </p>
+
+        <a href="${link}" 
+           style="display: inline-block; margin-top: 20px; padding: 12px 24px; 
+                  background: #4f46e5; color: #fff; text-decoration: none; 
+                  border-radius: 8px; font-weight: bold;">
+          Recover Account
+        </a>
+
+        <p style="margin-top: 20px; font-size: 13px; color: #888;">
+          If you didn’t request this, you can safely ignore this email.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div style="background: #f9fafb; padding: 15px; text-align: center; font-size: 12px; color: #999;">
+        © ${new Date().getFullYear()} BastaStorage. All rights reserved.
+      </div>
+    </div>
+  </div>
+  `,
+    });
+
+
+    return res.status(200).json({ message: `Recovery email sent to ${email}` });
+  }
+  catch {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+// recover account 
+export const recoverAccount = async (req, res) => {
+  const { token } = req.body;
+  const recoveryData = await RecoveryEmail.findOne({ token })
+  if (!recoveryData) {
+    return res.status(400).json({ error: `Invalid ${recoveryData.email}` })
+  }
+  await User.updateOne({ email: recoveryData.email }, { isDeleted: false })
+  await RecoveryEmail.deleteOne({ token })
+
+  return res.status(200).json({ message: `Your ${recoveryData.email} account has been successfully recovered. You can now log in.` })
+}

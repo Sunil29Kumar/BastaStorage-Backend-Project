@@ -1,13 +1,14 @@
 import express from "express";
 import checkAuth from "../middleware/authMiddleware.js";
 import {
-  deleteUserById,
   getAllUsers,
+  hardDeleteUserById,
   loginUser,
   logoutAllDevice,
   logoutUser,
   logoutUserById,
   registerUser,
+  softDeleteUserById,
   updateUserProfile,
   userProfile,
 } from "../controllers/userController.js";
@@ -44,6 +45,10 @@ router.get("/users", checkAuth, userMiddleware, getAllUsers)
 router.post("/users/logout", checkAuth, userMiddleware, logoutUserById);
 
 // delete user using id  by admin 
-router.post("/users/delete", checkAuth, userMiddleware, deleteUserById);
+// hard delete 
+router.post("/users/delete/hard", checkAuth, userMiddleware, hardDeleteUserById);
+
+// soft delete
+router.post("/users/delete/soft", checkAuth, userMiddleware, softDeleteUserById);
 
 export default router;

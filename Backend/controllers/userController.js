@@ -192,12 +192,13 @@ export const updateUserProfile = async (req, res) => {
 };
 
 // admin user 
-export const getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res) => { 
 
   const allSessions = await Session.find().lean();
   const allSessionsUserId = allSessions.map(session => session.userId.toString());
 
-  const users = await User.find().lean()
+  const users = await User.find({isDeleted: false}).lean()
+  
   const userIdNameEmail = users.map(user => {
     return {
       id: user._id,
@@ -249,7 +250,7 @@ export const logoutUserById = async (req, res) => {
 
 
 // delete user using id  by admin 
-export const deleteUserById = async (req, res) => {
+export const hardDeleteUserById = async (req, res) => {
   const { userId } = req.body
   const currentUser = req.user
   try {
@@ -274,6 +275,34 @@ export const deleteUserById = async (req, res) => {
     console.log(userId);
 
     res.json({ message: "user deleted" })
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+
+// soft delete
+export const softDeleteUserById = async (req, res) => {
+  const { userId } = req.body;
+  const currentUser = req.user;
+  try {
+    const targetUser = await User.findById(userId);
+
+    if (targetUser._id.toString() == currentUser._id.toString()) {
+      return res.status(403).json({ success: false, message: "You cannot Delete yourself" });
+    }
+    if (currentUser.role === "manager" && targetUser.role === "admin") {
+      return res.status(403).json({ success: false, message: "You are Manager dont have permission to Delete Admin" });
+    }
+
+    await User.updateOne(
+      { _id: new mongoose.Types.ObjectId(userId) },
+      { $set: { isDeleted: true } }
+    );
+
+    await Session.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
+    res.status(200).json({ success: true, message: "User soft deleted successfully" });
+
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }

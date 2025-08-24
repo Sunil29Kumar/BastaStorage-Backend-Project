@@ -8,6 +8,9 @@ import MyDrive from "./Components/MyDrive";
 import StorageDashboard from "./Components/Total Storage/StorageDashboard";
 import GetAllUser from "./Admin Dash/GetAllUser";
 
+import RecoverRequest from "./Account recover/RecoverRequest";
+import RecoverAccount from "./Account recover/RecoverAccount";
+
 function App() {
   return (
     <Routes>
@@ -68,6 +71,24 @@ function App() {
         element={
           <BastaStorageProvider>
             <GetAllUser />
+          </BastaStorageProvider>
+        }
+      />
+
+      <Route
+        path="/recover-request"
+        element={
+          <BastaStorageProvider>
+            <RecoverRequest />
+          </BastaStorageProvider>
+        }
+      />
+
+      <Route
+        path="/recover-account"
+        element={
+          <BastaStorageProvider>
+            <RecoverAccount />
           </BastaStorageProvider>
         }
       />

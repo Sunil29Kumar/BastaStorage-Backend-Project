@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin","manager"],
       default: "user"
     },
+    isDeleted:{
+      type: Boolean,
+      default: false
+    },
     userTimeStamp: {
       userCreatedAt: {
         type: Date,

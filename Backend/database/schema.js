@@ -51,6 +51,9 @@ try {
             bsonType: "string",
             enum: ["user", "admin", "manager"],
           },
+          isDeleted:{
+            bsonType: "bool",
+          },
           userTimeStamp: {
             bsonType: "object",
             required: ["userCreatedAt", "userLoginAt", "userLogoutAt"],

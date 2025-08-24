@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import { use } from "react";
 import { useRef } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -106,9 +107,25 @@ function ContextAPI({ children }) {
   // manage user prfoile 
   const [isManageProfileShowing, setIsManageProfileShowing] = useState(false)
 
+  // login with google 
+  const [googleLoginError, setGoogleLoginError] = useState("");
+  const [isLoginWithGoogle, setIsLoginWithGoogle] = useState(false);
+
   // google drive 
   const [googleDriveFilesData, setGoogleDriveFilesData] = useState([]);
   const [isGDBoxOpen, setIsGDBoxOpen] = useState(false);
+
+  // recovery request 
+  const [recoveryRequestMessage, setRecoveryRequestMessage] = useState({
+    message: "",
+    error: ""
+  })
+
+  // recover account 
+  const [recoverAccountMessage, setRecoverAccountMessage] = useState({
+    message: "",
+    error: ""
+  })
 
 
   //                                                 --------------------------------
@@ -122,7 +139,10 @@ function ContextAPI({ children }) {
     });
     const data = await response.json();
     if (response.status == 401) {
-      navigate("/Register");
+      if (location.pathname !== "/recover-account" && location.pathname !== "/recover-request") {
+        navigate("/Register");
+      }
+      return
     }
 
     setDirectoriesList(data.directories);
@@ -508,8 +528,36 @@ function ContextAPI({ children }) {
   }
 
   // delete user using id by admin 
-  async function deleteUserById(userId) {
-    const response = await fetch(`${BASE_URL}/users/delete`, {
+  // hard delete 
+  async function hardDeleteUserById(userId) {
+    const response = await fetch(`${BASE_URL}/users/delete/hard`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+      getAllUsers(); // Refresh user list
+    }
+    if (response.status === 403) {
+      setLogoutDeleteByIdMessage({ success: "", error: data.message });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+
+    }
+  }
+
+  // soft delete 
+  async function softDeleteUserById(userId) {
+    const response = await fetch(`${BASE_URL}/users/delete/soft`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -607,8 +655,19 @@ function ContextAPI({ children }) {
       body: JSON.stringify({ credential })
     })
     const data = await response.json();
+    console.log(data);
 
+
+    if (response.status === 403) {
+      setGoogleLoginError(data.error);
+      setIsLoginWithGoogle(false)
+      navigate("/recover-request");
+      return
+    }
     if (response.ok) {
+      setGoogleLoginError("");
+      setIsLoginWithGoogle(true)
+
       const res = await fetch(`${BASE_URL}/user`, {
         credentials: "include",
       });
@@ -619,10 +678,10 @@ function ContextAPI({ children }) {
         setLoggedIn(true);
         await getDirectoryItems();
         navigate("/");
-      } else {
-        console.error("User data fetch failed");
       }
-    } else {
+    }
+
+    else {
       setLoginError(data.error);
     }
     return data;
@@ -679,7 +738,42 @@ function ContextAPI({ children }) {
     console.log(await response.json());
   }
 
+  //  Recovery request
+  async function sendRecoverRequest(email) {
+    const response = await fetch(`${BASE_URL}/auth/recover-request`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setRecoveryRequestMessage({ message: data.message, error: "" });
+    }
+    if (response.status === 400) {
+      setRecoveryRequestMessage({ message: "", error: data.error });
+    }
+  }
 
+
+  // Recover Account 
+  async function sendRecoverAccount(token) {
+    const response = await fetch(`${BASE_URL}/auth/recover-account`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setRecoverAccountMessage({ message: data.message, error: "" })
+    }
+    if (response.status == 400) {
+      setRecoverAccountMessage({ message: "", error: data.error })
+    }
+  }
 
 
   return (
@@ -739,7 +833,8 @@ function ContextAPI({ children }) {
         // logout user by admin and manager 
         // delete user by id 
         logoutUserById,
-        deleteUserById,
+        hardDeleteUserById,
+        softDeleteUserById,
         logoutDeleteByIdMessage,
 
         // register 
@@ -805,6 +900,9 @@ function ContextAPI({ children }) {
 
         // login with google 
         loginWithGoogle,
+        isLoginWithGoogle,
+        googleLoginError,
+        setGoogleLoginError,
 
         // login with Github: 
         loginWithGithub,
@@ -821,7 +919,15 @@ function ContextAPI({ children }) {
         setIsGDBoxOpen,
 
         // sending google drive files data to backend 
-        sendDriveFilesData
+        sendDriveFilesData,
+
+        // recovery request
+        sendRecoverRequest,
+        recoveryRequestMessage,
+
+        // recovery account 
+        sendRecoverAccount,
+        recoverAccountMessage
       }}
     >
       {children}

@@ -1,11 +1,13 @@
 import nodemailer from "nodemailer";
 import OTP from "../models/otpModel.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "sunil.kksdk@gmail.com",
-    pass: "agez qdcw eodm wxzb",
+    user: process.env.USER_EMAIL,
+    pass: process.env.USER_PASSWORD,
   },
 });
 

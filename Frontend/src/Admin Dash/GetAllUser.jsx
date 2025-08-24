@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
 function GetAllUser() {
-  const { getAllUsers, allUsers, storeUserData, logoutUserById ,deleteUserById,logoutDeleteByIdMessage} = useContext(BastaStorageContext);
+  const { getAllUsers, allUsers, storeUserData, logoutUserById, hardDeleteUserById, logoutDeleteByIdMessage, softDeleteUserById } = useContext(BastaStorageContext);
 
   useEffect(() => {
     getAllUsers();
@@ -117,8 +117,8 @@ function GetAllUser() {
                       <button
                         disabled={!user.isLoggedIn}
                         onClick={() => logoutUserById(user.id)}
-                        className={`px-4 py-1.5 rounded-lg text-[1.2vw] font-medium transition  ${user.isLoggedIn
-                          ? "bg-blue-500 hover:bg-blue-700 text-white cursor-pointer "
+                        className={`px-4 py-1.5 rounded-lg text-[1vw] font-medium transition  ${user.isLoggedIn
+                          ? "bg-blue-500 hover:bg-red-600 text-white cursor-pointer "
                           : "bg-gray-300 text-gray-500 cursor-not-allowed"
                           }`}
                       >
@@ -128,14 +128,22 @@ function GetAllUser() {
 
                     {/* Delete Button (Admin Only) */}
                     {storeUserData?.role === "admin" && (
-                      <td className="p-3 text-start  ">
+                      <td className="p-3 text-start flex gap-2  ">
                         <button
-                        onClick={()=>deleteUserById(user.id)}
-                          className={`px-4 py-1.5 rounded-lg text-[1.2vw] font-medium transition cursor-pointer 
-                            bg-red-500 hover:bg-red-700 text-white
+                          onClick={() => hardDeleteUserById(user.id)}
+                          className={`px-4 py-1.5 rounded-lg text-[1vw] font-medium transition cursor-pointer 
+                            bg-red-500 hover:bg-red-700 hover:text-white
                             `}
                         >
-                          Delete
+                          Hard Delete
+                        </button>
+                        <button
+                          onClick={() => softDeleteUserById(user.id)}
+                          className={`px-4 py-1.5 rounded-lg text-[1vw] font-medium transition cursor-pointer 
+                            bg-red-400 hover:bg-blue-600 hover:text-white
+                            `}
+                        >
+                          Soft Delete
                         </button>
                       </td>
                     )}
