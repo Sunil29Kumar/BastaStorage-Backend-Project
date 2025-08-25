@@ -128,6 +128,13 @@ function ContextAPI({ children }) {
   })
 
 
+  // update Role 
+  const [updateRoleMessage, setUpdateRoleMessage] = useState({
+    message: "",
+    error: ""
+  });
+
+
   //                                                 --------------------------------
   //                                  main code starrt
   // ---------------------------------
@@ -776,6 +783,35 @@ function ContextAPI({ children }) {
   }
 
 
+  // update user role 
+  async function updateUserRole(userId, newRole) {
+    const response = await fetch(`${BASE_URL}/users/changeRole`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, newRole }),
+    });
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      getAllUsers(); // Refresh user list
+      setUpdateRoleMessage({ message: data.message, error: "" });
+      setTimeout(() => {
+        setUpdateRoleMessage({ message: "", error: "" });
+      }, 2000);
+    }
+    if (response.status === 400) {
+      setUpdateRoleMessage({ message: "", error: data.error });
+      setTimeout(() => {
+        setUpdateRoleMessage({ message: "", error: "" });
+      }, 2000);
+    }
+  }
+
+
   return (
     <BastaStorageContext.Provider
       value={{
@@ -927,7 +963,12 @@ function ContextAPI({ children }) {
 
         // recovery account 
         sendRecoverAccount,
-        recoverAccountMessage
+        recoverAccountMessage,
+
+        // update user role 
+        updateUserRole,
+        updateRoleMessage,
+
       }}
     >
       {children}

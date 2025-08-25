@@ -192,13 +192,14 @@ export const updateUserProfile = async (req, res) => {
 };
 
 // admin user 
-export const getAllUsers = async (req, res) => { 
+export const getAllUsers = async (req, res) => {
 
   const allSessions = await Session.find().lean();
   const allSessionsUserId = allSessions.map(session => session.userId.toString());
 
-  const users = await User.find({isDeleted: false}).lean()
-  
+  // const users = await User.find({isDeleted: false}).lean()
+  const users = await User.find().lean()
+
   const userIdNameEmail = users.map(user => {
     return {
       id: user._id,
@@ -306,4 +307,26 @@ export const softDeleteUserById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
+}
+
+
+export const updateUserRole = async (req, res) => {
+  const { userId, newRole } = req.body;
+  console.log(req.body);
+
+  const currentUser = req.user;
+
+  const targetUser = await User.findById(userId);
+  if (!targetUser) {
+    return res.status(400).json({ success: false, message: "User not found" });
+  }
+
+  if (currentUser.role == "manager" && targetUser.role == "admin") {
+    return res.status(400).json({ success: false, message: "You are Manager not have permission to update Admin" });
+  }
+
+  await User.findByIdAndUpdate(userId, { role: newRole });
+
+  res.status(200).json({ success: true, message: "user role updated" })
+
 }

@@ -10,6 +10,7 @@ import {
   registerUser,
   softDeleteUserById,
   updateUserProfile,
+  updateUserRole,
   userProfile,
 } from "../controllers/userController.js";
 import { registerLimiter } from "../middleware/registerLimiter.js";
@@ -50,5 +51,7 @@ router.post("/users/delete/hard", checkAuth, userMiddleware, hardDeleteUserById)
 
 // soft delete
 router.post("/users/delete/soft", checkAuth, userMiddleware, softDeleteUserById);
+
+router.patch("/users/changeRole", checkAuth, userMiddleware, updateUserRole);
 
 export default router;

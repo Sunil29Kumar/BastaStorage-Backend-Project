@@ -53,3 +53,8 @@ app.listen(process.env.PORT, () => {
 });
 
 
+
+// kya kay abhi karna hay RBAC me 
+
+// 1. owner acces 
+// 2. roles update (same role update kar sakt ahay admin, manager )

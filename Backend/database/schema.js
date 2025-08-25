@@ -49,7 +49,7 @@ try {
           },
           role:{
             bsonType: "string",
-            enum: ["user", "admin", "manager"],
+            enum: ["owner","user", "admin", "manager"],
           },
           isDeleted:{
             bsonType: "bool",
