@@ -154,7 +154,8 @@ export const logoutAllDevice = async (req, res) => {
 
 // user profile 
 export const userProfile = async (req, res) => {
-  const userData = { name: req.user.name, email: req.user.email, picture: req.user.picture, role: req.user.role };
+  
+  const userData = { name: req.user.name, email: req.user.email, picture: req.user.picture, role: req.user.role,isPasswordSet: req.user.password ? true : false, };
   return res.status(200).json(userData);
 }
 

@@ -181,7 +181,9 @@ export const loginWithGoogle = async (req, res, next) => {
       signed: true,
       maxAge: 60 * 1000 * 60 * 24 * 7,
     });
-
+    if (!user.password) {
+      return res.status(206).json({ message: "User Logged In, Please set your password", email });
+    }
     return res.status(200).json({ message: "User Logged In" });
   }
 
@@ -235,6 +237,11 @@ export const loginWithGoogle = async (req, res, next) => {
 
     await session.commitTransaction();
 
+    // if user dont have password while login with google
+    if (!user.password) {
+      return res.status(206).json({ message: "User Logged In, Please set your password", email });
+    }
+
     return res.status(200).json({ message: "User Logged In" });
 
   } catch (err) {
@@ -245,6 +252,53 @@ export const loginWithGoogle = async (req, res, next) => {
   }
 
 }
+
+// set google password 
+export const setGooglePassword = async (req, res) => {
+  const { password, confirmPassword } = req.body;
+
+  if (!password || !confirmPassword) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Password and confirm password are required." });
+  }
+
+  if (password !== confirmPassword) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Passwords do not match." });
+  }
+
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, error: "User not found." });
+    }
+
+    if (user.password) {
+      return res
+        .status(409) // 409 Conflict (already exists)
+        .json({ success: false, message: "Password is already set for this account." });
+    }
+
+    user.password = password; // ⚠️ yaha hash karna mat bhoolna bcrypt se
+    await user.save();
+
+    return res
+      .status(201) // 201 Created (new password created)
+      .json({ success: true, message: "Password has been set successfully." });
+  } catch (err) {
+    console.error("Error setting Google password:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Something went wrong. Please try again later." });
+  }
+};
+
 
 // google Drive callback 
 export const googleCallback = async (req, res) => {
@@ -343,7 +397,6 @@ export const googleDriveFilesFolder = async (req, res) => {
     res.status(500).send("Google Drive API failed");
   }
 };
-
 
 
 // request recovery  

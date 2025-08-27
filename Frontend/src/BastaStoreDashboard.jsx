@@ -15,6 +15,7 @@ import FileProgress from "./Components/progress file folder/FileProgress";
 import FileUploadCancleMessage from "./Components/progress file folder/fileUploadCancleMessage";
 import ManageUserProfile from "./Auth/ManageUserProfile.jsx";
 import StorageFullMessage from "./Components/Total Storage/StorageFullMessage.jsx";
+import GoogleLoginSetPasswordMessage from "./Auth/GoogleLoginSetPasswordMessage.jsx";
 
 
 function BastaStoreDashboard() {
@@ -32,12 +33,13 @@ function BastaStoreDashboard() {
     isFileUploaded,
     isFileUploadingCancle,
     isManageProfileShowing,
-    isStorageFull
+    isStorageFull,
+    isUserPasswordSet
   } = useContext(BastaStorageContext);
 
   return (
-    <div className=" px-3 py-2 bg-gray-800  h-[100vh] ">
-      <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl p-1 flex bg-white text-black relative  ">
+    <div className={`px-3 py-2 bg-blue-50 h-[100vh]`}>
+      <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl p-1 flex  text-black relative  ">
         <SideBar />
         <FilesFolderList />
         {showInputBox && <CreateFolderInputBox />}
@@ -52,6 +54,7 @@ function BastaStoreDashboard() {
         <FileUploadCancleMessage />
         {isManageProfileShowing && <ManageUserProfile />}
         {isStorageFull && <StorageFullMessage />}
+        {!isUserPasswordSet && <GoogleLoginSetPasswordMessage />}
       </div>
     </div>
   );

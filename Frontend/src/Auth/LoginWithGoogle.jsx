@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 function LoginWithGoogle() {
 
     const navigate = useNavigate();
-    const { loginWithGoogle } = useContext(BastaStorageContext)
+    const { loginWithGoogle, setIsLoginWithGoogle, isLoginWithGoogle } = useContext(BastaStorageContext)
 
     return (
         <div className=' ' >
@@ -14,9 +14,10 @@ function LoginWithGoogle() {
             <GoogleLogin
                 onSuccess={async credentialResponse => {
                     const data = await loginWithGoogle(credentialResponse.credential)
-                    if (data.error) {
-                        console.error("Login failed:", data.error);
-                    }
+                    // if (data.error) {
+                    //     console.error("Login failed:", data.error);
+                    // }
+
                     navigate('/')
                 }}
                 onError={() => {

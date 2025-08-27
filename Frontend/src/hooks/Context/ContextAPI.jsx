@@ -107,9 +107,16 @@ function ContextAPI({ children }) {
   // manage user prfoile 
   const [isManageProfileShowing, setIsManageProfileShowing] = useState(false)
 
+  const [isUserPasswordSet, setIsUserPasswordSet] = useState(null);
+
   // login with google 
   const [googleLoginError, setGoogleLoginError] = useState("");
   const [isLoginWithGoogle, setIsLoginWithGoogle] = useState(false);
+  const [loginWithGoogleMessage, setLoginWithGoogleMessage] = useState({});
+
+  // set google password 
+  const [googlePasswordError, setGooglePasswordError] = useState("");
+  const [googlePasswordSuccessMessage, setGooglePasswordSuccessMessage] = useState("");
 
   // google drive 
   const [googleDriveFilesData, setGoogleDriveFilesData] = useState([]);
@@ -126,7 +133,6 @@ function ContextAPI({ children }) {
     message: "",
     error: ""
   })
-
 
   // update Role 
   const [updateRoleMessage, setUpdateRoleMessage] = useState({
@@ -155,8 +161,6 @@ function ContextAPI({ children }) {
     setDirectoriesList(data.directories);
     setFilesList(data.files);
     setStorageData(data.storageData);
-    console.log(data);
-    console.log(data.storageData);
 
   }
   useEffect(() => {
@@ -399,6 +403,7 @@ function ContextAPI({ children }) {
           setStoreUserData(userData); // 🎯 set in context
           setLoggedIn(true); // 🎯 set login flag
           await getDirectoryItems(); // 🎯 fetch directory data also
+
           navigate("/");
         } else {
           console.error("User data fetch failed");
@@ -420,15 +425,14 @@ function ContextAPI({ children }) {
 
       if (response.ok) {
         const userData = await response.json();
-        // console.log(userData);
-
         setStoreUserData(userData);
+        setIsUserPasswordSet(userData.isPasswordSet);
         setLoggedIn(true);
+        console.log(userData);
 
         await getDirectoryItems();
       } else {
         setLoggedIn(false);
-        throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (err) {
       console.log(err);
@@ -662,8 +666,6 @@ function ContextAPI({ children }) {
       body: JSON.stringify({ credential })
     })
     const data = await response.json();
-    console.log(data);
-
 
     if (response.status === 403) {
       setGoogleLoginError(data.error);
@@ -672,8 +674,12 @@ function ContextAPI({ children }) {
       return
     }
     if (response.ok) {
+
       setGoogleLoginError("");
       setIsLoginWithGoogle(true)
+      setLoginWithGoogleMessage(data)
+
+      // fetch user data
 
       const res = await fetch(`${BASE_URL}/user`, {
         credentials: "include",
@@ -683,6 +689,7 @@ function ContextAPI({ children }) {
         const userData = await res.json();
         setStoreUserData(userData);
         setLoggedIn(true);
+
         await getDirectoryItems();
         navigate("/");
       }
@@ -694,6 +701,30 @@ function ContextAPI({ children }) {
     return data;
   }
 
+
+  // set login with google password
+  async function setGooglePassword(password, confirmPassword) {
+    const response = await fetch(`${BASE_URL}/auth/google/set-password`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password, confirmPassword }),
+    });
+    const data = await response.json()
+    if (response.ok) {
+      setGooglePasswordSuccessMessage(data.message);
+      setGooglePasswordError('');
+    }
+    if (response.status === 400) {
+      console.log(data);
+      setGooglePasswordSuccessMessage("");
+      setGooglePasswordError(data.error);
+      
+    }
+
+  }
 
   // Google drive 
   const googleDriveFiles = () => {
@@ -937,8 +968,17 @@ function ContextAPI({ children }) {
         // login with google 
         loginWithGoogle,
         isLoginWithGoogle,
+        setIsLoginWithGoogle,
         googleLoginError,
         setGoogleLoginError,
+        loginWithGoogleMessage,
+        // set google password 
+        setGooglePassword,
+        googlePasswordSuccessMessage,
+        googlePasswordError,
+
+        setIsUserPasswordSet,
+        isUserPasswordSet,
 
         // login with Github: 
         loginWithGithub,
