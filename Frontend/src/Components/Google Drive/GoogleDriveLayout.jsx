@@ -7,12 +7,12 @@ import GoogleDriveFolders from "./GoogleDriveFolders";
 
 function GoogleDriveLayout() {
 
-    const { setIsGDBoxOpen, googleDriveFilesData } = useContext(BastaStorageContext);
+    const { isDarkMode, setIsGDBoxOpen, googleDriveFilesData } = useContext(BastaStorageContext);
 
 
 
     return (
-        <div className="absolute left-[100%] bottom-0  w-[40vw] h-[60vh]  border-2 border-blue-400 rounded-md bg-white flex flex-col p-4 overflow-x-auto z-[1]">
+        <div className={`absolute left-[100%] bottom-0  w-[50vw] h-[65vh]    rounded-md  flex flex-col p-4 overflow-x-auto z-[1] ${isDarkMode ? "bg-gray-900 text-white border-l-2 border-blue-400" : "bg-white text-black border-2 border-blue-400"}`}>
 
             {googleDriveFilesData.length > 0 && googleDriveFilesData ?
 
@@ -25,9 +25,13 @@ function GoogleDriveLayout() {
                 </>
 
                 :
-                <div className="flex flex-col items-center justify-center h-full gap-3">
+                <div className=" relative flex flex-col items-center justify-center h-full gap-3">
+                    <i
+                        onClick={() => setIsGDBoxOpen(false)}
+                        className={`ri-close-large-fill cursor-pointer absolute top-0 left-0 text-[2vw] hover:scale-150 transition-all duration-300 ${isDarkMode ? "text-white " : "text-black"}`}>
+                    </i>
                     <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-                    <p className="text-gray-600 text-lg">Loading Google Drive files...</p>
+                    <p className={`${isDarkMode ? "text-white " : "text-black"} text-lg`}>Loading Google Drive files...</p>
                 </div>
             }
 

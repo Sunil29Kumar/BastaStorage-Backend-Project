@@ -1,8 +1,8 @@
-import React, {useContext, useEffect, useRef} from "react";
-import {BastaStorageContext} from "../../hooks/Context/ContextAPI";
+import React, { useContext, useEffect, useRef } from "react";
+import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function FolderInformation() {
-  const {setShowFolderInfo, folderInfo} = useContext(BastaStorageContext);
+  const { isDarkMode, setShowFolderInfo, folderInfo } = useContext(BastaStorageContext);
 
   const infoRef = useRef(null);
 
@@ -20,12 +20,13 @@ function FolderInformation() {
   return (
     <div
       ref={infoRef}
-      className="absolute right-[2%]  bottom-[0%] z-100 w-[30vw] h-[80vh] bg-white rounded-xl shadow-xl border border-gray-300 p-5 overflow-auto"
+      className={`absolute right-[2%] bottom-[0%] z-50 w-[30vw] h-[80vh] rounded-xl shadow-xl p-5 overflow-auto ${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-white  border-gray-300"}`}
     >
       {folderInfo.length > 0 && (
-        <div className="text-gray-700">
-          <div className="flex relative justify-between items-center w-full mb-4 ">
-            <h2 className="text-lg font-semibold text-gray-800 flex gap-2 ">
+        <div className="">
+          <div
+            className={`flex relative justify-between items-center w-full mb-4 ${isDarkMode ? "text-white" : "text-gray-800"}`}>
+            <h2 className="text-lg font-semibold  flex gap-2 ">
               <p>{"🗂️"}</p>
               {folderInfo[0].folderName.length > 20
                 ? folderInfo[0].folderName.slice(0, 20) + "..."

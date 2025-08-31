@@ -3,7 +3,7 @@ import { FaFolder } from 'react-icons/fa';
 import { BastaStorageContext } from '../../hooks/Context/ContextAPI';
 
 function GoogleDriveFolders() {
-    const { googleDriveFilesData } = useContext(BastaStorageContext);
+    const {isDarkMode, googleDriveFilesData } = useContext(BastaStorageContext);
 
     return (
         <>
@@ -12,17 +12,17 @@ function GoogleDriveFolders() {
                 <h2 className="text-lg font-semibold">Folders</h2>
             </div>
 
-            <div className="  flex flex-wrap gap-2 mt-2">
+            <div className="  flex flex-wrap gap-3 mt-2">
                 {googleDriveFilesData
                     .filter(file => file.mimeType === "application/vnd.google-apps.folder")
                     .map((folder, index) => (
                         <div
                             key={folder.id || index}
                             onClick={() => window.open(folder.webViewLink)}
-                            className=" p-2 cursor-pointer rounded-md border-2 border-gray-100 flex justify-center items-center gap-3  "
+                            className={` px-3  py-2 cursor-pointer rounded-md  flex justify-center items-center gap-4    ${isDarkMode ? "bg-gray-800  hover:bg-gray-900 " : "bg-white  hover:bg-blue-50 "}`}
                         >
-                            <FaFolder className="text-yellow-500 text-[2vw]  " />
-                            <p className=" ">{folder.name.length > 10 ? folder.name.slice(0, 10) + "..." : folder.name}</p>
+                            <FaFolder className="text-yellow-500 text-[3vw]  " />
+                            <p className=" ">{folder.name.length > 15 ? folder.name.slice(0, 15) + "..." : folder.name}</p>
                         </div>
                     ))}
             </div>

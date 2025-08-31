@@ -7,7 +7,7 @@ import GoogleDriveFilesFolderList from "./Google Drive/GoogleDriveLayout";
 import GoogleDrive from "./Google Drive/GoogleDrive";
 
 function CreateUploadFFList() {
-  const { setShowFileFolderMenu } = useContext(BastaStorageContext);
+  const { setShowFileFolderMenu, isDarkMode } = useContext(BastaStorageContext);
   const fileFolderMenuRef = useRef(null);
   useEffect(() => {
     function handleClickOutside(event) {
@@ -27,7 +27,7 @@ function CreateUploadFFList() {
   return (
     <div
       ref={fileFolderMenuRef}
-      className="absolute bottom-[0%] left-[1%] w-[15vw] border-1 bg-white border-blue-400 shadow-lg rounded-md flex flex-col p-2  "
+      className={`absolute bottom-[3.5%] left-[2.5%] w-[15vw] border-1 border-blue-400 shadow-lg rounded-md flex flex-col p-2   ${isDarkMode ? "bg-gray-900" : "bg-blue-50"} `}
     >
       <CreateFolder />
       <UploadFile />

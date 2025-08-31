@@ -3,6 +3,7 @@ import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
 function AccountMenu() {
   const {
+    isDarkMode,
     setAccountMenu,
     setShowLogOutBox,
     storeUserData,
@@ -24,7 +25,7 @@ function AccountMenu() {
   return (
     <div
       ref={accoutnRef}
-      className=" absolute min-w-[25vw]  right-[1%] top-[11%]  shadow-xl rounded-md p-4 space-y-2 bg-blue-50 flex flex-col gap-2 "
+      className={`absolute min-w-[25vw]  right-[1%] top-[11%]  shadow-xl rounded-md p-4 space-y-2   flex flex-col gap-2 ${isDarkMode ? "bg-gray-800" : "bg-white"} `}
     >
       {storeUserData && (
         <div className=" w-full flex flex-col items-center justify-center  gap-5 ">
@@ -42,9 +43,11 @@ function AccountMenu() {
         <button
           onClick={() => {
             setIsManageProfileShowing(true)
+            setAccountMenu(false);
+
           }}
 
-          className="text-left cursor-pointer px-7 py-2 rounded-2xl text-gray-700 hover:bg-blue-100 hover:text-black ">
+          className={` cursor-pointer px-7 py-2 rounded-2xl ${isDarkMode ? "bg-black text-white hover:bg-gray-900 " : "bg-blue-100 text-black"} `}>
           Manage You Profile
         </button>
       </div>
@@ -54,7 +57,7 @@ function AccountMenu() {
             setAccountMenu(false);
             setShowLogOutBox(true);
           }}
-          className=" cursor-pointer text-left px-4 py-2 rounded-2xl hover:bg-red-100 text-red-600 font-medium"
+          className={`cursor-pointer text-left px-4 py-2 rounded-2xl h text-red-600 font-medium ${isDarkMode ? "hover:bg-red-500 hover:text-black " : "hover:bg-red-200"}`}
         >
           Logout
         </button>

@@ -4,10 +4,10 @@ import Folder from "./File Folder List/Folder";
 import File from "./File Folder List/File";
 
 function Home() {
-  const {filesList, directoriesList} = useContext(BastaStorageContext);
+  const {isDarkMode, filesList, directoriesList} = useContext(BastaStorageContext);
   return (
     <div className=" h-[100%]  ">
-      <h3 className=" font-bold text-[1.5vw] text-gray-600  ">
+      <h3 className={` font-bold text-[1.5vw]  ${isDarkMode ? "text-white" : "text-gray-600"}`}>
         Welcome to My Drive
       </h3>
       <div className=" overflow-x-auto h-[100%]">
@@ -21,7 +21,7 @@ function Home() {
           </>
         ) : (
           <div className=" w-[100%] h-full flex justify-center items-center text-[2vw]">
-          <p className="  bg-gray-200 rounded-md text-gray-600 px-5 py-4 " >Click + to create Folder or upload Files</p>
+          <p className={`  bg-gray-200 rounded-md ${isDarkMode ? "text-white" : "text-gray-600"} px-5 py-4 `}>Click + to create Folder or upload Files</p>
           </div>
         )}
       </div>

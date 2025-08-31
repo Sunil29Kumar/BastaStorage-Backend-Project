@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function RemainingStorage() {
-  const { storageData } = useContext(BastaStorageContext);
+  const { storageData,isDarkMode } = useContext(BastaStorageContext);
 
   // convert bytes -> MB & GB
-  const usedMB = storageData.usedSpace / (1024 * 1024);
-  const totalGB = storageData.totalSpace / (1024 * 1024 * 1024);
+  const usedMB = storageData?.usedSpace / (1024 * 1024);
+  const totalGB = storageData?.totalSpace / (1024 * 1024 * 1024);
 
   // progress in percentage
   const percentUsed = (usedMB / (totalGB * 1024)) * 100;
@@ -15,7 +15,7 @@ function RemainingStorage() {
 
 
   return (
-    <div className="bg-gray-50 shadow-lg rounded-md p-3  ">
+    <div className={` shadow-lg rounded-md p-3  ${isDarkMode ? "bg-gray-900 text-white" : "bg-blue-50 text-black"}  `}>
       {/* Top Section */}
       <div className="flex items-center gap-2 mb-2">
         <i className="ri-cloud-line w-5 h-5 text-blue-600"></i>
@@ -23,11 +23,11 @@ function RemainingStorage() {
       </div>
 
       {/* Progress Bar */}
-  
+
       <div className="w-full h-1.5 bg-gray-300 rounded-full mb-2 overflow-hidden">
         <div
-          className={`h-1.5 ${percentUsed >= 75 ? "bg-red-500" : percentUsed >= 50 ? "bg-blue-500" : "bg-green-500"
-            } rounded-full`}
+          className={`h-1.5 ${percentUsed <= 50 ? "bg-green-500" : percentUsed >= 75 ? "bg-red-500" : "bg-blue-500"
+            } rounded-full bg-gray-300`}
           style={{ width: `${percentUsed}%` }}
         ></div>
       </div>

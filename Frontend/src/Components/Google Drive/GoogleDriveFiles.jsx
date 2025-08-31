@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { BastaStorageContext } from '../../hooks/Context/ContextAPI';
 
 function GoogleDriveFiles() {
-    const { googleDriveFilesData, sendDriveFilesData } = useContext(BastaStorageContext);
+    const {isDarkMode, googleDriveFilesData, sendDriveFilesData } = useContext(BastaStorageContext);
 
     return (
         <>
@@ -10,7 +10,7 @@ function GoogleDriveFiles() {
                 <h2 className="text-lg font-semibold">Files</h2>
             </div>
 
-            <div className=" mt-3 flex flex-wrap  items-center gap-x-4 gap-y-1">
+            <div className=" mt-3 flex flex-wrap  items-center gap-3">
                 {googleDriveFilesData
                     .filter(file => file.mimeType !== "application/vnd.google-apps.folder")
                     .map((file, index) => (
@@ -20,7 +20,7 @@ function GoogleDriveFiles() {
                             onClick={() => sendDriveFilesData({createdTime: file.createdTime,  mimeType: file.mimeType, name: file.name, size: file.size, thumbnailLink: file.thumbnailLink, webViewLink: file.webViewLink})}
 
                             // 
-                            className="imgbox relative group w-[11vw] h-[15vh]  cursor-pointer rounded-md p-2 flex flex-wrap items-center border-2 border-gray-400"
+                            className={`imgbox relative group w-[15vw] h-[25vh]  cursor-pointer rounded-md p-2 flex flex-wrap items-center  ${isDarkMode ? "bg-gray-800" : "bg-blue-50"} `}
                         >
                             <img
                                 src={file.thumbnailLink}

@@ -1,8 +1,9 @@
-import {useContext, useEffect, useRef} from "react";
-import {BastaStorageContext} from "../../hooks/Context/ContextAPI";
+import { useContext, useEffect, useRef } from "react";
+import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function RenameFolderInputBox() {
   const {
+    isDarkMode,
     newFilename,
     setNewFilename,
     saveDirectory,
@@ -24,8 +25,8 @@ function RenameFolderInputBox() {
 
   return (
     <div
-    ref={renameReff}
-     className=" w-[30vw] rounded-md border-2 border-blue-200 bg-gray-100 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] p-5 flex flex-col gap-5 ">
+      ref={renameReff}
+      className={` w-[30vw] rounded-md border-2  absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] p-5 flex flex-col gap-5 ${isDarkMode ? "border-gray-300 bg-gray-900" : "border-blue-200 bg-gray-100"}`}>
       <div className=" flex justify-between ">
         <h1 className=" text-[2vw] ">Rename Folder</h1>
         <button
@@ -40,7 +41,7 @@ function RenameFolderInputBox() {
         <div>
           <input
             type="text"
-            className=" border-2 border-black w-[100%] py-2 px-1 "
+            className={` border-2 w-[100%] py-2 px-1 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}
             onChange={(e) => setNewFilename(e.target.value)}
             value={newFilename}
           />

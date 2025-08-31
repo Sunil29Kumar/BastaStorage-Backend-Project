@@ -1,10 +1,11 @@
-import {useContext, useEffect, useRef, useState} from "react";
-import {BastaStorageContext} from "../../hooks/Context/ContextAPI";
-import {Link} from "react-router-dom";
-import {use} from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
+import { Link } from "react-router-dom";
+import { use } from "react";
 
 function Folder() {
   const {
+    isDarkMode,
     directoriesList,
     renameFile,
     handleDeleteDirectory,
@@ -48,7 +49,7 @@ function Folder() {
             setFolderOverFlow("visible");
           }
         }}
-        className="  text-[1.3vw]  text-start cursor-pointer px-3 py-1  rounded-2xl  hover:bg-blue-300 "
+        className={` text-[1.3vw]  text-start cursor-pointer px-3 py-1  rounded-2xl  ${isDarkMode ? "text-gray-100 hover:bg-gray-800 " : " text-black hover:bg-blue-300"} `}
       >
         {" "}
         {isFolderShowing ? (
@@ -60,8 +61,7 @@ function Folder() {
       </button>
       {/* folder div  */}
       <div
-        style={{maxHeight: `${folderHeight}`, overflow: `${folderOverFlow}`}}
-        className="   "
+        style={{ maxHeight: `${folderHeight}`, overflow: `${folderOverFlow}` }}
       >
         {/* folder data  */}
         <div className=" h-[100%] flex flex-wrap justify-start items-start  gap-4 mt-3  ">
@@ -69,7 +69,7 @@ function Folder() {
             directoriesList.map((folder, index) => (
               <div
                 key={folder.id}
-                className=" flex justify-between w-[25vw] px-3 py-2 items-center bg-blue-50  cursor-pointer hover:bg-blue-100  transition duration-300 ease-in "
+                className={` flex justify-between w-[25vw] px-3 py-2 items-center   cursor-pointer   transition duration-300 ease-in rounded-md ${isDarkMode ? " text-gray-100 bg-gray-800 hover:bg-black " : "bg-blue-50 hover:bg-blue-100"}`}
               >
                 <Link
                   to={`/directory/${folder.id}`}
@@ -77,9 +77,12 @@ function Folder() {
                 >
                   <div className=" text-[2vw] ">🖿</div>
                   <div className="hover:text-[1.5vw]">
-                    {folder.name.slice(0, 10)}
+                    {folder.name.slice(0, 15)}
                   </div>
                 </Link>
+
+
+                {/* ----------- menu section  */}
                 {/* menu button  */}
                 <div className=" relative ">
                   <button
@@ -92,9 +95,10 @@ function Folder() {
                   {openFolderMenueId === folder.id && (
                     <div
                       ref={menuRef}
-                      className="absolute  right-0 z-30  w-[16VW] px-4 py-4 border border-gray-400 rounded-md bg-white text-black shadow-md flex flex-col gap-3 "
+                      className={`absolute  right-0 z-30  w-[16VW] px-4 py-4 border border-gray-400 rounded-md  shadow-md flex flex-col gap-3 ${isDarkMode ? "bg-gray-900  text-gray-100" : "bg-white text-black"}`}
                     >
-                      <p className="text-center bg-blue-200 py-2 rounded-2xl  ">
+                      {/* name  */}
+                      <p className={`text-center  py-2 rounded-2xl ${isDarkMode ? "bg-gray-800 text-gray-100" : "bg-blue-200"} `}>
                         {folder.name.length > 10
                           ? folder.name.slice(0, 10)
                           : folder.name}
@@ -105,14 +109,14 @@ function Folder() {
                           renameFile(folder.id, folder.name);
                           setShowFolderRenameInputBox(true);
                         }}
-                        className=" cursor-pointer p-2 hover:bg-blue-100 rounded-md flex gap-2  "
+                        className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
                       >
                         <i className="ri-edit-2-line"></i>
                         Rename
                       </div>
                       <div
                         onClick={() => handleDeleteDirectory(folder.id)}
-                        className=" cursor-pointer p-2 hover:bg-blue-100 rounded-md flex gap-2  "
+                          className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
                       >
                         <i className="ri-delete-bin-fill"></i>
                         Delete
@@ -129,7 +133,7 @@ function Folder() {
                             },
                           ]);
                         }}
-                        className=" cursor-pointer p-2 hover:bg-blue-100 rounded-md flex gap-2 "
+                          className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
                       >
                         <i className="ri-edit-2-line"></i>
                         Folder Information
@@ -141,7 +145,7 @@ function Folder() {
             ))
           ) : (
             <div className=" w-[100%] flex justify-center " >
-            <p className=" bg-gray-200 rounded-md text-gray-600 px-7 py-4  ">click + to add Folders</p>
+              <p className=" bg-gray-200 rounded-md text-gray-600 px-7 py-4  ">click + to add Folders</p>
             </div>
           )}
         </div>

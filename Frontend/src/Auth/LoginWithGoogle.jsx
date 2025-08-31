@@ -14,11 +14,6 @@ function LoginWithGoogle() {
             <GoogleLogin
                 onSuccess={async credentialResponse => {
                     const data = await loginWithGoogle(credentialResponse.credential)
-                    // if (data.error) {
-                    //     console.error("Login failed:", data.error);
-                    // }
-
-                    navigate('/')
                 }}
                 onError={() => {
                     console.log('Login Failed');

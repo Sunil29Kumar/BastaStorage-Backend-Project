@@ -4,23 +4,21 @@ import { BastaStorageContext } from '../../hooks/Context/ContextAPI';
 import { useContext } from 'react';
 
 function GoogleDriveNavbar() {
-    const { setIsGDBoxOpen, googleDriveFilesData } = useContext(BastaStorageContext);
+    const { isDarkMode, setIsGDBoxOpen, googleDriveFilesData } = useContext(BastaStorageContext);
 
     return (
-        <div className="  pb-4 ">
-            <div className=" flex gap-2 ">
-                <button
-                    onClick={() => setIsGDBoxOpen(false)}
-                    className="  text-black text-[1rem] px-2 border-2 rounded-[100%] cursor-pointer ">X</button>
-                <h1>Google Drive</h1>
+        <div className=" flex  justify-center items-center gap-5 mb-3">
+            <i
+                onClick={() => setIsGDBoxOpen(false)}
+                className={`ri-close-large-fill cursor-pointer text-[2vw] hover:scale-150 transition-all duration-300 ${isDarkMode ? "text-white " : "text-black"}`}>
+            </i>
+            <div className=' flex justify-center items-center  '>
+                <div className=' w-[3vw] h-[3vw] '>
+                    <img src='/google drive.png' />
+                </div>
+                <h1 className=' text-[2vw] text-center ' >Google Drive</h1>
             </div>
-            <div className="flex justify-center items-center gap-3  ">
-                <Link to="" className="text-blue-400 border-b-2 border-blue-400 ">
-                    All
-                </Link>
-                <Link to="" className="hover:text-blue-700">Folders</Link>
-                <Link to="" className="hover:text-blue-700">Files</Link>
-            </div>
+
 
         </div>
     )

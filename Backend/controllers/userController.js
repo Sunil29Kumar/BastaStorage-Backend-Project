@@ -47,11 +47,11 @@ export const registerUser = async (req, res, next) => {
           userLogoutAt: [],
         },
       },
-      { session }
-    );
-    await user.save();
 
-    await Directory.insertOne(
+    );
+    await user.save({ session });
+
+    const directory = new Directory(
       {
         _id: rootDirId,
         parentDirId: null,
@@ -64,8 +64,9 @@ export const registerUser = async (req, res, next) => {
           lastDownload: [],
         },
       },
-      { session }
+
     );
+    await directory.save({ session });
 
     await session.commitTransaction();
 
@@ -95,7 +96,7 @@ export const loginUser = async (req, res) => {
     }
 
     const isPsswordValid = await user.comparePassword(password);
-    console.log("matchpassword = ", isPsswordValid);
+    // console.log("matchpassword = ", isPsswordValid);
 
     if (!isPsswordValid) {
       return res.status(404).json({ error: "Invalid credentials" });
@@ -114,7 +115,7 @@ export const loginUser = async (req, res) => {
     res.cookie("sid", session.id, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 10000 * 60 * 24 * 7,
+      maxAge: 60 * 1000 * 60 * 24 * 7, // 
     });
 
     await User.updateOne(
@@ -122,9 +123,9 @@ export const loginUser = async (req, res) => {
       { $push: { "userTimeStamp.userLoginAt": new Date() } }
     );
 
-    return res.json({ message: "login success" });
+    return res.status(200).json({ message: "login success" });
   } catch (error) {
-    return res.json({ error: error.message })
+    return res.status(500).json({ error: error.message })
   }
 };
 
@@ -154,8 +155,8 @@ export const logoutAllDevice = async (req, res) => {
 
 // user profile 
 export const userProfile = async (req, res) => {
-  
-  const userData = { name: req.user.name, email: req.user.email, picture: req.user.picture, role: req.user.role,isPasswordSet: req.user.password ? true : false, };
+
+  const userData = { name: req.user.name, email: req.user.email, picture: req.user.picture, role: req.user.role, isPasswordSet: req.user.password ? true : false, };
   return res.status(200).json(userData);
 }
 
@@ -164,6 +165,11 @@ export const updateUserProfile = async (req, res) => {
   const userId = req.user._id;
   const { sid } = req.signedCookies;
   const { name } = req.body;
+
+
+  if (name.length < 3) {
+    return res.status(400).json({ error: "Name must be at least 3 characters long" });
+  }
 
   try {
     // match session
@@ -319,11 +325,11 @@ export const updateUserRole = async (req, res) => {
 
   const targetUser = await User.findById(userId);
   if (!targetUser) {
-    return res.status(400).json({ success: false, message: "User not found" });
+    return res.status(400).json({ success: false, error: "User not found" });
   }
 
   if (currentUser.role == "manager" && targetUser.role == "admin") {
-    return res.status(400).json({ success: false, message: "You are Manager not have permission to update Admin" });
+    return res.status(400).json({ success: false, error: "You are Manager not have permission to update Admin" });
   }
 
   await User.findByIdAndUpdate(userId, { role: newRole });

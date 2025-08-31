@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
 function TopMenu() {
-  const { setAccountMenu, randomAccountBGcolor, storeUserData } =
+  const { isDarkMode, setAccountMenu, randomAccountBGcolor, storeUserData } =
     useContext(BastaStorageContext);
   return (
     <div>
-      <div className=" w-[100%] flex justify-between items-center   ">
+      <div className={` w-[100%] flex justify-between items-center px-2 rounded-md ${isDarkMode ? "bg-gray-800" : "bg-white"} `}>
         {/* search bar  */}
         <div className="relative w-[50vw]">
           <input
@@ -25,7 +25,7 @@ function TopMenu() {
               setAccountMenu(true);
             }}
 
-            className="border-2 border-blue-400 rounded-full w-[4vw] h-[4vw] cursor-pointer  flex justify-center items-center text-[2vw] font-bold overflow-hidden "
+            className=" rounded-full w-[4vw] h-[4vw] cursor-pointer  flex justify-center items-center text-[2vw] font-bold overflow-hidden "
           >
             {storeUserData && (
               <img src={storeUserData.picture ? `http://localhost:2000${storeUserData.picture}` : "/user-img.png"} className="  w-full h-full object-cover " />

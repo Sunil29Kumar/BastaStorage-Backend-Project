@@ -4,7 +4,6 @@ import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 function GoogleLoginSetPasswordMessage() {
     const {
         setGooglePassword,
-        setIsUserPasswordSet,
         googlePasswordSuccessMessage,
         googlePasswordError,
     } = useContext(BastaStorageContext);
@@ -13,23 +12,17 @@ function GoogleLoginSetPasswordMessage() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    useEffect(() => {
-        if (googlePasswordSuccessMessage) {
-            setTimeout(() => {
-                setIsUserPasswordSet(true);
-            }, 2500);
-        }
-    }, [googlePasswordSuccessMessage, setIsUserPasswordSet]);
 
     return (
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 text-center animate-fadeIn">
+        <div className=" w-full h-full fixed top-0 left-0 bg-black/30  flex items-center justify-center z-50">
+
+        <div className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 text-center animate-fadeIn">
             {/* Close Icon */}
-            <button
-                onClick={() => setIsUserPasswordSet(true)}
+            {/* <button
                 className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition"
             >
                 <i className="ri-close-line text-2xl"></i>
-            </button>
+            </button> */}
 
             {!showForm ? (
                 <div>
@@ -104,6 +97,8 @@ function GoogleLoginSetPasswordMessage() {
                 </div>
             )}
         </div>
+        </div>
+
     );
 }
 

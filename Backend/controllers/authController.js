@@ -226,13 +226,12 @@ export const loginWithGoogle = async (req, res, next) => {
     );
     await directory.save({ session });
 
-
     const createSession = await Session.create({ userId });
 
     res.cookie("sid", createSession.id, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 1000 * 60 * 24 * 7,
+      maxAge: 60 * 1000 * 60 * 24 * 7, //
     });
 
     await session.commitTransaction();
@@ -291,8 +290,8 @@ export const setGooglePassword = async (req, res) => {
     return res
       .status(201) // 201 Created (new password created)
       .json({ success: true, message: "Password has been set successfully." });
+      
   } catch (err) {
-    console.error("Error setting Google password:", err);
     return res
       .status(500)
       .json({ success: false, message: "Something went wrong. Please try again later." });

@@ -1,21 +1,33 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import { Link } from "react-router-dom";
 
 function RecoverRequest() {
-  const { googleLoginError, sendRecoverRequest, recoveryRequestMessage } = useContext(BastaStorageContext);
+  const { googleLoginError, sendRecoverRequest, recoveryRequestMessage } =
+    useContext(BastaStorageContext);
 
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    console.log(googleLoginError);
+  }, [googleLoginError]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    sendRecoverRequest(email);
+    if (!email) return;
+
+    setLoading(true);
+    try {
+      await sendRecoverRequest(email); 
+    } finally {
+      setLoading(false); 
+    }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200 px-4">
       <div className="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full">
-
         {/* Heading */}
         <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-2">
           Recover Your Account
@@ -52,14 +64,12 @@ function RecoverRequest() {
           {!recoveryRequestMessage.message && (
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300"
+              disabled={loading} // ⬅️ disable button while sending
+              className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Send Recovery Link
+              {loading ? "Sending..." : "Send Recovery Link"}
             </button>
           )}
-
-
-
         </form>
 
         {recoveryRequestMessage.error && (
@@ -75,6 +85,7 @@ function RecoverRequest() {
             Register here
           </Link>
         </p>
+
         {recoveryRequestMessage.message && (
           <div className="mt-4 bg-green-100 text-green-700 p-3 rounded-md text-center">
             {recoveryRequestMessage.message}

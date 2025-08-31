@@ -6,6 +6,7 @@ import { Link, useLocation } from "react-router-dom";
 function File() {
   const location = useLocation();
   const {
+    isDarkMode,
     directoriesList,
     renameFile,
     setShowFolderRenameInputBox,
@@ -26,6 +27,12 @@ function File() {
   // file suggesion
   const [isFileShowing, setIsFileShowing] = useState(false);
   const [fileHeight, setFileHeight] = useState("60vh");
+
+  // menu box position
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+
+  // hover share file
+  const [isShareFileHover, setIsShareFileHover] = useState(false);
 
   const menuRef = useRef(null);
   useEffect(() => {
@@ -62,6 +69,12 @@ function File() {
     return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   };
 
+  const handleMenuToggle = (e) => {
+    const y = e.clientY - 300;
+    setMenuPosition({ y });
+  };
+
+
   return (
     <div className=" mt-4">
       {/* suggested file  */}
@@ -76,7 +89,7 @@ function File() {
               setIsFileShowing(false);
             }
           }}
-          className="  text-[1.3vw]  text-start cursor-pointer px-3 py-1  mb-2  rounded-2xl  hover:bg-blue-300 "
+          className={` text-[1.3vw]  text-start cursor-pointer px-3 py-1  rounded-2xl  ${isDarkMode ? "text-gray-100 hover:bg-gray-800 " : " text-black hover:bg-blue-300"} `}
         >
           {" "}
           {isFileShowing ? (
@@ -87,15 +100,16 @@ function File() {
           Suggested File
         </button>
       )}
+
       <div
         style={{
           height: `${location.pathname === "/my-drive" ? "75vh" : fileHeight}`,
         }}
-        className="   overflow-x-hidden    mt-3 "
+        className="   overflow-x-hidden  mt-3 "
       >
         {/* files folder data  */}
         <table className="w-[100%] border-collapse z-10 ">
-          <thead className="bg-blue-100 text-center ">
+          <thead className={`text-center ${isDarkMode ? "bg-gray-800 text-gray-100" : "bg-blue-100 text-black"}`}>
             <tr>
               <th className="text-left p-2">Icon</th>
               <th className="text-left p-2">Name</th>
@@ -106,7 +120,7 @@ function File() {
           </thead>
           <tbody className=" relative  ">
 
-            {/* directory data --------------------  */}
+            {/* directory data -----------------------------------------------  */}
 
             {location.pathname == "/my-drive" &&
               directoriesList &&
@@ -115,9 +129,11 @@ function File() {
                 <>
                   <tr
                     key={folder.id}
-                    className="border-b border-blue-200 hover:bg-blue-50 transition-all "
+                    className={`border-b transition duration-300 ease-in  ${isDarkMode ? " border-gray-800 hover:bg-gray-800 " : " border-blue-200 hover:bg-blue-100"}`}
                   >
+                    {/* icon  */}
                     <td className=" p-2 text-xl">🖿</td>
+                    {/* name  */}
                     <td className="p-2 cursor-pointer gap-1  ">
                       <Link
                         to={`/directory/${folder.id}`}
@@ -126,29 +142,36 @@ function File() {
                         {folder.name.slice(0, 30)}
                       </Link>
                     </td>
+                    {/* timestamp  */}
                     <td className="p-2">
                       {folder?.folderTimeStamp
                         ? folder.folderTimeStamp?.folderCreatedAt
                         : "liti"}
                       {/* fdsf */}
                     </td>
+                    {/* size  */}
                     <td className="p-2">-</td>
 
+                    {/* ------------- menu bar Section  */}
                     <td className="p-2 relative text-center ">
-                      {/* menu bar  */}
                       <button
                         className=" text-lg "
-                        onClick={() => setOpenFolderMenueId(folder.id)}
+                        onClick={(e) => {
+                          setOpenFolderMenueId(folder.id)
+                          handleMenuToggle(e)
+                        }}
                       >
                         <i className="ri-more-2-fill  cursor-pointer"></i>
                       </button>
-                      {/* DIRECTORY menu box  */}
+                      {/* DIRECTORY menu button  */}
                       {openFolderMenueId === folder.id && (
                         <div
                           ref={menuRef}
-                          className="absolute  right-[60%] z-30  w-[16VW] px-4 py-4 border border-gray-400 rounded-md bg-white text-black shadow-md flex flex-col gap-3 "
+                          className={`fixed right-[8%]
+                               w-[16VW] px-4 py-4 border border-gray-400 rounded-md  shadow-md flex flex-col gap-3 z-[100] ${isDarkMode ? "bg-gray-900  text-gray-100" : "bg-white text-black"}`}
+                          style={{ top: menuPosition.y + 60 }}
                         >
-                          <p className="text-center bg-blue-200 py-2 rounded-2xl  ">
+                          <p className={`text-center  py-2 rounded-2xl ${isDarkMode ? "bg-gray-800 text-gray-100" : "bg-blue-200"}  `}>
                             {folder.name.length > 10
                               ? folder.name.slice(0, 10)
                               : folder.name}
@@ -159,14 +182,14 @@ function File() {
                               renameFile(folder.id, folder.name);
                               setShowFolderRenameInputBox(true);
                             }}
-                            className=" cursor-pointer p-2 hover:bg-blue-100 rounded-md flex gap-2  "
+                            className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"} `}
                           >
                             <i className="ri-edit-2-line"></i>
                             Rename
                           </div>
                           <div
                             // onClick={() => {}}
-                            className=" cursor-pointer p-2 hover:bg-blue-100 rounded-md flex gap-2  "
+                            className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"} `}
                           >
                             <i className="ri-delete-bin-fill"></i>
                             Delete
@@ -183,7 +206,7 @@ function File() {
                                 },
                               ]);
                             }}
-                            className=" cursor-pointer p-2 hover:bg-blue-100 rounded-md flex gap-2 "
+                            className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"} `}
                           >
                             <i className="ri-edit-2-line"></i>
                             Folder Information
@@ -205,7 +228,10 @@ function File() {
               )}
 
 
-            {/* file data ------------------------- */}
+
+
+
+            {/* file data ----------------------------------------------------- */}
 
             {filesList && filesList.length > 0
               ? filesList.map((file) => {
@@ -216,9 +242,11 @@ function File() {
                   <>
                     <tr
                       key={file.id}
-                      className="border-b border-blue-200 hover:bg-blue-50 transition-all "
+                      className={`border-b  transition duration-300 ease-in   ${isDarkMode ? " border-gray-800 hover:bg-gray-800 " : " border-blue-200 hover:bg-blue-100  "}`}
                     >
-                      <td className="p-2 text-xl">{icon}</td>
+                      {/* file icon  */}
+                      <td className="p-2 text-2xl">{icon}</td>
+                      {/* file name  */}
                       <td className="p-2 cursor-pointer flex flex-col gap-1  ">
                         <a href={`${BASE_URL}/file/${file.id}`} className=" ">
                           {file.name.length > 45
@@ -226,34 +254,37 @@ function File() {
                             : file.name}
                         </a>
                       </td>
+                      {/* file created at  */}
                       <td className="p-2">
-                        {file.timeStamp.fileCreatedAt
-                          // .split(" ")
-                          // .slice(1, 5)
-                          // .join(" ")
-                          }
+                        {file.timeStamp.fileCreatedAt}
                       </td>
+                      {/* file size  */}
                       <td className="p-2">{formatSize(file.size)}</td>
 
+                      {/* ----------------- menu section */}
                       <td className="p-2 relative text-center ">
+
                         {/* menu bar  */}
                         <button
-                          className="text-lg"
-                          onClick={() => setOpenMenueId(file.id)}
+                          className="text-lg z-[10]"
+                          onClick={(e) => {
+                            setOpenMenueId(file.id)
+                            handleMenuToggle(e)
+                          }}
                         >
                           <i className="ri-more-2-fill cursor-pointer"></i>
                         </button>
-                        {/* menu box  */}
 
+                        {/* menu box  */}
                         {openMenueId === file.id && (
                           <div
                             ref={menuRef}
-                            className={`${location.pathname == "/my-drive"
-                                ? "absolute z-[999] right-[56%] bottom-[12%] "
-                                : "fixed top-[50%] right-[7%] "
-                              }  w-[16VW] px-4 py-4 border border-gray-400 rounded-md bg-white text-black shadow-md flex flex-col gap-3 `}
+                            className={`fixed right-[8%]
+                               w-[16VW] px-4 py-4 border border-gray-400 rounded-md shadow-md flex flex-col gap-3 z-[100] ${isDarkMode ? "bg-gray-900 text-white" : " bg-white text-black"}`}
+                            style={{ top: menuPosition.y }}
                           >
-                            <p className=" text-center bg-blue-200 py-2 rounded-2xl ">
+                            <p
+                              className={`text-center  py-2 rounded-2xl ${isDarkMode ? "bg-gray-800 text-gray-100" : "bg-blue-200"} `}>
                               {file.name.length > 15
                                 ? file.name.slice(0, 15) + "..."
                                 : file.name}
@@ -264,17 +295,18 @@ function File() {
                                 setShowFileRenameInputBox(true);
                                 setOpenMenueId(null);
                               }}
-                              className="cursor-pointer rounded-md flex items-center gap-2 p-1 hover:bg-blue-100"
+                              className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
                             >
                               <i className="ri-edit-2-line"></i>
                               Rename
                             </div>
+                            {/* download  */}
                             <div
                               onClick={() => {
                                 handleDeleteFile(file.id);
                                 setOpenMenueId(null);
                               }}
-                              className="cursor-pointer rounded-md flex items-center gap-2 p-1 hover:bg-blue-100"
+                              className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
                             >
                               <i className="ri-delete-bin-fill"></i>
                               Delete
@@ -282,11 +314,12 @@ function File() {
                             <a
                               onClick={() => setOpenMenueId(null)}
                               href={`${BASE_URL}/file/${file.id}?action=download`}
-                              className="flex items-center gap-2  rounded-md p-1 hover:bg-blue-100"
+                              className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
                             >
                               <i className="ri-download-2-fill"></i>
                               Download
                             </a>
+                            {/* file info  */}
                             <div
                               onClick={() => {
                                 setShowFileInfo(true);
@@ -306,13 +339,35 @@ function File() {
                                   },
                                 ]);
                               }}
-                              className="cursor-pointer rounded-md flex items-center gap-2 p-1 hover:bg-blue-100"
+                              className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
                             >
                               <i className="ri-file-info-line"></i>
                               File information
                             </div>
+                            {/* share file  */}
+                            <div
+                              onMouseEnter={() => setIsShareFileHover(true)}
+
+                              className={` relative cursor-pointer rounded-md flex items-center gap-2 p-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
+                            >
+                              <i className="ri-share-line"></i>
+                              share file
+                            </div>
+                            {isShareFileHover && (
+                              <div
+                                onMouseLeave={() => setIsShareFileHover(false)}
+                                className={`absolute right-[100%] bottom-0 w-[10vw]  border-2 border-blue-200 rounded-md flex flex-col  gap-2 p-2 ${isDarkMode ? "bg-gray-800 border-gray-600" : ""} `}>
+
+                                <button
+                                  onClick={() => { }}
+                                  className={` relative w-full cursor-pointer rounded-md  p-1 hover:bg-blue-100 flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : ""}`} ><i className="ri-user-add-line"></i> Share</button>
+                                <button className={` relative w-full cursor-pointer rounded-md  p-1 hover:bg-blue-100 flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : ""}`}><i className="ri-link-m"></i>Copy Link</button>
+
+                              </div>
+                            )}
                           </div>
                         )}
+
                       </td>
                     </tr>
                   </>

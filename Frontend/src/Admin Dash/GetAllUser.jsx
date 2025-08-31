@@ -90,23 +90,18 @@ function GetAllUser() {
                   <th className="p-3 rounded-l-lg text-start">User</th>
                   <th className="p-3 text-start">Email</th>
                   <th className="p-3 text-start">Role</th>
+                  <th className="p-3 text-start">Change Role</th>
+
                   <th className="p-3 text-start">Status</th>
                   <th className="p-3 text-start">Action</th>
-
-                  {storeUserData?.role === "admin" && (
-                    <th className="p-3 text-start rounded-r-lg">Delete</th>
-                  )}
-                  {(storeUserData?.role === "admin" ||
-                    storeUserData?.role === "manager") && (
-                      <th className="p-3 text-start">Change Role</th>
-                    )}
+                  <th className="p-3 text-start rounded-r-lg">Delete</th>
                 </tr>
               </thead>
               <tbody>
                 {allUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="bg-white hover:bg-blue-300 shadow rounded-lg transition transform hover:scale-[1.01]"
+                    className="bg-white hover:bg-blue-300 shadow rounded-lg transition transform hover:scale-[1.01]  "
                   >
                     {/* User Name + Avatar */}
                     <td className="p-3 flex items-center gap-3">
@@ -132,7 +127,7 @@ function GetAllUser() {
                     </td>
 
                     {/* Role */}
-                    <td className="p-3">
+                    <td className="p-3  ">
                       <span
                         className={`px-2 py-1 text-[0.9vw] font-medium ${user.role === "admin"
                           ? "text-red-500 bg-red-100 rounded-md"
@@ -143,6 +138,42 @@ function GetAllUser() {
                       >
                         {user.role}
                       </span>
+                    </td>
+
+                    {/* Change Role Column (Admin + Manager) */}
+                    <td className="p-3 ">
+                      <select
+                        value={user.role}
+                        onChange={(e) => {
+                          setNewRole(e.target.value);
+                          setCurrentUser(user.email);
+                          setIsRoleUpdating(true);
+                        }}
+                        className=" py-1 border rounded-lg text-sm "
+                      >
+                        {storeUserData?.role === "admin" && (
+                          <>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                            <option value="user">User</option>
+                          </>
+                        )}
+                        {storeUserData?.role === "manager" && (
+                          <>
+                            <option value="manager">Manager</option>
+                            <option value="user">User</option>
+                          </>
+                        )}
+                      </select>
+
+                      {isRoleUpdating && user.email === currentUser && (
+                        <button
+                          onClick={() => handleUpdateRole(user.id)}
+                          className="py-1 px-2 ml-2 bg-green-300 text-[1vw] rounded-md cursor-pointer"
+                        >
+                          Update Role
+                        </button>
+                      )}
                     </td>
 
                     {/* Status */}
@@ -171,77 +202,33 @@ function GetAllUser() {
                       </button>
                     </td>
 
-
                     {/* Delete Button (Admin Only) */}
-                    {storeUserData?.role === "admin" && (
-                      <td className="p-3 text-start flex gap-2">
+                    <td className="p-3 text-start   ">
+                      {storeUserData?.role === "admin" && (
                         <button
                           onClick={() => hardDeleteUserById(user.id)}
                           className="px-4 py-1.5 rounded-lg text-[0.9vw] font-medium shadow bg-red-500 hover:bg-red-600 text-white transition cursor-pointer"
                         >
                           Hard Delete
                         </button>
-                        <button
-                          onClick={() => softDeleteUserById(user.id)}
-                          className={`px-4 py-1.5 rounded-lg text-[0.9vw] font-medium shadow 
-                             ${user.isLoggedIn
-                              ? "bg-orange-400 hover:bg-orange-500 text-white cursor-pointer "
-                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            }`}
-                        >
-                          Soft Delete
-                        </button>
-                      </td>
-                    )}
-
-                    {/* Change Role Dropdown (Admin/Manager only) */}
-                    {(storeUserData?.role === "admin" ||
-                      storeUserData?.role === "manager") && (
-                        <td className="p-3 flex gap-3  ">
-                          <select
-                            value={user.role}
-                            onChange={(e) => {
-                              setNewRole(e.target.value)
-                              setCurrentUser(user.email)
-                              setIsRoleUpdating(true)
-                            }}
-                            className="px-3 py-1 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            {storeUserData?.role === "admin" && (
-                              <>
-                                {/* <option value="owner">Owner</option> */}
-                                <option value="admin">Admin</option>
-                                <option value="manager">Manager</option>
-                                <option value="user">User</option>
-                              </>
-                            )}
-                            {storeUserData?.role === "manager" && (
-                              <>
-                                <option value="manager">Manager</option>
-                                <option value="user">User</option>
-                              </>
-                            )}
-                          </select>
-                          {isRoleUpdating && (
-                            user.email == currentUser && (
-
-                              <button
-                                onClick={() => {
-                                  handleUpdateRole(user.id)
-                                }}
-                                className=" py-1 px-2 bg-green-300 text-[1vw] rounded-md cursor-pointer "
-                              >
-                                update role </button>
-                            )
-                          )}
-                        </td>
                       )}
-
+                      <button
+                        onClick={() => softDeleteUserById(user.id)}
+                        className={`px-4 py-1.5 ml-3 rounded-lg text-[0.9vw] font-medium shadow 
+                             ${user.isLoggedIn
+                            ? "bg-orange-400 hover:bg-orange-500 text-white cursor-pointer "
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          }`}
+                      >
+                        Soft Delete
+                      </button>
+                    </td>
 
                   </tr>
                 ))}
               </tbody>
             </table>
+
           </div>
         </div>
       </main>

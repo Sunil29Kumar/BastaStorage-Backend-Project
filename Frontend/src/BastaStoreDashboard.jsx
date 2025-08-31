@@ -16,11 +16,13 @@ import FileUploadCancleMessage from "./Components/progress file folder/fileUploa
 import ManageUserProfile from "./Auth/ManageUserProfile.jsx";
 import StorageFullMessage from "./Components/Total Storage/StorageFullMessage.jsx";
 import GoogleLoginSetPasswordMessage from "./Auth/GoogleLoginSetPasswordMessage.jsx";
+import ShareFilesDashboard from "./Components/File Folder List/ShareFilesDashboard.jsx";
 
 
 function BastaStoreDashboard() {
   // const {dirId} = useParams();
   const {
+    isDarkMode,
     showInputBox,
     showFileRenameInputBox,
     showFolderRenameInputBox,
@@ -34,12 +36,13 @@ function BastaStoreDashboard() {
     isFileUploadingCancle,
     isManageProfileShowing,
     isStorageFull,
-    isUserPasswordSet
+    storeUserData
   } = useContext(BastaStorageContext);
 
+
   return (
-    <div className={`px-3 py-2 bg-blue-50 h-[100vh]`}>
-      <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl p-1 flex  text-black relative  ">
+    <div className={`px-3 py-2  ${isDarkMode ? "bg-black text-white" : "bg-blue-50 text-black"} h-[100vh]`}>
+      <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl p-1 flex   relative  ">
         <SideBar />
         <FilesFolderList />
         {showInputBox && <CreateFolderInputBox />}
@@ -47,6 +50,7 @@ function BastaStoreDashboard() {
         {showFolderRenameInputBox && <RenameFolderInputBox />}
         {showFileInfo && <FileInformation />}
         {showFolderInfo && <FolderInformation />}
+        {/* <ShareFilesDashboard /> */}
         {accountMenu && <AccountMenu />}
         {showLogOutBox && <Logout />}
         {showFileFolderMenu && <CreateUploadFFList />}
@@ -54,7 +58,7 @@ function BastaStoreDashboard() {
         <FileUploadCancleMessage />
         {isManageProfileShowing && <ManageUserProfile />}
         {isStorageFull && <StorageFullMessage />}
-        {!isUserPasswordSet && <GoogleLoginSetPasswordMessage />}
+        {storeUserData?.isPasswordSet === false && <GoogleLoginSetPasswordMessage />}
       </div>
     </div>
   );

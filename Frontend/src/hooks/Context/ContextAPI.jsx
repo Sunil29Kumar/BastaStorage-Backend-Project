@@ -20,6 +20,9 @@ function ContextAPI({ children }) {
   const { dirId } = useParams();
   const navigate = useNavigate();
 
+  // dark mode
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   // file FileProgress
   const [FileProgress, setFileProgress] = useState(0);
   const [currentFileName, setCurrentFileName] = useState("");
@@ -84,7 +87,10 @@ function ContextAPI({ children }) {
 
   // update user data
   const [isUpdatedUserData, setIsUpdatedUserData] = useState(false);
-  const [userUpdateMessage, setUserUpdateMessage] = useState("");
+  const [userUpdateMessage, setUserUpdateMessage] = useState({
+    success: "",
+    error: ""
+  });
 
   // all users
   const [allUsers, setAllUsers] = useState([]);
@@ -107,11 +113,8 @@ function ContextAPI({ children }) {
   // manage user prfoile 
   const [isManageProfileShowing, setIsManageProfileShowing] = useState(false)
 
-  const [isUserPasswordSet, setIsUserPasswordSet] = useState(null);
-
   // login with google 
   const [googleLoginError, setGoogleLoginError] = useState("");
-  const [isLoginWithGoogle, setIsLoginWithGoogle] = useState(false);
   const [loginWithGoogleMessage, setLoginWithGoogleMessage] = useState({});
 
   // set google password 
@@ -147,6 +150,7 @@ function ContextAPI({ children }) {
 
   // GET Request file and dir
   async function getDirectoryItems() {
+    // if (!loggedIn) return; // 
     const response = await fetch(`${BASE_URL}/directory/${dirId || ""}`, {
       credentials: "include",
     });
@@ -155,15 +159,15 @@ function ContextAPI({ children }) {
       if (location.pathname !== "/recover-account" && location.pathname !== "/recover-request") {
         navigate("/Register");
       }
-      return
+      return;
     }
-
     setDirectoriesList(data.directories);
     setFilesList(data.files);
     setStorageData(data.storageData);
 
   }
   useEffect(() => {
+
     getDirectoryItems();
   }, [dirId]);
 
@@ -389,28 +393,24 @@ function ContextAPI({ children }) {
 
       const data = await response.json();
 
-      if (data.statusCode === 429) {
-        setLoginLimiter(data.error)
-      }
-      else if (response.ok) {
-        // ✅ login success — now fetch user data
-        const res = await fetch(`${BASE_URL}/user/profile`, {
+      if (response.ok) {
+        const res = await fetch(`${BASE_URL}/user`, {
           credentials: "include",
         });
 
         if (res.ok) {
           const userData = await res.json();
-          setStoreUserData(userData); // 🎯 set in context
-          setLoggedIn(true); // 🎯 set login flag
-          await getDirectoryItems(); // 🎯 fetch directory data also
-
+          setStoreUserData(userData);
+          setLoggedIn(true);
+          await getDirectoryItems();
           navigate("/");
-        } else {
-          console.error("User data fetch failed");
         }
-      } else {
-        setLoginError(data.error);
       }
+
+      else if (data.statusCode === 429) {
+        setLoginLimiter(data.error)
+      }
+
     } catch (error) {
       console.error("Login Error:", error);
     }
@@ -418,24 +418,20 @@ function ContextAPI({ children }) {
 
   // get / fetch user data after login
   async function fetchUserData() {
-    try {
-      const response = await fetch(`${BASE_URL}/user`, {
-        credentials: "include",
-      });
 
-      if (response.ok) {
-        const userData = await response.json();
-        setStoreUserData(userData);
-        setIsUserPasswordSet(userData.isPasswordSet);
-        setLoggedIn(true);
-        console.log(userData);
+    const response = await fetch(`${BASE_URL}/user`, {
+      credentials: "include",
+    });
 
-        await getDirectoryItems();
-      } else {
-        setLoggedIn(false);
-      }
-    } catch (err) {
-      console.log(err);
+    if (response.ok) {
+      const userData = await response.json();
+      setStoreUserData(userData);
+      setLoggedIn(true);
+      await getDirectoryItems();
+    } else {
+      setLoggedIn(false);
+
+
     }
   }
   useEffect(() => {
@@ -454,17 +450,25 @@ function ContextAPI({ children }) {
       credentials: "include",
       body: formDataToSend
     });
+    const data = await response.json()
+
     if (response.ok) {
-      const data = await response.json();
       setIsUpdatedUserData(true);
-      setUserUpdateMessage(data.message);
       setStoreUserData(data.updateUser)
-
-
+      setUserUpdateMessage({ success: data.message, error: "" });
+      setTimeout(() => {
+        setUserUpdateMessage({ success: "", error: "" });
+        setIsManageProfileShowing(false)
+      }, 2000);
     }
-    else {
+    else if (data.error) {
       setIsUpdatedUserData(false);
+      setUserUpdateMessage({ success: "", error: data.error });
+      setTimeout(() => {
+        setUserUpdateMessage({ success: "", error: "" });
+      }, 2000);
     }
+
   }
 
   // all user 
@@ -665,19 +669,18 @@ function ContextAPI({ children }) {
       },
       body: JSON.stringify({ credential })
     })
+
     const data = await response.json();
-
     if (response.status === 403) {
-      setGoogleLoginError(data.error);
-      setIsLoginWithGoogle(false)
       navigate("/recover-request");
-      return
+      setGoogleLoginError(data.error);
+      setLoggedIn(false)
+      return;
     }
-    if (response.ok) {
 
+    if (response.ok) {
       setGoogleLoginError("");
-      setIsLoginWithGoogle(true)
-      setLoginWithGoogleMessage(data)
+      setLoginWithGoogleMessage(data);
 
       // fetch user data
 
@@ -689,7 +692,6 @@ function ContextAPI({ children }) {
         const userData = await res.json();
         setStoreUserData(userData);
         setLoggedIn(true);
-
         await getDirectoryItems();
         navigate("/");
       }
@@ -716,12 +718,17 @@ function ContextAPI({ children }) {
     if (response.ok) {
       setGooglePasswordSuccessMessage(data.message);
       setGooglePasswordError('');
+
+      setTimeout(() => {
+        fetchUserData();
+      }, 1500);
+
+
     }
-    if (response.status === 400) {
-      console.log(data);
+    else if (response.status === 400) {
       setGooglePasswordSuccessMessage("");
       setGooglePasswordError(data.error);
-      
+
     }
 
   }
@@ -794,7 +801,6 @@ function ContextAPI({ children }) {
     }
   }
 
-
   // Recover Account 
   async function sendRecoverAccount(token) {
     const response = await fetch(`${BASE_URL}/auth/recover-account`, {
@@ -812,7 +818,6 @@ function ContextAPI({ children }) {
       setRecoverAccountMessage({ message: "", error: data.error })
     }
   }
-
 
   // update user role 
   async function updateUserRole(userId, newRole) {
@@ -847,6 +852,10 @@ function ContextAPI({ children }) {
     <BastaStorageContext.Provider
       value={{
         BASE_URL,
+        // dark mode
+        isDarkMode,
+        setIsDarkMode,
+
         directoriesList,
         setDirectoriesList,
         filesList,
@@ -886,6 +895,7 @@ function ContextAPI({ children }) {
         setAccountMenu,
         storeUserData,
         setStoreUserData,
+        // fetch user data 
         fetchUserData,
         // update user data 
         updateUserData,
@@ -918,7 +928,9 @@ function ContextAPI({ children }) {
         loggedIn,
         setLoggedIn,
         loginLimiter,
+
         // 
+
         currentFolderName,
         setCurrentFolderName,
         showFileFolderMenu,
@@ -967,8 +979,7 @@ function ContextAPI({ children }) {
 
         // login with google 
         loginWithGoogle,
-        isLoginWithGoogle,
-        setIsLoginWithGoogle,
+
         googleLoginError,
         setGoogleLoginError,
         loginWithGoogleMessage,
@@ -976,9 +987,6 @@ function ContextAPI({ children }) {
         setGooglePassword,
         googlePasswordSuccessMessage,
         googlePasswordError,
-
-        setIsUserPasswordSet,
-        isUserPasswordSet,
 
         // login with Github: 
         loginWithGithub,
