@@ -26,6 +26,7 @@ function RenameFileInputBox() {
       document.removeEventListener("mousedown", handleFileInputBoxClick);
     };
   }, [setShowFileRenameInputBox]);
+  
   return (
     <div
       ref={renameReff}

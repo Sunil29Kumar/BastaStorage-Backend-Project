@@ -16,7 +16,7 @@ import FileUploadCancleMessage from "./Components/progress file folder/fileUploa
 import ManageUserProfile from "./Auth/ManageUserProfile.jsx";
 import StorageFullMessage from "./Components/Total Storage/StorageFullMessage.jsx";
 import GoogleLoginSetPasswordMessage from "./Auth/GoogleLoginSetPasswordMessage.jsx";
-import ShareFilesDashboard from "./Components/File Folder List/ShareFilesDashboard.jsx";
+import ShareFilesDashboard from "./Components/Share files/ShareFilesDashboard.jsx";
 
 
 function BastaStoreDashboard() {
@@ -36,7 +36,8 @@ function BastaStoreDashboard() {
     isFileUploadingCancle,
     isManageProfileShowing,
     isStorageFull,
-    storeUserData
+    storeUserData,
+    showShareFile
   } = useContext(BastaStorageContext);
 
 
@@ -50,7 +51,6 @@ function BastaStoreDashboard() {
         {showFolderRenameInputBox && <RenameFolderInputBox />}
         {showFileInfo && <FileInformation />}
         {showFolderInfo && <FolderInformation />}
-        {/* <ShareFilesDashboard /> */}
         {accountMenu && <AccountMenu />}
         {showLogOutBox && <Logout />}
         {showFileFolderMenu && <CreateUploadFFList />}
@@ -59,6 +59,8 @@ function BastaStoreDashboard() {
         {isManageProfileShowing && <ManageUserProfile />}
         {isStorageFull && <StorageFullMessage />}
         {storeUserData?.isPasswordSet === false && <GoogleLoginSetPasswordMessage />}
+        {showShareFile && <ShareFilesDashboard />}
+
       </div>
     </div>
   );

@@ -21,6 +21,9 @@ const fileSchema = await mongoose.Schema(
     size: {
       type: mongoose.Schema.Types.Long || Number,
     },
+    type: {
+      type: String,
+    },
     timeStamp: {
       fileCreatedAt: {
         type: Date,

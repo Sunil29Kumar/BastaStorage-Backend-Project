@@ -10,6 +10,7 @@ import GetAllUser from "./Admin Dash/GetAllUser";
 
 import RecoverRequest from "./Account recover/RecoverRequest";
 import RecoverAccount from "./Account recover/RecoverAccount";
+import SharedFileViewer from "./Components/Share files/SharedFileViewer";
 
 function App() {
   return (
@@ -92,6 +93,10 @@ function App() {
           </BastaStorageProvider>
         }
       />
+
+      <Route path="/share/:token" element={<SharedFileViewer />} />
+
+      
 
     </Routes>
   );

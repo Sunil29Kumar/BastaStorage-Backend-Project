@@ -24,6 +24,7 @@ app.use(cookieParser(process.env.SECRET_KEY));
 // serving static files
 app.use(express.static("public"));
 app.use("/upload", express.static(path.join(process.cwd(), "upload")));
+app.use("/storage", express.static(path.join(process.cwd(), "storage")));
 
 // parsing data comming from frontend body
 app.use(express.json());
@@ -38,7 +39,7 @@ app.use(
 
 
 app.use("/directory", checkAuth, directoryRoutes);
-app.use("/file", checkAuth, fileRoutes);
+app.use("/file", fileRoutes);
 app.use("/", userRoutes);
 app.use("/auth", authRoute);
 app.use("/google-drive", checkAuth, googleDriveRoute);

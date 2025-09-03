@@ -18,6 +18,8 @@ function File() {
     setShowFileRenameInputBox,
     setShowFileInfo,
     setFileInfo,
+    setShowShareFile,
+    setShareFileId
   } = useContext(BastaStorageContext);
 
   // use useRef to disable menubar after click on body
@@ -300,7 +302,7 @@ function File() {
                               <i className="ri-edit-2-line"></i>
                               Rename
                             </div>
-                            {/* download  */}
+                            {/* delete  */}
                             <div
                               onClick={() => {
                                 handleDeleteFile(file.id);
@@ -311,6 +313,7 @@ function File() {
                               <i className="ri-delete-bin-fill"></i>
                               Delete
                             </div>
+                            {/* download  */}
                             <a
                               onClick={() => setOpenMenueId(null)}
                               href={`${BASE_URL}/file/${file.id}?action=download`}
@@ -347,8 +350,7 @@ function File() {
                             {/* share file  */}
                             <div
                               onMouseEnter={() => setIsShareFileHover(true)}
-
-                              className={` relative cursor-pointer rounded-md flex items-center gap-2 p-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
+                              className={` relative cursor-pointer rounded-md flex items-center gap-2 p-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100 "}`}
                             >
                               <i className="ri-share-line"></i>
                               share file
@@ -356,12 +358,21 @@ function File() {
                             {isShareFileHover && (
                               <div
                                 onMouseLeave={() => setIsShareFileHover(false)}
-                                className={`absolute right-[100%] bottom-0 w-[10vw]  border-2 border-blue-200 rounded-md flex flex-col  gap-2 p-2 ${isDarkMode ? "bg-gray-800 border-gray-600" : ""} `}>
+                                className={`absolute z-[100] right-[100%] bottom-0 w-[10vw]  border-2  rounded-md flex flex-col  gap-2 p-2 ${isDarkMode ? " bg-gray-800 border-gray-600" : "bg-white border-blue-200"} `}>
 
                                 <button
-                                  onClick={() => { }}
+                                  onClick={() => {
+                                    setShowShareFile(true)
+                                    setOpenMenueId(null);
+                                    setShareFileId(file.id);
+                                  }}
                                   className={` relative w-full cursor-pointer rounded-md  p-1 hover:bg-blue-100 flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : ""}`} ><i className="ri-user-add-line"></i> Share</button>
-                                <button className={` relative w-full cursor-pointer rounded-md  p-1 hover:bg-blue-100 flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : ""}`}><i className="ri-link-m"></i>Copy Link</button>
+
+                                <button
+                                  className={` relative w-full cursor-pointer rounded-md  p-1 hover:bg-blue-100 flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : ""}`}>
+                                  <i className="ri-link-m"></i>
+                                  Copy Link
+                                </button>
 
                               </div>
                             )}

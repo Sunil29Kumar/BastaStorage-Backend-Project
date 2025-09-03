@@ -5,10 +5,15 @@ import { ObjectId } from "mongodb";
 import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 import User from "../models/userModel.js";
+import SharedLink from "../models/SharedLinks.js";
+import crypto from "crypto";
 
 export const createFile = async (req, res) => {
   const parentDirId = req.params.parentDirId || req.user.rootDirId;
   const userId = req.user._id;
+
+  console.log(req.headers);
+  
 
   const parentDirData = await Directorie.findOne({
     _id: new ObjectId(parentDirId),
@@ -27,6 +32,7 @@ export const createFile = async (req, res) => {
   }
   const size = parseInt(req.headers.size);
   const extension = path.extname(filename);
+  const type = req.headers.type;
 
 
   // find user 
@@ -43,6 +49,7 @@ export const createFile = async (req, res) => {
     name: filename,
     extension,
     size,
+    type,
     timeStamp: {
       fileCreatedAt: new Date(),
       opened: [],
@@ -69,7 +76,6 @@ export const createFile = async (req, res) => {
     return res.status(400).json({ message: "Failed to Upload" });
   });
 };
-
 
 
 export const getFile = async (req, res) => {
@@ -167,3 +173,40 @@ export const deleteFile = async (req, res) => {
 };
 
 
+export const shareFile = async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const user = req.user
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // Generate a shareable link (you can customize this logic)
+  const token = crypto.randomUUID()
+  const shareableLink = `http://localhost:5173/share/${token}`;
+
+  await SharedLink.create({
+    fileId: id,
+    token: token,
+  })
+
+  return res.status(200).json({ message: "Share Link Generated", link: shareableLink });
+}
+
+
+export const sharefileViewer = async (req, res) => {
+  const token = req.params.token
+  const shared = await SharedLink.findOne({ token })
+  if (!shared) return res.status(404).json({ message: "Share link not found" });
+
+  const file = await File.findById(shared.fileId)
+  if (!file) return res.status(404).json({ error: "File not found" });
+
+  res.json({
+    name: file.name,
+    type: file.type,
+    viewUrl: `http://localhost:2000/storage/${file._id}${file.extension}`,
+  });
+
+}

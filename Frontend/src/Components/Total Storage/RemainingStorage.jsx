@@ -11,7 +11,6 @@ function RemainingStorage() {
 
   // progress in percentage
   const percentUsed = (usedMB / (totalGB * 1024)) * 100;
-  console.log(percentUsed);
 
 
   return (

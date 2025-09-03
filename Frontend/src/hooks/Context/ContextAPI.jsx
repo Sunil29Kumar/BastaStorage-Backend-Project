@@ -3,6 +3,8 @@ import { use } from "react";
 import { useRef } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Switch from '@mui/material/Switch'
 
 
 export const BastaStorageContext = createContext();
@@ -52,6 +54,11 @@ function ContextAPI({ children }) {
 
   // show file folder menu after click on  + new
   const [showFileFolderMenu, setShowFileFolderMenu] = useState(false);
+
+  // share files + share link
+  const [showShareFile, setShowShareFile] = useState(false);
+  const [shareFileId, setShareFileId] = useState(null);
+  const [shareFileUrl,setShareFileUrl] = useState("")
 
   // Register request
   const [registerData, setRegisterData] = useState({
@@ -144,6 +151,9 @@ function ContextAPI({ children }) {
   });
 
 
+
+
+
   //                                                 --------------------------------
   //                                  main code starrt
   // ---------------------------------
@@ -175,6 +185,8 @@ function ContextAPI({ children }) {
   const xhrRef = useRef(null);
   async function uploadFile(e) {
     const file = e.target.files[0];
+    console.log(file);
+    
     console.log("file = >>>>", file);
     setCurrentFileName(file.name);
 
@@ -186,6 +198,7 @@ function ContextAPI({ children }) {
     xhr.setRequestHeader("filename", file.name);
     xhr.withCredentials = true;
     xhr.setRequestHeader("size", file.size);
+    xhr.setRequestHeader("type", file.type);
     xhr.addEventListener("load", () => {
       if (xhr.status === 200) {
         getDirectoryItems();
@@ -847,6 +860,22 @@ function ContextAPI({ children }) {
     }
   }
 
+  // share link 
+  async function shareLink(fileId) {
+    const response = await fetch(`${BASE_URL}/file/${fileId}/share-link/`, {
+      method: "POST",
+      credentials: "include",
+    });
+    const data = await response.json()
+    if(response.ok){
+      setShareFileUrl(data.link)
+    }
+    if(response.status === 404){
+      setShareFileUrl("")
+    }
+    console.log(data);
+  }
+
 
   return (
     <BastaStorageContext.Provider
@@ -889,6 +918,14 @@ function ContextAPI({ children }) {
         setFolderInfo,
         showFolderInfo,
         setShowFolderInfo,
+        // share file + share link
+        setShowShareFile,
+        showShareFile,
+        setShareFileId,
+        shareFileId,
+        shareLink,
+        shareFileUrl,
+        // logout,    
         showLogOutBox,
         setShowLogOutBox,
         accountMenu,
