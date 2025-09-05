@@ -55,10 +55,12 @@ function ContextAPI({ children }) {
   // show file folder menu after click on  + new
   const [showFileFolderMenu, setShowFileFolderMenu] = useState(false);
 
-  // share files + share link
+  // share link + invite user 
   const [showShareFile, setShowShareFile] = useState(false);
   const [shareFileId, setShareFileId] = useState(null);
-  const [shareFileUrl,setShareFileUrl] = useState("")
+  const [isShareLinkCopied, setIsShareLinkCopied] = useState(false);
+  const [sharedUsersData, setSharedUsersData] = useState([]);
+  const [inviteUserMessage, setInviteUserMessage] = useState({message:"",error:""});
 
   // Register request
   const [registerData, setRegisterData] = useState({
@@ -186,7 +188,7 @@ function ContextAPI({ children }) {
   async function uploadFile(e) {
     const file = e.target.files[0];
     console.log(file);
-    
+
     console.log("file = >>>>", file);
     setCurrentFileName(file.name);
 
@@ -867,13 +869,58 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json()
-    if(response.ok){
-      setShareFileUrl(data.link)
+    if (response.ok) {
+      await navigator.clipboard.writeText(data.link);
+      setIsShareLinkCopied(true);
     }
-    if(response.status === 404){
-      setShareFileUrl("")
+    if (response.status === 404) {
+      setIsShareLinkCopied(false);
     }
     console.log(data);
+  }
+
+  // share file thwough email with permission 
+  async function inviteUser(email, permission, fileId) {
+    const response = await fetch(`${BASE_URL}/file/${fileId}/share`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, permission })
+    })
+    const data = await response.json();
+    console.log("dsfsdf",data);
+    if (response.ok) {
+      setInviteUserMessage({ message: data.message, error: "" });
+      setTimeout(() => {
+        setInviteUserMessage({ message: "", error: "" });
+      }, 2500);
+    }
+    if (response.status === 404) {
+      setInviteUserMessage({ message: "", error: data.error });
+      setTimeout(() => {
+        setInviteUserMessage({ message: "", error: "" });
+      }, 2500);
+    }
+
+  }
+
+  // fetch shared users
+  async function fetchSharedUsers(fileId) {
+    const response = await fetch(`${BASE_URL}/file/${fileId}/shared-users`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      setSharedUsersData(data);
+    }
   }
 
 
@@ -924,7 +971,14 @@ function ContextAPI({ children }) {
         setShareFileId,
         shareFileId,
         shareLink,
-        shareFileUrl,
+        isShareLinkCopied,
+        setIsShareLinkCopied,
+        // invite user 
+        inviteUser,
+        inviteUserMessage,
+        // fetch shared user 
+        fetchSharedUsers,
+        sharedUsersData,
         // logout,    
         showLogOutBox,
         setShowLogOutBox,

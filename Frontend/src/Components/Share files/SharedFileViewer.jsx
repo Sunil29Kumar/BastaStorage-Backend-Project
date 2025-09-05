@@ -48,7 +48,7 @@ function SharedFileViewer() {
         <img
           src={fileData.viewUrl}
           alt={fileData.name}
-          className="max-h-[70vh] mx-auto rounded-lg shadow"
+          className="h-[80vh] w-[70%] rounded-lg shadow"
         />
       );
     }
@@ -58,7 +58,7 @@ function SharedFileViewer() {
         <iframe
           src={fileData.viewUrl}
           title={fileData.name}
-          className="w-full h-[70vh] border rounded-lg shadow"
+          className="w-[70%] h-[80vh] border rounded-lg shadow"
         />
       );
     }
@@ -67,7 +67,7 @@ function SharedFileViewer() {
       return (
         <video
           controls
-          className="max-h-[70vh] mx-auto rounded-lg shadow"
+          className="h-[80vh] w-[70%] rounded-lg shadow"
         >
           <source src={fileData.viewUrl} type={fileData.type} />
           Your browser does not support the video tag.
@@ -93,33 +93,31 @@ function SharedFileViewer() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <div className="bg-white shadow-lg rounded-2xl p-6 max-w-3xl w-full">
-        <h2 className="text-xl font-semibold text-center mb-4">
-          {fileData.name}
-        </h2>
+    <div className="h-[100vh] w-full bg-gray-900 flex flex-col items-center justify-center p-4">
+      <h2 className="text-xl font-semibold text-center text-white mb-4">
+        {fileData.name}
+      </h2>
 
-        {/* File Preview */}
-        {renderPreview()}
+      {/* File Preview */}
+      {renderPreview()}
 
-        {/* Actions */}
-        <div className="mt-6 flex justify-center gap-4">
-          <a
-            href={fileData.viewUrl}
-            download={fileData.name}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-          >
-            Download
-          </a>
-          <a
-            href={fileData.viewUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg shadow hover:bg-gray-300 transition"
-          >
-            Open in New Tab
-          </a>
-        </div>
+      {/* Actions */}
+      <div className="mt-6 flex justify-center gap-4">
+        <a
+          href={fileData.viewUrl}
+          download={fileData.name}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+        >
+          Download
+        </a>
+        <a
+          href={fileData.viewUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg shadow hover:bg-gray-300 transition"
+        >
+          Open in New Tab
+        </a>
       </div>
     </div>
   );

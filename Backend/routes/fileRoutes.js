@@ -4,8 +4,11 @@ import {
   createFile,
   deleteFile,
   getFile,
+  getSharedUsers,
+  privateShare,
   renameFile,
   shareFile,
+  shareFileThroughEmail,
   sharefileViewer,
 } from "../controllers/fileController.js";
 import checkAuth from "../middleware/authMiddleware.js";
@@ -35,6 +38,16 @@ router.post("/:id/share-link",checkAuth, shareFile);
 
 // share file viewer
 router.get("/share/:token",sharefileViewer)
+
+// share file thwough email with permission
+router.post("/:id/share", checkAuth, shareFileThroughEmail);
+
+// fetch shared users
+router.get("/:id/shared-users", checkAuth, getSharedUsers);
+
+// private share 
+router.get("/:id/share/private/:token",checkAuth,privateShare)
+
 
 
 export default router;

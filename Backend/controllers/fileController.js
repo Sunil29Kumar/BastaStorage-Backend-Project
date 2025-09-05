@@ -5,15 +5,16 @@ import { ObjectId } from "mongodb";
 import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 import User from "../models/userModel.js";
-import SharedLink from "../models/SharedLinks.js";
+import SharedLink from "../models/SharedLinksModel.js";
 import crypto from "crypto";
+import inviteUserByEmail from "../utils/inviteUserByEmail.js";
 
 export const createFile = async (req, res) => {
   const parentDirId = req.params.parentDirId || req.user.rootDirId;
   const userId = req.user._id;
 
   console.log(req.headers);
-  
+
 
   const parentDirData = await Directorie.findOne({
     _id: new ObjectId(parentDirId),
@@ -79,7 +80,7 @@ export const createFile = async (req, res) => {
 
 
 export const getFile = async (req, res) => {
-  const id = req.params.id || res.user.rootDirId;
+  const id = req.params.id || req.user.rootDirId;
 
   // file ko database se find kar rahe hain
   const fileData = await File.findOne({
@@ -102,7 +103,7 @@ export const getFile = async (req, res) => {
     );
 
     // response me header set kar rahe hain ki file download ho
-    res.setHeader("content-Disposition", "attachment");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileData.name}"`);
     return res.download(fullPath, fileData.name);
   }
 
@@ -173,9 +174,9 @@ export const deleteFile = async (req, res) => {
 };
 
 
+// share file - copy link
 export const shareFile = async (req, res) => {
   const id = req.params.id;
-  console.log(id);
   const user = req.user
 
   if (!user) {
@@ -194,7 +195,7 @@ export const shareFile = async (req, res) => {
   return res.status(200).json({ message: "Share Link Generated", link: shareableLink });
 }
 
-
+// view share file 
 export const sharefileViewer = async (req, res) => {
   const token = req.params.token
   const shared = await SharedLink.findOne({ token })
@@ -210,3 +211,93 @@ export const sharefileViewer = async (req, res) => {
   });
 
 }
+
+
+// share file thwough email with permission (invite user)
+export const shareFileThroughEmail = async (req, res) => {
+  const { email, permission } = req.body;
+  const fileId = req.params.id
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const file = await File.findOne({ _id: fileId, userId: req.user._id });
+    if (!file) return res.status(404).json({ error: "File not found" });
+
+    const existingShare = file.sharedWith.find((shared) => shared.userId.toString() === user._id.toString())
+
+    if (existingShare) {
+      existingShare.permission = permission
+    }
+    else {
+      const token = crypto.randomUUID();
+      file.sharedWith.push({ userId: user._id, permission, token });
+    }
+    await file.save();
+
+    // invite by email 
+    await inviteUserByEmail(req.user.email,
+      email, fileId,
+      file.name,
+      permission,
+      req.user.name,
+      file.sharedWith.find(shared => shared.userId.toString() === user._id.toString()).token)
+
+    return res.status(200).json({ message: `File shared successfully with ${user.email}` });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Server error", details: error });
+  }
+}
+
+// getSharedUsers 
+export const getSharedUsers = async (req, res) => {
+  const fileId = req.params.id;
+  try {
+    const file = await File.findById(fileId).populate("sharedWith.userId", "email name picture");
+
+    if (!file) return res.status(404).json({ message: "File not found" });
+
+    const sharedUserData = file.sharedWith;
+
+    return res.status(200).json(sharedUserData);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error", error });
+  }
+}
+
+
+// private share 
+export const privateShare = async (req, res) => {
+  const token = req.params.token;
+  const fileId = req.params.id;
+
+  const file = await File.findOne({ _id: fileId, "sharedWith.token": token, })
+
+  if (!file) return res.status(404).json({ error: "File not found" });
+
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized. Please log in." });
+  }
+
+  const sharedWithEntry = file.sharedWith.find((entry) => entry.token == token)
+
+  if (sharedWithEntry.userId.toString() !== req.user._id.toString()) {
+    return res.status(403).json({ error: "You do not have access to this file" });
+  }
+
+
+  const fileUrl = `http://localhost:2000/storage/${file._id}${file.extension}`
+  const fileData = {
+    name: file.name,
+    type: file.type,
+    viewUrl: fileUrl,
+  }
+
+  return res.status(200).json({ message: "Private Share Working", fileData });
+}
+

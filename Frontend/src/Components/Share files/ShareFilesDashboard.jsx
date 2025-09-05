@@ -1,9 +1,11 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function ShareFilesDashboard() {
-  const { isDarkMode, setShowShareFile, shareLink, shareFileId,shareFileUrl } = useContext(BastaStorageContext);
+  const { isDarkMode, setShowShareFile, shareLink, shareFileId, setIsShareLinkCopied, storeUserData, inviteUser, fetchSharedUsers, sharedUsersData, inviteUserMessage } = useContext(BastaStorageContext);
 
+  const [email, setEmail] = useState("");
+  const [permission, setPermission] = useState("View");
 
   const containerRef = useRef(null);
   useEffect(() => {
@@ -16,7 +18,20 @@ function ShareFilesDashboard() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+
   }, []);
+
+  useEffect(() => {
+    fetchSharedUsers(shareFileId);
+  }, [])
+
+  useEffect(() => {
+    if (inviteUserMessage.message) {
+      setTimeout(() => {
+        setShowShareFile(false);
+      }, 2500);
+    }
+  }, [inviteUserMessage]);
 
   return (
     <div
@@ -33,26 +48,79 @@ function ShareFilesDashboard() {
           <p className="mb-2 font-medium">Invite people</p>
           <div className="flex gap-2">
             <input
-              type="text"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter email"
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <button className="px-4 py-2 bg-blue-500 cursor-pointer text-white rounded-lg hover:bg-blue-600">
-              Add
-            </button>
+            <select value={permission} onChange={(e) => setPermission(e.target.value)}>
+              <option value="View">View</option>
+              <option value="Edit">Edit</option>
+            </select>
           </div>
 
-          {/* Example invited list */}
-          <div className="mt-3 space-y-2">
-            <div className={`flex justify-between items-center  rounded-lg p-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
-              <span>example@mail.com</span>
-              <select className="border rounded px-2 py-1 text-sm">
-                <option value="view">Viewer</option>
-                <option value="edit">Editor</option>
-              </select>
+          {/*  invited list container */}
+          <div className={`mt-3  max-h-[30vh] w-full p-2 rounded-md overflow-y-auto flex flex-col gap-1 ${isDarkMode ? "bg-gray-900" : "bg-blue-50"} `}>
+
+            {/* owner  */}
+            <div className={` w-full h-[10vh] flex justify-between items-center  rounded-lg p-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+
+              <div className=" flex gap-3 justify-center items-center " >
+                {/* image */}
+                <div className=" w-[3.5vw] h-[3.5vw] rounded-full bg-blue-200 overflow-hidden ">
+                  <img
+                    src={storeUserData.picture ? `http://localhost:2000${storeUserData.picture}` : "/user-img.png"}
+                    alt="User Avatar"
+                    className="w-full h-full  object-contain " />
+                </div>
+
+                {/* email name  */}
+                <div>
+                  <p className="text-[1.5vw">{storeUserData.name}</p>
+                  <p className={`text-[1vw] ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{storeUserData.email}</p>
+                </div>
+              </div>
+
+              {/* PERMISSION  */}
+              <div>
+                <p className={`text-[1vw] ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>Owner</p>
+              </div>
             </div>
+
+
+            {/* shared users  */}
+
+            {sharedUsersData && sharedUsersData.length > 0 && (sharedUsersData.map((user, index) => (
+              <div key={index} className={` w-full h-[10vh] flex justify-between items-center  rounded-lg p-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+
+                <div className=" flex gap-3 justify-center items-center " >
+                  {/* image */}
+                  <div className=" w-[3.5vw] h-[3.5vw] rounded-full bg-blue-200 overflow-hidden ">
+                    <img
+                      src={user.userId.picture ? `http://localhost:2000${user.userId.picture}` : "/user-img.png"}
+                      alt="User Avatar"
+                      className="w-full h-full  object-contain " />
+                  </div>
+
+                  {/* email name  */}
+                  <div>
+                    <p className="text-[1.5vw">{user.userId.name}</p>
+                    <p className={`text-[1vw] ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{user.userId.email}</p>
+                  </div>
+                </div>
+
+                {/* PERMISSION  */}
+                <div>
+                  <p className={`text-[1vw] ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{user.permission}</p>
+                </div>
+              </div>
+            )))}
+
           </div>
         </div>
+
+
 
         {/* Public Link */}
         <div>
@@ -60,32 +128,48 @@ function ShareFilesDashboard() {
           <button
             onClick={() => {
               shareLink(shareFileId)
-              console.log(shareFileId);
+              setIsShareLinkCopied(true)
+              setTimeout(() => {
+                setIsShareLinkCopied(false)
+              }, 1500);
             }}
-            className=" p-2 bg-black text-white rounded-md cursor-pointer " >Get link</button>
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              value={shareFileUrl}
-              readOnly
-              className={`w-full border rounded-lg px-3 py-2 text-sm ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}
-            />
-            <button className={`px-3 py-2 cursor-pointer border rounded-lg hover:bg-gray-100 ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-white"}`}>
-              <i className="ri-file-copy-line text-lg"></i>
-            </button>
-          </div>
+            className={` p-2  rounded-md cursor-pointer flex justify-center items-center gap-1 transition-all duration-200 ${isDarkMode ? "bg-gray-700 text-gray-100 hover:bg-blue-500" : "bg-gray-100 text-black hover:bg-blue-400 "}`}>
+            <i className="ri-link-m"></i>
+            Copy Link
+          </button>
         </div>
 
         {/* Actions */}
         <div
-          onClick={() => setShowShareFile(false)}
           className="flex justify-end gap-3">
-          <button className={`px-4 py-2 border rounded-lg hover:bg-gray-100 cursor-pointer ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-white"}`}>
+          <button
+            onClick={() => {
+              setShowShareFile(false)
+            }}
+            className={`px-4 py-2 border rounded-lg hover:bg-gray-100 cursor-pointer ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-white"}`}>
             Cancel
           </button>
-          <button className="px-4 py-2 bg-blue-500 cursor-pointer text-white rounded-lg hover:bg-blue-600">
+          <button
+            onClick={() => {
+              inviteUser(email, permission, shareFileId);
+            }}
+            className="px-4 py-2 bg-blue-500 cursor-pointer text-white rounded-lg hover:bg-blue-600">
             Done
           </button>
+        </div>
+
+        {/* invite user message  */}
+        <div>
+          {inviteUserMessage.message && (
+            <p className="text-sm text-center font-bold  text-green-500">
+              {inviteUserMessage.message}
+            </p>
+          )}
+          {inviteUserMessage.error && (
+            <p className="text-sm text-center font-bold text-red-500">
+              {inviteUserMessage.error}
+            </p>
+          )}
         </div>
       </div>
     </div>

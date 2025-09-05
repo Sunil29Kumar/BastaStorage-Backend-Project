@@ -6,7 +6,7 @@ import RemainingStorage from "./Total Storage/RemainingStorage";
 
 function SideBar() {
   const location = useLocation();
-  const { loggedIn, setIsDarkMode, setShowFileFolderMenu, isGDBoxOpen, isDarkMode } = useContext(BastaStorageContext);
+  const {  setShowFileFolderMenu, isGDBoxOpen, isDarkMode } = useContext(BastaStorageContext);
 
   return (
     <div className={`  sideBar w-[17%] relative  flex gap-5 flex-col justify-between  px-2 pb-2 rounded-md  ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black border-r-2 border-blue-100"}`}>
@@ -37,15 +37,7 @@ function SideBar() {
           </Link>
         </div>
         <RemainingStorage />
-        {/* dark mode toggle  */}
-        <div
-          onClick={() => setIsDarkMode(!isDarkMode)}
-          className={` w-[5vw] h-[5vh] cursor-pointer  rounded-4xl flex items-center ${isDarkMode ? "justify-end bg-white  " : "bg-gray-900 justify-start "} `}
-        >
-          <div className={`w-[2.5vw] h-[2.5vw] rounded-full flex justify-center items-center ${isDarkMode ?"bg-black text-white ":"bg-white text-yellow-400"} `}>
-            <i className={`ri-${isDarkMode ? "moon" : "sun"}-line  `}></i>
-          </div>
-        </div>
+        
       </div>
 
       <div className="flex items-start">

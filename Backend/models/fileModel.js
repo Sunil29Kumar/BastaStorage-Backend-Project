@@ -24,6 +24,22 @@ const fileSchema = await mongoose.Schema(
     type: {
       type: String,
     },
+    sharedWith: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        permission: {
+          type: String,
+          enum: ["View", "Edit"], 
+          default: "View",
+        },
+        token:{
+          type:String,
+        }
+      },
+    ],
     timeStamp: {
       fileCreatedAt: {
         type: Date,
@@ -39,7 +55,7 @@ const fileSchema = await mongoose.Schema(
       },
     },
   },
-  {timestamps: false, statics: "throw"}
+  { timestamps: false, statics: "throw" }
 );
 
 const File = mongoose.model("File", fileSchema);

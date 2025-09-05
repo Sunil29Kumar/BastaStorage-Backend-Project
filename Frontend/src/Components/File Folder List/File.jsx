@@ -19,7 +19,9 @@ function File() {
     setShowFileInfo,
     setFileInfo,
     setShowShareFile,
-    setShareFileId
+    setShareFileId,
+    shareLink,
+    setIsShareLinkCopied
   } = useContext(BastaStorageContext);
 
   // use useRef to disable menubar after click on body
@@ -42,6 +44,7 @@ function File() {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setOpenMenueId(null);
         setOpenFolderMenueId(null);
+        setIsShareFileHover(false)
       }
     }
 
@@ -347,34 +350,52 @@ function File() {
                               <i className="ri-file-info-line"></i>
                               File information
                             </div>
-                            {/* share file  */}
+
+
+                            {/*-------- share file  */}
                             <div
-                              onMouseEnter={() => setIsShareFileHover(true)}
-                              className={` relative cursor-pointer rounded-md flex items-center gap-2 p-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100 "}`}
+                              onClick={() => setIsShareFileHover(true)}
+                              className={` relative cursor-pointer rounded-md flex items-center justify-between gap-2 p-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100 "}`}
                             >
-                              <i className="ri-share-line"></i>
-                              share file
+                              <div className="flex items-center gap-2">
+                                <i className="ri-share-line"></i>
+                                share file
+                              </div>
+                              <i className="ri-arrow-right-s-line"></i>
                             </div>
                             {isShareFileHover && (
                               <div
                                 onMouseLeave={() => setIsShareFileHover(false)}
                                 className={`absolute z-[100] right-[100%] bottom-0 w-[10vw]  border-2  rounded-md flex flex-col  gap-2 p-2 ${isDarkMode ? " bg-gray-800 border-gray-600" : "bg-white border-blue-200"} `}>
 
+                                {/* share button  */}
                                 <button
                                   onClick={() => {
                                     setShowShareFile(true)
                                     setOpenMenueId(null);
                                     setShareFileId(file.id);
+                                    setIsShareFileHover(false)
+
                                   }}
                                   className={` relative w-full cursor-pointer rounded-md  p-1 hover:bg-blue-100 flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : ""}`} ><i className="ri-user-add-line"></i> Share</button>
 
+                                {/* copy link button  */}
                                 <button
+                                  onClick={() => {
+                                    shareLink(file.id);
+                                    setIsShareFileHover(false);
+                                    setOpenMenueId(null);
+                                    setIsShareLinkCopied(true)
+                                    setTimeout(() => {
+                                      setIsShareLinkCopied(false)
+                                    }, 1500);
+                                  }}
                                   className={` relative w-full cursor-pointer rounded-md  p-1 hover:bg-blue-100 flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : ""}`}>
                                   <i className="ri-link-m"></i>
                                   Copy Link
                                 </button>
-
                               </div>
+
                             )}
                           </div>
                         )}

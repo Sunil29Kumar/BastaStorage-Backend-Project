@@ -17,6 +17,7 @@ import ManageUserProfile from "./Auth/ManageUserProfile.jsx";
 import StorageFullMessage from "./Components/Total Storage/StorageFullMessage.jsx";
 import GoogleLoginSetPasswordMessage from "./Auth/GoogleLoginSetPasswordMessage.jsx";
 import ShareFilesDashboard from "./Components/Share files/ShareFilesDashboard.jsx";
+import LinkCopiedMessage from "./Components/Share files/LinkCopiedMessage.jsx";
 
 
 function BastaStoreDashboard() {
@@ -37,7 +38,8 @@ function BastaStoreDashboard() {
     isManageProfileShowing,
     isStorageFull,
     storeUserData,
-    showShareFile
+    showShareFile,
+    isShareLinkCopied
   } = useContext(BastaStorageContext);
 
 
@@ -60,6 +62,7 @@ function BastaStoreDashboard() {
         {isStorageFull && <StorageFullMessage />}
         {storeUserData?.isPasswordSet === false && <GoogleLoginSetPasswordMessage />}
         {showShareFile && <ShareFilesDashboard />}
+        {isShareLinkCopied && <LinkCopiedMessage/>}
 
       </div>
     </div>

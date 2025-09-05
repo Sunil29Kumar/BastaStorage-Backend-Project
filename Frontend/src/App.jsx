@@ -11,6 +11,7 @@ import GetAllUser from "./Admin Dash/GetAllUser";
 import RecoverRequest from "./Account recover/RecoverRequest";
 import RecoverAccount from "./Account recover/RecoverAccount";
 import SharedFileViewer from "./Components/Share files/SharedFileViewer";
+import PrivateShareFileViewer from "./Components/Share files/PrivateShareFileViewer";
 
 function App() {
   return (
@@ -94,9 +95,13 @@ function App() {
         }
       />
 
+      {/* public share  */}
       <Route path="/share/:token" element={<SharedFileViewer />} />
 
-      
+      {/* private share  */}
+      <Route path="/share/:fileId/view/:token" element={<PrivateShareFileViewer/>}/>
+
+
 
     </Routes>
   );
