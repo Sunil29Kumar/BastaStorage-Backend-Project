@@ -60,7 +60,7 @@ function ContextAPI({ children }) {
   const [shareFileId, setShareFileId] = useState(null);
   const [isShareLinkCopied, setIsShareLinkCopied] = useState(false);
   const [sharedUsersData, setSharedUsersData] = useState([]);
-  const [inviteUserMessage, setInviteUserMessage] = useState({message:"",error:""});
+  const [inviteUserMessage, setInviteUserMessage] = useState({ message: "", error: "" });
 
   // Register request
   const [registerData, setRegisterData] = useState({
@@ -890,7 +890,7 @@ function ContextAPI({ children }) {
       body: JSON.stringify({ email, permission })
     })
     const data = await response.json();
-    console.log("dsfsdf",data);
+    console.log("dsfsdf", data);
     if (response.ok) {
       setInviteUserMessage({ message: data.message, error: "" });
       setTimeout(() => {
@@ -916,13 +916,36 @@ function ContextAPI({ children }) {
       }
     });
     const data = await response.json();
-    console.log(data);
 
     if (response.ok) {
       setSharedUsersData(data);
     }
   }
 
+  // update shared file permission 
+  async function updateSharedFilePermission(fileId, email, updatePermission) {
+    const response = await fetch(`${BASE_URL}/file/${fileId}/share`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, updatePermission })
+    });
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      fetchSharedUsers(fileId);
+      setInviteUserMessage({ message: data.message, error: "" });
+      setTimeout(() => {
+        setInviteUserMessage({ message: "", error: "" });
+      }, 2500);
+    }
+    if (response.status === 400 || response.status === 404) {
+      setInviteUserMessage({ message: "", error: data.error });
+    }
+  }
 
   return (
     <BastaStorageContext.Provider
@@ -978,6 +1001,8 @@ function ContextAPI({ children }) {
         inviteUserMessage,
         // fetch shared user 
         fetchSharedUsers,
+        // update shared file permission 
+        updateSharedFilePermission,
         sharedUsersData,
         // logout,    
         showLogOutBox,

@@ -221,7 +221,7 @@ export const shareFileThroughEmail = async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) return res.status(404).json({ error: "Enter valid email" });
 
     const file = await File.findOne({ _id: fileId, userId: req.user._id });
     if (!file) return res.status(404).json({ error: "File not found" });
@@ -292,6 +292,7 @@ export const privateShare = async (req, res) => {
 
 
   const fileUrl = `http://localhost:2000/storage/${file._id}${file.extension}`
+
   const fileData = {
     name: file.name,
     type: file.type,
@@ -301,3 +302,34 @@ export const privateShare = async (req, res) => {
   return res.status(200).json({ message: "Private Share Working", fileData });
 }
 
+// update share file permission 
+export const updateSharedFilePermission = async (req, res) => {
+  const { fileId } = req.params;
+  const { email, updatePermission } = req.body;
+
+  try {
+
+    const user = await User.findOne({ email })
+    if (!user) return res.status(404).json({ error: "Email not found" });
+
+    const file = await File.findOne({ _id: fileId, userId: req.user._id });
+
+    if (!file) return res.status(404).json({ error: "File not found" });
+
+    const sharedWithEntry = file.sharedWith.find((shared) => shared.userId.toString() === user.id.toString());
+
+    if (!sharedWithEntry) {
+      return res.status(404).json({ error: "This file is not shared with the user." });
+    }
+
+    sharedWithEntry.permission = updatePermission
+    file.save()
+
+    return res.status(200).json({ message: "Permission Updated" })
+
+  } catch (error) {
+    return res.status(400).json({ error: "Permission Updated" })
+
+  }
+
+}

@@ -10,6 +10,7 @@ import {
   shareFile,
   shareFileThroughEmail,
   sharefileViewer,
+  updateSharedFilePermission,
 } from "../controllers/fileController.js";
 import checkAuth from "../middleware/authMiddleware.js";
 
@@ -47,6 +48,9 @@ router.get("/:id/shared-users", checkAuth, getSharedUsers);
 
 // private share 
 router.get("/:id/share/private/:token",checkAuth,privateShare)
+
+// update shared file permission
+router.patch("/:fileId/share",checkAuth,updateSharedFilePermission)
 
 
 
