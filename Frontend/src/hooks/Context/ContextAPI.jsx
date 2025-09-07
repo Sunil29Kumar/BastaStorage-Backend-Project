@@ -947,6 +947,32 @@ function ContextAPI({ children }) {
     }
   }
 
+  // remove shareWith user
+  async function removeSharedUser(fileId, userId) {
+    const response = await fetch(`${BASE_URL}/file/${fileId}/share/${userId}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      fetchSharedUsers(fileId);
+      setInviteUserMessage({ message: data.message, error: "" });
+      setTimeout(() => {
+        setInviteUserMessage({ message: "", error: "" });
+      }, 2500);
+    }
+    if (response.status === 400 || response.status === 404) {
+      setInviteUserMessage({ message: "", error: data.error });
+    }
+  }
+
+
+
   return (
     <BastaStorageContext.Provider
       value={{
@@ -1004,6 +1030,8 @@ function ContextAPI({ children }) {
         // update shared file permission 
         updateSharedFilePermission,
         sharedUsersData,
+        // remove shared user
+        removeSharedUser,
         // logout,    
         showLogOutBox,
         setShowLogOutBox,

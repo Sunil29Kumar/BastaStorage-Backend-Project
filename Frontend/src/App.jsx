@@ -96,10 +96,20 @@ function App() {
       />
 
       {/* public share  */}
-      <Route path="/share/:token" element={<SharedFileViewer />} />
+      <Route path="/share/:token" element={
+        <BastaStorageProvider>
+          <SharedFileViewer />
+        </BastaStorageProvider>
+      } />
 
       {/* private share  */}
-      <Route path="/share/:fileId/view/:token" element={<PrivateShareFileViewer/>}/>
+      <Route path="/share/:fileId/view/:token"
+        element={
+          <BastaStorageProvider>
+            <PrivateShareFileViewer />
+          </BastaStorageProvider>
+        }
+      />
 
 
 

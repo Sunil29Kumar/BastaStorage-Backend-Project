@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react'
+import { useContext } from 'react'
 import { useParams } from 'react-router-dom'
+import { BastaStorageContext } from '../../hooks/Context/ContextAPI'
+import RenameFileInputBox from '../Rename file folder/RenameFileInputBox'
 
 function PrivateShareFileViewer() {
+
+  const { renameFile, setShowFileRenameInputBox, showFileRenameInputBox,removeSharedUser } = useContext(BastaStorageContext)
+
   const { fileId, token } = useParams()
   const [fileData, setFileData] = useState(null)
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
+  const [showMenu, setShowMenu] = useState(false)
+
+  console.log(fileData);
+  
 
   // fetch file data from backend
-
   async function privateShare() {
     try {
       const response = await fetch(
@@ -89,8 +98,39 @@ function PrivateShareFileViewer() {
   }
 
   return (
-    <div className="h-[100vh] w-full flex items-center justify-center p-4">
+    <div className=" relative h-[100vh] w-full flex items-center justify-center p-4">
       {renderPreview()}
+      {showFileRenameInputBox && (
+        <RenameFileInputBox />
+      )}
+      <div className=''>
+        {fileData?.permission !== "View" && (
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className=' absolute right-5 top-2  cursor-pointer text-xl font-bold p-2 rounded-full ' >:</button>
+        )}
+        {/* menu  */}
+        {showMenu && (
+          <div className='absolute right-10 top-10  w-[10vw]  bg-gray-300 rounded-md px-3 py-2 '>
+            {fileData?.permission !== "View" && (
+              <ul className=' text-[1.5vw] cursor-pointer flex flex-col gap-3 '>
+                <li
+                  onClick={() => {
+                    renameFile(fileId, fileData.name);
+                    setShowFileRenameInputBox(true);
+                  }}
+                >Rename File</li>
+                <li
+                  onClick={() => {
+                    removeSharedUser(fileId,fileData.userId );
+                  }}
+                >Delete</li>
+
+              </ul>
+            )}
+          </div>
+        )}
+      </div >
     </div>
   )
 }

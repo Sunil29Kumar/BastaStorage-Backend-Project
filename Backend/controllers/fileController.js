@@ -8,6 +8,7 @@ import User from "../models/userModel.js";
 import SharedLink from "../models/SharedLinksModel.js";
 import crypto from "crypto";
 import inviteUserByEmail from "../utils/inviteUserByEmail.js";
+import { use, useId } from "react";
 
 export const createFile = async (req, res) => {
   const parentDirId = req.params.parentDirId || req.user.rootDirId;
@@ -128,17 +129,34 @@ export const renameFile = async (req, res) => {
   const newFileName = req.body.newFilename;
 
   if (!newFileName) {
-    return res.status(404).json({ message: "File not found" });
+    return res.status(404).json({ message: "New filename is required" });
   }
 
   try {
-    await File.updateOne(
-      { _id: new ObjectId(id), userId: req.user._id },
-      {
-        $set: { name: newFileName },
-        $push: { "timeStamp.lastModified": new Date() },
-      }
-    );
+
+    const file = await File.findOne({ _id: new ObjectId(id) });
+    if (!file) {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    // check owner 
+    if (file.userId.toString() === req.user._id.toString()) {
+      file.name = newFileName;
+      file.timeStamp.lastModified.push(new Date());
+      file.save();
+      return res.status(200).json({ message: "File Renamed" });
+    }
+
+    // check shared with edit permission 
+    const sharedWithEntries = file.sharedWith.find((entry) => entry.userId.toString() === req.user._id.toString() && entry.permission === "Edit");
+
+    if (!sharedWithEntries) {
+      return res.status(404).json({ error: "You do not have permission to rename this file." });
+    }
+
+    file.name = newFileName;
+    file.timeStamp.lastModified.push(new Date());
+    file.save();
 
     return res.status(200).json({ message: "File Renamed" });
   } catch (error) {
@@ -256,7 +274,7 @@ export const shareFileThroughEmail = async (req, res) => {
 export const getSharedUsers = async (req, res) => {
   const fileId = req.params.id;
   try {
-    const file = await File.findById(fileId).populate("sharedWith.userId", "email name picture");
+    const file = await File.findById(fileId).populate("sharedWith.userId", "email name picture userId");
 
     if (!file) return res.status(404).json({ message: "File not found" });
 
@@ -269,7 +287,6 @@ export const getSharedUsers = async (req, res) => {
     return res.status(500).json({ message: "Server error", error });
   }
 }
-
 
 // private share 
 export const privateShare = async (req, res) => {
@@ -297,6 +314,8 @@ export const privateShare = async (req, res) => {
     name: file.name,
     type: file.type,
     viewUrl: fileUrl,
+    performance: sharedWithEntry.permission,
+    userId: sharedWithEntry.userId,
   }
 
   return res.status(200).json({ message: "Private Share Working", fileData });
@@ -333,3 +352,38 @@ export const updateSharedFilePermission = async (req, res) => {
   }
 
 }
+
+
+
+// removeSharedUser 
+export const removeSharedUser = async (req, res) => {
+  const { fileId, userId } = req.params;
+
+  console.log(fileId,userId);
+  
+
+  try {
+    // const user = await User.findOne(userId );
+
+    const file = await File.findById(fileId)
+
+    // owner remove share 
+    if (file.userId.toString() === req.user._id.toString()) {
+      file.sharedWith.pull({ userId })
+      await file.save();
+      return res.status(200).json({ message: "owner remove access" })
+    }
+
+    // user own remove share with  
+    if (req.user._id.toString() === userId.toString()) {
+      file.sharedWith.pull({ userId });
+      await file.save()
+      return res.status(200).json({ message: "you own remove access" })
+    }
+
+    return res.status(200).json({ message: "you cannot remove access for this user" })
+
+  } catch (error) {
+    return res.status(400).json({ error: "file Shared not removed" })
+  }
+} 

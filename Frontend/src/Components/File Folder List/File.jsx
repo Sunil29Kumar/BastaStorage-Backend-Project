@@ -233,9 +233,6 @@ function File() {
               )}
 
 
-
-
-
             {/* file data ----------------------------------------------------- */}
 
             {filesList && filesList.length > 0
@@ -406,7 +403,7 @@ function File() {
                 );
               })
               : location.pathname != "/my-drive" && (
-                <p className="text-center text-gray-500">
+                <p className={`text-center ${isDarkMode ? "bg-gray-800" : "bg-white"} text-gray-500`}>
                   click + to add new file
                 </p>
               )}

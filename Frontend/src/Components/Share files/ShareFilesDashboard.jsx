@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function ShareFilesDashboard() {
-  const { isDarkMode, setShowShareFile, shareLink, shareFileId, setIsShareLinkCopied, storeUserData, inviteUser, fetchSharedUsers, sharedUsersData, inviteUserMessage,updateSharedFilePermission } = useContext(BastaStorageContext);
+  const { isDarkMode, setShowShareFile, shareLink, shareFileId, setIsShareLinkCopied, storeUserData, inviteUser, fetchSharedUsers, sharedUsersData, inviteUserMessage, updateSharedFilePermission ,removeSharedUser} = useContext(BastaStorageContext);
 
   const [email, setEmail] = useState("");
   const [permission, setPermission] = useState("View");
@@ -14,7 +14,6 @@ function ShareFilesDashboard() {
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [menuEmail, setMenuEmail] = useState("");
 
-  
   // close the menu when clicking outside
   const containerRef = useRef(null);
   useEffect(() => {
@@ -30,6 +29,7 @@ function ShareFilesDashboard() {
     };
 
   }, []);
+  
 
   // call fetch shared users 
   useEffect(() => {
@@ -144,7 +144,7 @@ function ShareFilesDashboard() {
 
                 {/* PERMISSION button  */}
                 <div
-                  onClick={(e) => handleUpdatePermissionClick(e, user.userId.email, user.permission,user._id)}
+                  onClick={(e) => handleUpdatePermissionClick(e, user.userId.email, user.permission, user._id)}
                   className={`  rounded-md px-5 py-2  cursor-pointer ${isDarkMode ? "bg-gray-600" : "bg-gray-100"} `} >
                   <button
                     className={`text-[1vw] cursor-pointer flex justify-between items-center gap-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
@@ -176,7 +176,10 @@ function ShareFilesDashboard() {
                         onClick={() => setUpdatePermission("Commenter")}
                         className={` cursor-pointer  rounded-md px-2 py-1 ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-blue-200"}  `} >Commenter</li>
                       <li
-                        onClick={() => setUpdatePermission("Remove Access")}
+                        onClick={() => {
+                          setUpdatePermission("Remove Access")
+                          removeSharedUser(shareFileId,user.userId._id)
+                        }}
                         className={` cursor-pointer  rounded-md px-2 py-1 ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-blue-200"}  `} >Remove Access</li>
                     </ul>
                   </div>
@@ -210,7 +213,7 @@ function ShareFilesDashboard() {
         {/* Actions */}
         <div
           className="flex justify-end gap-3">
-            {/* cancle  */}
+          {/* cancle  */}
           <button
             onClick={() => {
               setShowShareFile(false)
@@ -220,7 +223,7 @@ function ShareFilesDashboard() {
           </button>
 
           {updatePermission ?
-          // update permission and invite user button
+            // update permission and invite user button
             <button
               onClick={() => {
                 updateSharedFilePermission(shareFileId, menuEmail, updatePermission);

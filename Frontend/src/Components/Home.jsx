@@ -20,8 +20,8 @@ function Home() {
             <File />
           </>
         ) : (
-          <div className=" w-[100%] h-full flex justify-center items-center text-[2vw]">
-          <p className={`  bg-gray-200 rounded-md ${isDarkMode ? "text-white" : "text-gray-600"} px-5 py-4 `}>Click + to create Folder or upload Files</p>
+          <div className={` w-[100%] h-full flex justify-center items-center text-[2vw]`}>
+          <p className={`   rounded-md ${isDarkMode ? "bg-gray-700 text-white" : "text-gray-800 bg-blue-100"} px-5 py-4 `}>Click + to create Folder or upload Files</p>
           </div>
         )}
       </div>

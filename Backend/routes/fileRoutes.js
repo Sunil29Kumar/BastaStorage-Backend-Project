@@ -6,6 +6,7 @@ import {
   getFile,
   getSharedUsers,
   privateShare,
+  removeSharedUser,
   renameFile,
   shareFile,
   shareFileThroughEmail,
@@ -51,6 +52,10 @@ router.get("/:id/share/private/:token",checkAuth,privateShare)
 
 // update shared file permission
 router.patch("/:fileId/share",checkAuth,updateSharedFilePermission)
+
+
+// remove shared user
+router.delete("/:fileId/share/:userId",checkAuth,removeSharedUser)
 
 
 
