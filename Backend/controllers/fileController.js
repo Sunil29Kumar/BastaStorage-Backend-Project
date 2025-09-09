@@ -351,7 +351,6 @@ export const updateSharedFilePermission = async (req, res) => {
 
 }
 
-
 // removeSharedUser 
 export const removeSharedUser = async (req, res) => {
   const { fileId, userId } = req.params;

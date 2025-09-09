@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 
 function TopMenu() {
-  const { isDarkMode, setAccountMenu, loggedIn, setIsDarkMode, randomAccountBGcolor, storeUserData } =
+  const { isDarkMode, setAccountMenu, loggedIn, setIsDarkMode, randomAccountBGcolor, storeUserData, toggleDarkMode } =
     useContext(BastaStorageContext);
   return (
     <div>
@@ -24,9 +24,8 @@ function TopMenu() {
           {/* dark mode toggle  */}
 
           <i
-            onClick={() => setIsDarkMode(!isDarkMode)}
+            onClick={() => toggleDarkMode()}
             className={`ri-${isDarkMode ? "sun" : "moon"}-line text-2xl cursor-pointer transition-all duration-300 ${isDarkMode ? "text-yellow-200" : "text-black"}`}></i>
-
 
           {/* user account logo  */}
           <div

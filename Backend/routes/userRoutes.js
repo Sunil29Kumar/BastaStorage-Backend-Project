@@ -20,8 +20,8 @@ import userMiddleware from "../middleware/userMiddleware.js";
 
 const router = express.Router();
 
-// authintication 
 
+// authintication 
 router.post("/user/register", registerLimiter, registerUser);
 
 // login route
@@ -52,6 +52,7 @@ router.post("/users/delete/hard", checkAuth, userMiddleware, hardDeleteUserById)
 // soft delete
 router.post("/users/delete/soft", checkAuth, userMiddleware, softDeleteUserById);
 
+// change role 
 router.patch("/users/changeRole", checkAuth, userMiddleware, updateUserRole);
 
 export default router;

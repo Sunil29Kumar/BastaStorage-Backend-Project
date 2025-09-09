@@ -162,6 +162,21 @@ function ContextAPI({ children }) {
   //                                  main code starrt
   // ---------------------------------
 
+  // dark mode  togge 
+
+  useEffect(() => {
+    let saveTheme = localStorage.getItem("isDarkMode");
+    if (saveTheme == "true") {
+      setIsDarkMode(true);
+    }
+  }, [])
+
+  function toggleDarkMode() {
+    const newTheme = isDarkMode === true ? false : true;
+    setIsDarkMode(newTheme)
+    localStorage.setItem("isDarkMode", newTheme)
+  }
+
   // GET Request file and dir
   async function getDirectoryItems() {
     // if (!loggedIn) return; // 
@@ -455,7 +470,7 @@ function ContextAPI({ children }) {
     fetchUserData();
   }, []);
 
-  // update user data 
+  // update user data  ( name and photo ) 
   async function updateUserData(updateUserData) {
 
     const formDataToSend = new FormData();
@@ -488,53 +503,6 @@ function ContextAPI({ children }) {
 
   }
 
-  // all user 
-  async function getAllUsers() {
-    const response = await fetch(`${BASE_URL}/users`, {
-      credentials: "include",
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-      setAllUsers(data.users);
-    }
-    else if (response.status === 403) {
-      navigate("/");
-      setAllUsers([]);
-    }
-    else {
-      console.error("Failed to fetch all users");
-    }
-  }
-
-  // logout user by admin and manager
-  async function logoutUserById(userId) {
-    const response = await fetch(`${BASE_URL}/users/logout`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json", // 👈 yeh jaruri hai
-      },
-      body: JSON.stringify({ userId }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
-      setTimeout(() => {
-        setLogoutDeleteByIdMessage({ success: "", error: "" });
-      }, 2500);
-      getAllUsers(); // Refresh user list
-    }
-    if (response.status === 403) {
-      setLogoutDeleteByIdMessage({ success: "", error: data.message });
-      setTimeout(() => {
-        setLogoutDeleteByIdMessage({ success: "", error: "" });
-      }, 2500);
-    }
-
-
-  }
-
   // get Logout request
   async function handleLogout() {
     const response = await fetch(`${BASE_URL}/user/logout`, {
@@ -546,7 +514,6 @@ function ContextAPI({ children }) {
     navigate("/");
     getDirectoryItems();
   }
-
   // logout form all device
   async function logoutFromAllDevice() {
     const response = await fetch(`${BASE_URL}/user/logoutAllDevice`, {
@@ -558,63 +525,7 @@ function ContextAPI({ children }) {
     navigate("/");
     getDirectoryItems();
   }
-
-  // delete user using id by admin 
-  // hard delete 
-  async function hardDeleteUserById(userId) {
-    const response = await fetch(`${BASE_URL}/users/delete/hard`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
-      setTimeout(() => {
-        setLogoutDeleteByIdMessage({ success: "", error: "" });
-      }, 2500);
-      getAllUsers(); // Refresh user list
-    }
-    if (response.status === 403) {
-      setLogoutDeleteByIdMessage({ success: "", error: data.message });
-      setTimeout(() => {
-        setLogoutDeleteByIdMessage({ success: "", error: "" });
-      }, 2500);
-
-    }
-  }
-
-  // soft delete 
-  async function softDeleteUserById(userId) {
-    const response = await fetch(`${BASE_URL}/users/delete/soft`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
-      setTimeout(() => {
-        setLogoutDeleteByIdMessage({ success: "", error: "" });
-      }, 2500);
-      getAllUsers(); // Refresh user list
-    }
-    if (response.status === 403) {
-      setLogoutDeleteByIdMessage({ success: "", error: data.message });
-      setTimeout(() => {
-        setLogoutDeleteByIdMessage({ success: "", error: "" });
-      }, 2500);
-
-    }
-  }
-
-  // get OPT
+  // ------------- get OPT
   async function sendOPT(email) {
     try {
       const response = await fetch(`${BASE_URL}/auth/sendOtp`, {
@@ -649,7 +560,6 @@ function ContextAPI({ children }) {
       console.log(error);
     }
   }
-
   // verify opt
   async function verifyUserOtp({ email, otp }) {
     const response = await fetch(`${BASE_URL}/auth/verifyOtp`, {
@@ -671,12 +581,13 @@ function ContextAPI({ children }) {
     console.log(data);
   }
 
-  // Login with Github 
+
+  // -------------- Login with Github 
   const loginWithGithub = () => {
     window.location.href = `http://localhost:2000/auth/github`;
   }
 
-  // Login with Google 
+  // -------------- Login with Google 
   async function loginWithGoogle(credential) {
     const response = await fetch(`${BASE_URL}/auth/google/login`, {
       method: "POST",
@@ -719,8 +630,6 @@ function ContextAPI({ children }) {
     }
     return data;
   }
-
-
   // set login with google password
   async function setGooglePassword(password, confirmPassword) {
     const response = await fetch(`${BASE_URL}/auth/google/set-password`, {
@@ -750,6 +659,13 @@ function ContextAPI({ children }) {
 
   }
 
+
+
+
+
+
+
+  // ------------------- google drive integration 
   // Google drive 
   const googleDriveFiles = () => {
     const popup = window.open(
@@ -770,7 +686,6 @@ function ContextAPI({ children }) {
       }
     })
   };
-
   // get Google Drive files
   async function getGoogleDriveFilesFolder() {
     const response = await fetch(`${BASE_URL}/auth/google/list-file`, {
@@ -786,7 +701,6 @@ function ContextAPI({ children }) {
       console.error("Failed to fetch Google Drive files:", data.error);
     }
   }
-
   // send google drive files data to backend
   async function sendDriveFilesData(file) {
     const response = await fetch(`${BASE_URL}/google-drive/file`, {
@@ -800,6 +714,110 @@ function ContextAPI({ children }) {
     console.log(await response.json());
   }
 
+
+
+
+
+  // ---------------- Role Based Access Control (RBAC) -  admin , manager , user
+  // all user 
+  async function getAllUsers() {
+    const response = await fetch(`${BASE_URL}/users`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      setAllUsers(data.users);
+    }
+    else if (response.status === 403) {
+      navigate("/");
+      setAllUsers([]);
+    }
+    else {
+      console.error("Failed to fetch all users");
+    }
+  }
+  // logout user by admin and manager
+  async function logoutUserById(userId) {
+    const response = await fetch(`${BASE_URL}/users/logout`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json", // 👈 yeh jaruri hai
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+      getAllUsers(); // Refresh user list
+    }
+    if (response.status === 403) {
+      setLogoutDeleteByIdMessage({ success: "", error: data.message });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+    }
+
+
+  }
+
+  // --- delete user using id by admin 
+  // hard delete 
+  async function hardDeleteUserById(userId) {
+    const response = await fetch(`${BASE_URL}/users/delete/hard`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+      getAllUsers(); // Refresh user list
+    }
+    if (response.status === 403) {
+      setLogoutDeleteByIdMessage({ success: "", error: data.message });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+
+    }
+  }
+  // soft delete 
+  async function softDeleteUserById(userId) {
+    const response = await fetch(`${BASE_URL}/users/delete/soft`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setLogoutDeleteByIdMessage({ success: data.message, error: "" });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+      getAllUsers(); // Refresh user list
+    }
+    if (response.status === 403) {
+      setLogoutDeleteByIdMessage({ success: "", error: data.message });
+      setTimeout(() => {
+        setLogoutDeleteByIdMessage({ success: "", error: "" });
+      }, 2500);
+
+    }
+  }
   //  Recovery request
   async function sendRecoverRequest(email) {
     const response = await fetch(`${BASE_URL}/auth/recover-request`, {
@@ -817,7 +835,6 @@ function ContextAPI({ children }) {
       setRecoveryRequestMessage({ message: "", error: data.error });
     }
   }
-
   // Recover Account 
   async function sendRecoverAccount(token) {
     const response = await fetch(`${BASE_URL}/auth/recover-account`, {
@@ -835,7 +852,6 @@ function ContextAPI({ children }) {
       setRecoverAccountMessage({ message: "", error: data.error })
     }
   }
-
   // update user role 
   async function updateUserRole(userId, newRole) {
     const response = await fetch(`${BASE_URL}/users/changeRole`, {
@@ -864,7 +880,10 @@ function ContextAPI({ children }) {
     }
   }
 
-  // share link 
+
+  // ----------------- share files
+
+  // share file thorough link 
   async function shareLink(fileId) {
     const response = await fetch(`${BASE_URL}/file/${fileId}/share-link/`, {
       method: "POST",
@@ -880,7 +899,6 @@ function ContextAPI({ children }) {
     }
     console.log(data);
   }
-
   // share file thwough email with permission 
   async function inviteUser(email, permission, fileId) {
 
@@ -921,7 +939,6 @@ function ContextAPI({ children }) {
     }
 
   }
-
   // fetch shared users
   async function fetchSharedUsers(fileId) {
     const response = await fetch(`${BASE_URL}/file/${fileId}/shared-users`, {
@@ -937,7 +954,6 @@ function ContextAPI({ children }) {
       setSharedUsersData(data);
     }
   }
-
   // update shared file permission 
   async function updateSharedFilePermission(fileId, email, updatePermission) {
     try {
@@ -973,7 +989,6 @@ function ContextAPI({ children }) {
       setUpdatePermissionLoading(false)
     }
   }
-
   // remove shareWith user
   async function removeSharedUser(fileId, userId) {
     const response = await fetch(`${BASE_URL}/file/${fileId}/share/${userId}`, {
@@ -999,14 +1014,14 @@ function ContextAPI({ children }) {
   }
 
 
-
   return (
     <BastaStorageContext.Provider
       value={{
         BASE_URL,
         // dark mode
+        toggleDarkMode,
         isDarkMode,
-        setIsDarkMode,
+        // setIsDarkMode,
 
         directoriesList,
         setDirectoriesList,
@@ -1041,7 +1056,8 @@ function ContextAPI({ children }) {
         setFolderInfo,
         showFolderInfo,
         setShowFolderInfo,
-        // share file + share link
+
+        // ------- share file + share link
         setShowShareFile,
         showShareFile,
         setShareFileId,
@@ -1061,13 +1077,15 @@ function ContextAPI({ children }) {
         sharedUsersData,
         // remove shared user
         removeSharedUser,
-        // logout,    
+
+        //--- logout,    
         showLogOutBox,
         setShowLogOutBox,
         accountMenu,
         setAccountMenu,
         storeUserData,
         setStoreUserData,
+
         // fetch user data 
         fetchUserData,
         // update user data 
@@ -1093,6 +1111,7 @@ function ContextAPI({ children }) {
         errorRegister,
         setErrorRegister,
         registerLimiterError,
+
         // login 
         loginData,
         setLoginData,
@@ -1132,6 +1151,7 @@ function ContextAPI({ children }) {
         handleLogout,
         cancleUpload,
         logoutFromAllDevice,
+
         // otp
         otp,
         setOtp,
@@ -1143,6 +1163,7 @@ function ContextAPI({ children }) {
         isOtpWrong,
         sentOtpMessage,
         otpLimiterError,
+
         // verify otp
         verifyUserOtp,
         setVerifyOtpMessage,
@@ -1189,6 +1210,7 @@ function ContextAPI({ children }) {
         // update user role 
         updateUserRole,
         updateRoleMessage,
+
 
       }}
     >

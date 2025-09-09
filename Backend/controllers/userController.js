@@ -221,7 +221,6 @@ export const getAllUsers = async (req, res) => {
   return res.status(200).json({ users: userIdNameEmail });
 }
 
-
 // logout user using user id by admin or manager 
 export const logoutUserById = async (req, res) => {
   const { userId } = req.body;
@@ -316,7 +315,7 @@ export const softDeleteUserById = async (req, res) => {
   }
 }
 
-
+// update user role 
 export const updateUserRole = async (req, res) => {
   const { userId, newRole } = req.body;
   console.log(req.body);

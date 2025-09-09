@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    darekMode:{
+      type: Boolean,
+      default: false
+    },
     userTimeStamp: {
       userCreatedAt: {
         type: Date,
