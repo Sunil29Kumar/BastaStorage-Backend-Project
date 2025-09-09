@@ -275,9 +275,7 @@ export const getSharedUsers = async (req, res) => {
   const fileId = req.params.id;
   try {
     const file = await File.findById(fileId).populate("sharedWith.userId", "email name picture userId");
-
     if (!file) return res.status(404).json({ message: "File not found" });
-
     const sharedUserData = file.sharedWith;
 
     return res.status(200).json(sharedUserData);
@@ -314,7 +312,7 @@ export const privateShare = async (req, res) => {
     name: file.name,
     type: file.type,
     viewUrl: fileUrl,
-    performance: sharedWithEntry.permission,
+    permission: sharedWithEntry.permission,
     userId: sharedWithEntry.userId,
   }
 
@@ -354,31 +352,27 @@ export const updateSharedFilePermission = async (req, res) => {
 }
 
 
-
 // removeSharedUser 
 export const removeSharedUser = async (req, res) => {
   const { fileId, userId } = req.params;
 
-  console.log(fileId,userId);
-  
-
   try {
-    // const user = await User.findOne(userId );
-
+    const user = await User.findById(userId)
+    if (!user) return res.status(404).json({ error: "User not found" });
     const file = await File.findById(fileId)
 
     // owner remove share 
     if (file.userId.toString() === req.user._id.toString()) {
       file.sharedWith.pull({ userId })
       await file.save();
-      return res.status(200).json({ message: "owner remove access" })
+      return res.status(200).json({ message: `Access removed for ${user.email}.` })
     }
 
     // user own remove share with  
     if (req.user._id.toString() === userId.toString()) {
       file.sharedWith.pull({ userId });
       await file.save()
-      return res.status(200).json({ message: "you own remove access" })
+      return res.status(200).json({ message: "You no longer have access to this file." })
     }
 
     return res.status(200).json({ message: "you cannot remove access for this user" })
@@ -387,3 +381,4 @@ export const removeSharedUser = async (req, res) => {
     return res.status(400).json({ error: "file Shared not removed" })
   }
 } 
+

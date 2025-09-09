@@ -2,13 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function ShareFilesDashboard() {
-  const { isDarkMode, setShowShareFile, shareLink, shareFileId, setIsShareLinkCopied, storeUserData, inviteUser, fetchSharedUsers, sharedUsersData, inviteUserMessage, updateSharedFilePermission ,removeSharedUser} = useContext(BastaStorageContext);
+  const { isDarkMode, setShowShareFile, shareLink, shareFileId, setIsShareLinkCopied, storeUserData, inviteUser, fetchSharedUsers, sharedUsersData, inviteUserMessage, updateSharedFilePermission, removeSharedUser, inviteLoading, updatePermissionLoading } = useContext(BastaStorageContext);
 
   const [email, setEmail] = useState("");
   const [permission, setPermission] = useState("View");
   const [isClicked, setIsClicked] = useState(false);
 
   const [updatePermission, setUpdatePermission] = useState("");
+  const [isPermissionChanged, setIsPermissionChanged] = useState(false);
 
   // set updatePermissionBoxRef position 
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -29,7 +30,7 @@ function ShareFilesDashboard() {
     };
 
   }, []);
-  
+
 
   // call fetch shared users 
   useEffect(() => {
@@ -41,7 +42,7 @@ function ShareFilesDashboard() {
     if (inviteUserMessage.message) {
       setTimeout(() => {
         setShowShareFile(false);
-      }, 2500);
+      }, 2000);
     }
   }, [inviteUserMessage]);
 
@@ -49,9 +50,10 @@ function ShareFilesDashboard() {
 
   // show menu on click
   const handleUpdatePermissionClick = (e, email, permission) => {
-    const y = e.clientY - 270;
+    const y = e.clientY - 220;
     setMenuPosition({ y });
     setIsClicked(!isClicked);
+
     setMenuEmail(email);
     setUpdatePermission(permission)
   }
@@ -88,8 +90,6 @@ function ShareFilesDashboard() {
             >
               <option value="View">View</option>
               <option value="Edit">Edit</option>
-              <option value="Download">Download</option>
-              <option value="Commenter">Commenter</option>
             </select>
           </div>
 
@@ -161,30 +161,32 @@ function ShareFilesDashboard() {
                     style={{ top: menuPosition.y }}
                   >
                     <ul
-                      onClick={() => setIsClicked(false)}
+                      onClick={() => {
+                        setIsClicked(false)
+                      }}
                       className=" flex flex-col gap-1  text-[1vw]  text-center " >
                       <li
-                        onClick={() => setUpdatePermission("View")}
+                        onClick={() => {
+                          setUpdatePermission("View")
+                          setIsPermissionChanged(true)
+                        }}
                         className={`  cursor-pointer  rounded-md px-2 py-1 ${isDarkMode ? " hover:bg-gray-600" : "hover:bg-blue-200"}  `} >View</li>
                       <li
-                        onClick={() => setUpdatePermission("Edit")}
+                        onClick={() => {
+                          setUpdatePermission("Edit")
+                          setIsPermissionChanged(true)
+
+                        }}
                         className={` cursor-pointer  rounded-md px-2 py-1 ${isDarkMode ? " hover:bg-gray-600" : "hover:bg-blue-200"}  `} >Edit</li>
-                      <li
-                        onClick={() => setUpdatePermission("Download")}
-                        className={` cursor-pointer  rounded-md px-2 py-1 ${isDarkMode ? " hover:bg-gray-600" : "hover:bg-blue-200"}  `} >Download</li>
-                      <li
-                        onClick={() => setUpdatePermission("Commenter")}
-                        className={` cursor-pointer  rounded-md px-2 py-1 ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-blue-200"}  `} >Commenter</li>
                       <li
                         onClick={() => {
                           setUpdatePermission("Remove Access")
-                          removeSharedUser(shareFileId,user.userId._id)
+                          removeSharedUser(shareFileId, user.userId._id)
                         }}
                         className={` cursor-pointer  rounded-md px-2 py-1 ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-blue-200"}  `} >Remove Access</li>
                     </ul>
                   </div>
                 )}
-
 
               </div>
             )))}
@@ -222,22 +224,25 @@ function ShareFilesDashboard() {
             Cancel
           </button>
 
-          {updatePermission ?
+          {isPermissionChanged ?
             // update permission and invite user button
             <button
               onClick={() => {
                 updateSharedFilePermission(shareFileId, menuEmail, updatePermission);
               }}
-              className="px-4 py-2 bg-blue-500 cursor-pointer text-white rounded-lg hover:bg-blue-600">
-              Update Permission
+              className={`px-4 py-2 bg-blue-500  text-white rounded-lg hover:bg-blue-600 ${updatePermissionLoading || inviteUserMessage.message ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}>
+              {updatePermissionLoading ? "Updating..." : "Update Permission"}
             </button>
-            : <button
+            :
+            // invite user button
+            <button
               onClick={() => {
                 inviteUser(email, permission, shareFileId);
               }}
-              className="px-4 py-2 bg-blue-500 cursor-pointer text-white rounded-lg hover:bg-blue-600">
-              Done
-            </button>}
+              className={`px-4 py-2 bg-blue-500  text-white rounded-lg hover:bg-blue-600 ${inviteLoading || inviteUserMessage.message ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}>
+              {inviteLoading ? "Inviting..." : "Invite User"}
+            </button>
+          }
 
         </div>
 

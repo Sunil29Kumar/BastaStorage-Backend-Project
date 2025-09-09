@@ -61,6 +61,8 @@ function ContextAPI({ children }) {
   const [isShareLinkCopied, setIsShareLinkCopied] = useState(false);
   const [sharedUsersData, setSharedUsersData] = useState([]);
   const [inviteUserMessage, setInviteUserMessage] = useState({ message: "", error: "" });
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [updatePermissionLoading, setUpdatePermissionLoading] = useState(false);
 
   // Register request
   const [registerData, setRegisterData] = useState({
@@ -881,27 +883,41 @@ function ContextAPI({ children }) {
 
   // share file thwough email with permission 
   async function inviteUser(email, permission, fileId) {
-    const response = await fetch(`${BASE_URL}/file/${fileId}/share`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, permission })
-    })
-    const data = await response.json();
-    console.log("dsfsdf", data);
-    if (response.ok) {
-      setInviteUserMessage({ message: data.message, error: "" });
+
+    setInviteLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/file/${fileId}/share`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, permission })
+      })
+      const data = await response.json();
+      console.log("dsfsdf", data);
+
+      if (response.ok) {
+        setInviteUserMessage({ message: data.message, error: "" });
+        setInviteLoading(false);
+        setTimeout(() => {
+          setInviteUserMessage({ message: "", error: "" });
+        }, 2000);
+      }
+      if (response.status === 404) {
+        setInviteUserMessage({ message: "", error: data.error });
+        setTimeout(() => {
+          setInviteUserMessage({ message: "", error: "" });
+        }, 2000);
+      }
+    } catch (error) {
+      setInviteUserMessage({ message: "", error: `Something went wrong. Please try again. ${error.message}` });
       setTimeout(() => {
         setInviteUserMessage({ message: "", error: "" });
       }, 2500);
     }
-    if (response.status === 404) {
-      setInviteUserMessage({ message: "", error: data.error });
-      setTimeout(() => {
-        setInviteUserMessage({ message: "", error: "" });
-      }, 2500);
+    finally {
+      setInviteLoading(false);
     }
 
   }
@@ -924,26 +940,37 @@ function ContextAPI({ children }) {
 
   // update shared file permission 
   async function updateSharedFilePermission(fileId, email, updatePermission) {
-    const response = await fetch(`${BASE_URL}/file/${fileId}/share`, {
-      method: "PATCH",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, updatePermission })
-    });
-    const data = await response.json();
-    console.log(data);
+    try {
+      setUpdatePermissionLoading(true)
+      const response = await fetch(`${BASE_URL}/file/${fileId}/share`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, updatePermission })
+      });
+      const data = await response.json();
+      console.log(data);
 
-    if (response.ok) {
-      fetchSharedUsers(fileId);
-      setInviteUserMessage({ message: data.message, error: "" });
+      if (response.ok) {
+        fetchSharedUsers(fileId);
+        setInviteUserMessage({ message: data.message, error: "" });
+        setTimeout(() => {
+          setInviteUserMessage({ message: "", error: "" });
+        }, 2000);
+      }
+      if (response.status === 400 || response.status === 404) {
+        setInviteUserMessage({ message: "", error: data.error });
+      }
+    } catch (error) {
+      setInviteUserMessage({ message: "", error: `Something went wrong. Please try again. ${error.message}` });
       setTimeout(() => {
         setInviteUserMessage({ message: "", error: "" });
-      }, 2500);
+      }, 2000);
     }
-    if (response.status === 400 || response.status === 404) {
-      setInviteUserMessage({ message: "", error: data.error });
+    finally {
+      setUpdatePermissionLoading(false)
     }
   }
 
@@ -960,11 +987,11 @@ function ContextAPI({ children }) {
     console.log(data);
 
     if (response.ok) {
-      fetchSharedUsers(fileId);
       setInviteUserMessage({ message: data.message, error: "" });
       setTimeout(() => {
         setInviteUserMessage({ message: "", error: "" });
-      }, 2500);
+      }, 2000);
+      fetchSharedUsers(fileId);
     }
     if (response.status === 400 || response.status === 404) {
       setInviteUserMessage({ message: "", error: data.error });
@@ -1025,10 +1052,12 @@ function ContextAPI({ children }) {
         // invite user 
         inviteUser,
         inviteUserMessage,
+        inviteLoading,
         // fetch shared user 
         fetchSharedUsers,
         // update shared file permission 
         updateSharedFilePermission,
+        updatePermissionLoading,
         sharedUsersData,
         // remove shared user
         removeSharedUser,

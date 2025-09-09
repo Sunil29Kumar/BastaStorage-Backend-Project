@@ -115,7 +115,7 @@ export const loginUser = async (req, res) => {
     res.cookie("sid", session.id, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 1000 * 60 * 24 * 7, // 
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
 
     await User.updateOne(

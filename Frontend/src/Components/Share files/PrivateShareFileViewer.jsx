@@ -6,7 +6,7 @@ import RenameFileInputBox from '../Rename file folder/RenameFileInputBox'
 
 function PrivateShareFileViewer() {
 
-  const { renameFile, setShowFileRenameInputBox, showFileRenameInputBox,removeSharedUser } = useContext(BastaStorageContext)
+  const { renameFile, setShowFileRenameInputBox, showFileRenameInputBox, removeSharedUser, inviteUserMessage } = useContext(BastaStorageContext)
 
   const { fileId, token } = useParams()
   const [fileData, setFileData] = useState(null)
@@ -14,8 +14,8 @@ function PrivateShareFileViewer() {
   const [message, setMessage] = useState(null)
   const [showMenu, setShowMenu] = useState(false)
 
-  console.log(fileData);
-  
+  // console.log(fileData);
+
 
   // fetch file data from backend
   async function privateShare() {
@@ -35,6 +35,8 @@ function PrivateShareFileViewer() {
         setError(data.error)
         setFileData(null)
         setMessage(null)
+        console.log(error);
+
       }
 
     } catch (error) {
@@ -48,7 +50,7 @@ function PrivateShareFileViewer() {
 
 
   const renderPreview = () => {
-    if (error) return <p className="text-red-500 text-4xl ">{error}</p>
+    if (error) return <p className="text-red-400 text-4xl ">{error}</p>
     else if (!fileData) return <p>Loading...</p>
     else if (fileData?.type.startsWith("image/")) {
       return (
@@ -104,7 +106,7 @@ function PrivateShareFileViewer() {
         <RenameFileInputBox />
       )}
       <div className=''>
-        {fileData?.permission !== "View" && (
+        {fileData?.permission !== "View" && !error && (
           <button
             onClick={() => setShowMenu(!showMenu)}
             className=' absolute right-5 top-2  cursor-pointer text-xl font-bold p-2 rounded-full ' >:</button>
@@ -112,25 +114,32 @@ function PrivateShareFileViewer() {
         {/* menu  */}
         {showMenu && (
           <div className='absolute right-10 top-10  w-[10vw]  bg-gray-300 rounded-md px-3 py-2 '>
-            {fileData?.permission !== "View" && (
-              <ul className=' text-[1.5vw] cursor-pointer flex flex-col gap-3 '>
+            {fileData?.permission !== "View" && !error && (
+              <ul
+                onClick={() => setShowMenu(false)}
+                className=' text-[1.5vw] cursor-pointer flex flex-col gap-3 '>
                 <li
                   onClick={() => {
                     renameFile(fileId, fileData.name);
                     setShowFileRenameInputBox(true);
                   }}
-                >Rename File</li>
+                >Rename</li>
                 <li
                   onClick={() => {
-                    removeSharedUser(fileId,fileData.userId );
+                    removeSharedUser(fileId, fileData.userId);
                   }}
                 >Delete</li>
-
               </ul>
             )}
           </div>
         )}
+
       </div >
+      <div className=' absolute bottom-5 left-1/2 -translate-x-1/2  '>
+        {inviteUserMessage?.message && <p className=' text-white font-semibold bg-gray-400 p-2 rounded-md '>{inviteUserMessage.message}</p>}
+        {inviteUserMessage?.error && <p className=' text-red-600 font-semibold bg-gray-400 p-2 rounded-md '>{inviteUserMessage.error}</p>}
+        {/* </div> */}
+      </div>
     </div>
   )
 }

@@ -90,7 +90,7 @@ export const githubCallback = async (req, res, next) => {
     res.cookie("sid", createSession.id, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 1000 * 60 * 24 * 7,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
 
     return res.redirect("http://localhost:5173/");
@@ -179,7 +179,7 @@ export const loginWithGoogle = async (req, res, next) => {
     res.cookie("sid", createSession.id, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 1000 * 60 * 24 * 7,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
     if (!user.password) {
       return res.status(206).json({ message: "User Logged In, Please set your password", email });
@@ -290,7 +290,7 @@ export const setGooglePassword = async (req, res) => {
     return res
       .status(201) // 201 Created (new password created)
       .json({ success: true, message: "Password has been set successfully." });
-      
+
   } catch (err) {
     return res
       .status(500)

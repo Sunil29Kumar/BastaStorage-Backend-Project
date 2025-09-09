@@ -32,7 +32,7 @@ const fileSchema = await mongoose.Schema(
         },
         permission: {
           type: String,
-          enum: ["View", "Edit","Download","Commenter","Remove Access"], 
+          enum: ["View", "Edit","Download","Remove Access"], 
           default: "View",
         },
         token:{

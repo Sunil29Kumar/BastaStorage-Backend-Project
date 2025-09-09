@@ -7,7 +7,7 @@ const sessionSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 10000,
+    expires: 604800, // 7 days in seconds
   },
 });
 
