@@ -24,6 +24,11 @@ const fileSchema = await mongoose.Schema(
     type: {
       type: String,
     },
+    fileFrom: {
+      type: String,
+      enum: ["local", "googleDrive"],
+      default: "local",
+    },
     sharedWith: [
       {
         userId: {
@@ -32,7 +37,7 @@ const fileSchema = await mongoose.Schema(
         },
         permission: {
           type: String,
-          enum: ["View", "Edit","Download","Remove Access"], 
+          enum: ["View", "Edit", "Remove Access"],
           default: "View",
         },
         token:{

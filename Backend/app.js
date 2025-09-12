@@ -23,7 +23,8 @@ app.use(cookieParser(process.env.SECRET_KEY));
 
 // serving static files
 app.use(express.static("public"));
-app.use("/upload", express.static(path.join(process.cwd(), "upload")));
+app.use("/storage/user-photo", express.static(path.join(process.cwd(), "user-photo")));
+app.use("/storage/google-drive-files", express.static(path.join(process.cwd(), "google-drive-files")));
 app.use("/storage", express.static(path.join(process.cwd(), "storage")));
 
 // parsing data comming from frontend body

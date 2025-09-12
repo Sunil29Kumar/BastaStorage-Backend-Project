@@ -1,8 +1,8 @@
-import React, {useContext, useEffect, useRef} from "react";
-import {BastaStorageContext} from "../../hooks/Context/ContextAPI";
+import React, { useContext, useEffect, useRef } from "react";
+import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function FileInformation() {
-  const { isDarkMode, setShowFileInfo, fileInfo} = useContext(BastaStorageContext);
+  const { isDarkMode, setShowFileInfo, fileInfo } = useContext(BastaStorageContext);
 
   const infoRef = useRef(null);
   useEffect(() => {
@@ -68,21 +68,21 @@ function FileInformation() {
                 <td className="pt-2 font-semibold">Created At:</td>
               </tr>
               <tr className=" border-blue-200">
-                <td className="py-1">{fileInfo[0].fileCreationDate}</td>
+                <td className="py-1">{fileInfo[0].fileCreationDate.split("T")[0]}</td>
               </tr>
               {/* file opened date  */}
-              {/* <tr className=" border-blue-200">
+              <tr className=" border-blue-200">
                 <td className="pt-2 font-semibold">Opened:</td>
-              </tr> */}
-              {/* <tr className=" border-blue-200">
+              </tr>
+              <tr className=" border-blue-200">
                 <td className="py-1 text-[1vw] font-normal">
                   {fileInfo[0].fileOpenDate?.length > 0
                     ? fileInfo[0].fileOpenDate.map((data, i) => (
-                        <div key={i}>{data}</div>
-                      ))
+                      <div key={i}>{data.split("T")[0]}</div>
+                    ))
                     : "N/A"}
                 </td>
-              </tr> */}
+              </tr>
               {/* last modified date  */}
               <tr className=" border-blue-200">
                 <td className="pt-2 font-semibold">Last Modified:</td>
@@ -91,24 +91,24 @@ function FileInformation() {
                 <td className="py-1 text-[1vw] font-normal">
                   {fileInfo[0].fileModifiedDate?.length > 0
                     ? fileInfo[0].fileModifiedDate.map((data, i) => (
-                        <div key={i}>{data}</div>
-                      ))
+                      <div key={i}>{data.split("T")[0]}</div>
+                    ))
                     : "N/A"}
                 </td>
               </tr>
               {/* fole download date  */}
-              {/* <tr className=" border-blue-200">
+              <tr className=" border-blue-200">
                 <td className="pt-2 font-semibold">Last Download:</td>
               </tr>
               <tr className=" border-blue-200">
                 <td className="py-1 text-[1vw] font-normal">
                   {fileInfo[0].fileDownloadDate?.length > 0
                     ? fileInfo[0].fileDownloadDate.map((data, i) => (
-                        <div key={i}>{data}</div>
-                      ))
+                      <div key={i}>{data.split("T")[0]}</div>
+                    ))
                     : "N/A"}
                 </td>
-              </tr> */}
+              </tr>
             </tbody>
           </table>
         </div>

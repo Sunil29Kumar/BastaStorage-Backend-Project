@@ -332,7 +332,7 @@ export const googleCallback = async (req, res) => {
 
 
     // only set refresh_token if it's provided by Google
-    if (tokens.refresh_token || !existingGoogleToken) {
+    if (tokens.refresh_token) {
       updateData["tokens.refresh_token"] = tokens.refresh_token;
     }
 
@@ -350,8 +350,8 @@ export const googleCallback = async (req, res) => {
           { userId },
           {
             $set: {
-              access_token: newAccessToken.access_token,
-              expiry_date: newAccessToken.expiry_date
+              "tokens.access_token": newAccessToken.access_token,
+              "tokens.expiry_date": newAccessToken.expiry_date
             }
           })
       }
@@ -369,7 +369,6 @@ export const googleCallback = async (req, res) => {
     res.status(500).send("Google auth failed");
   }
 };
-
 
 // fetch files and folder
 export const googleDriveFilesFolder = async (req, res) => {
@@ -396,6 +395,7 @@ export const googleDriveFilesFolder = async (req, res) => {
     res.status(500).send("Google Drive API failed");
   }
 };
+
 
 
 // request recovery  
@@ -471,7 +471,6 @@ export const requestRecovery = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
-
 // recover account 
 export const recoverAccount = async (req, res) => {
   const { token } = req.body;

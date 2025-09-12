@@ -179,7 +179,7 @@ export const updateUserProfile = async (req, res) => {
     // update fields
     let updateData = { name };
     if (req.file) {
-      updateData.picture = `/upload/${req.file.filename}`;
+      updateData.picture = `/storage/user-photo/${req.file.filename}`;
     }
 
     const updateUser = await User.findByIdAndUpdate(
@@ -286,7 +286,6 @@ export const hardDeleteUserById = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }
-
 
 // soft delete
 export const softDeleteUserById = async (req, res) => {

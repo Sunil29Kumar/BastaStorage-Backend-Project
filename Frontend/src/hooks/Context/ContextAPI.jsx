@@ -135,6 +135,7 @@ function ContextAPI({ children }) {
   // google drive 
   const [googleDriveFilesData, setGoogleDriveFilesData] = useState([]);
   const [isGDBoxOpen, setIsGDBoxOpen] = useState(false);
+  const [googleDriveFileLoading, setGoogleDriveFileLoading] = useState(false);
 
   // recovery request 
   const [recoveryRequestMessage, setRecoveryRequestMessage] = useState({
@@ -672,46 +673,63 @@ function ContextAPI({ children }) {
       "http://localhost:2000/auth/google/drive",
       "Google Drive Login",
       `width=600,height=600,left=500,top=200`
-    ); 5
+    );
 
     window.addEventListener("message", (event) => {
       if (event.data.success) {
-        console.log(event.data.success);
-        console.log("Google Drive login successful!");
+        // console.log(event.data.success);
+        // console.log("Google Drive login successful!");
         getGoogleDriveFilesFolder(); // files auto fetch
       }
       else if (event.data.error) {
-        console.log(event.data.error);
+        // console.log(event.data.error);
         console.error("Google Drive login failed:", event.data.error);
       }
     })
   };
+
   // get Google Drive files
   async function getGoogleDriveFilesFolder() {
     const response = await fetch(`${BASE_URL}/auth/google/list-file`, {
       credentials: "include",
     });
     const data = await response.json();
-    console.log(data);
+    // console.log("drivefile=>", data);
 
     if (response.ok) {
-      console.log("Google Drive files:", data.files);
+      // console.log("Google Drive files:", data.files);
       setGoogleDriveFilesData(data.files);
     } else {
       console.error("Failed to fetch Google Drive files:", data.error);
     }
   }
+
   // send google drive files data to backend
   async function sendDriveFilesData(file) {
-    const response = await fetch(`${BASE_URL}/google-drive/file`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ file })
-    });
-    console.log(await response.json());
+    setGoogleDriveFileLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/google-drive/file`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ file })
+      });
+      const data = await response.json()
+      console.log(data);
+      if (response.ok) {
+        setGoogleDriveFileLoading(false);
+        getDirectoryItems();
+        setIsGDBoxOpen(false);
+      }
+      else {
+        console.error("Failed to send Google Drive file:", data.error);
+      }
+    } catch (error) {
+      console.error("Error sending Google Drive file:", error);
+    }
+
   }
 
 
@@ -1198,15 +1216,14 @@ function ContextAPI({ children }) {
 
         // sending google drive files data to backend 
         sendDriveFilesData,
+        googleDriveFileLoading,
 
         // recovery request
         sendRecoverRequest,
         recoveryRequestMessage,
-
         // recovery account 
         sendRecoverAccount,
         recoverAccountMessage,
-
         // update user role 
         updateUserRole,
         updateRoleMessage,

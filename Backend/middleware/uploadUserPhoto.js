@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./upload");  // sirf directory
+    cb(null, "./storage/user-photo");  // sirf directory
   },
   filename: function (req, file, cb) {
     const extension = path.extname(file.originalname);
@@ -15,4 +15,3 @@ const storage = multer.diskStorage({
 });
 
 export const upload = multer({ storage });
- 

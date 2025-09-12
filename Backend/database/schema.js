@@ -47,11 +47,11 @@ try {
           usedSpace: {
             bsonType: "number",
           },
-          role:{
+          role: {
             bsonType: "string",
-            enum: ["owner","user", "admin", "manager"],
+            enum: ["owner", "user", "admin", "manager"],
           },
-          isDeleted:{
+          isDeleted: {
             bsonType: "bool",
           },
           userTimeStamp: {
@@ -193,6 +193,33 @@ try {
           size: {
             bsonType: ["int", "long"],
             description: "Must be an integer size",
+          },
+          type: {
+            bsonType: "string",
+            description: "MIME type of the file",
+          },
+          fileFrom: {
+            bsonType: "string",
+            enum: ["local", "googleDrive"],
+          },
+          sharedWith: {
+            bsonType: "array",
+            items: {
+              bsonType: "object",
+              required: ["userId", "permission"],
+              properties: {
+                userId: {
+                  bsonType: "objectId",
+                },
+                permission: {
+                  bsonType: "string",
+                  enum: ["View", "Edit", "Remove Access"],
+                },
+                token: {
+                  bsonType: "string",
+                },
+              },
+            },
           },
           timeStamp: {
             bsonType: "object",

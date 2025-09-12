@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import dotenv from "dotenv";
+import GoogleTokens from "../models/googleTokensModel.js";
 dotenv.config();
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
@@ -17,9 +18,10 @@ export const oauth2Client = new google.auth.OAuth2(
 export const googleDriveAuthUrl = async (req, res) => {
     // Generate a url that asks permissions for the Drive activity and Google Calendar scope
     const url = oauth2Client.generateAuthUrl({
-        access_type: "offline",   
-        // prompt: "consent",        
+        access_type: "offline",
+        // prompt: "consent",
         scope: [process.env.GOOGLE_DRIVE_SCOPE_1]
     });
+
     res.redirect(url);
 };

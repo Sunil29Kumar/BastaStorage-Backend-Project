@@ -14,9 +14,6 @@ export const createFile = async (req, res) => {
   const parentDirId = req.params.parentDirId || req.user.rootDirId;
   const userId = req.user._id;
 
-  console.log(req.headers);
-
-
   const parentDirData = await Directorie.findOne({
     _id: new ObjectId(parentDirId),
     userId
@@ -52,6 +49,7 @@ export const createFile = async (req, res) => {
     extension,
     size,
     type,
+    fileFrom: "local",
     timeStamp: {
       fileCreatedAt: new Date(),
       opened: [],
@@ -63,7 +61,7 @@ export const createFile = async (req, res) => {
   const fileID = fileData._id.toString();
   const fullFileName = `${fileID}${extension}`;
 
-  const writeStream = createWriteStream(`./storage/${fullFileName}`);
+  const writeStream = createWriteStream(`./storage/local-files/${fullFileName}`);
   req.pipe(writeStream);
 
 
@@ -93,7 +91,10 @@ export const getFile = async (req, res) => {
     return res.status(404).json({ message: "file not found" });
   }
 
-  const fullPath = `${process.cwd()}/storage/${id}${fileData.extension}`;
+  const localFileFullPath = `${process.cwd()}/storage/local-files/${id}${fileData.extension}`;
+  const googleDriveFileFullPath = `${process.cwd()}/storage/google-drive-files/${id}${fileData.extension}`;
+
+  const fullPath = fileData.fileFrom === "local" ? localFileFullPath : googleDriveFileFullPath
 
   // agar user download karna chahta hai
   if (req.query.action === "download") {
@@ -177,13 +178,19 @@ export const deleteFile = async (req, res) => {
       userId: req.user._id,
     });
 
-    await rm(`./storage/${id}${fileData.extension}`);
+
+    const localFileFullPath = `./storage/local-files/${id}${fileData.extension}`;
+    const googleDriveFileFullPath = `./storage/google-drive-files/${id}${fileData.extension}`;
+
+    const fullPath = fileData.fileFrom === "local" ? localFileFullPath : googleDriveFileFullPath
+
+    // await rm(`./storage/${id}${fileData.extension}`);
+    await rm(fullPath);
     await File.deleteOne({ _id: new ObjectId(id), userId: req.user._id });
 
     // update size in User
     user.usedSpace -= fileData.size;
     await user.save();
-
 
     return res.status(200).json({ message: "File Deleted Successfully" });
   } catch (err) {
@@ -220,16 +227,21 @@ export const sharefileViewer = async (req, res) => {
   if (!shared) return res.status(404).json({ message: "Share link not found" });
 
   const file = await File.findById(shared.fileId)
+
   if (!file) return res.status(404).json({ error: "File not found" });
+
+  const localFileFullPath = `/storage/local-files/${file._id}${file.extension}`;
+  const googleDriveFileFullPath = `/storage/google-drive-files/${file._id}${file.extension}`;
+
+  const fullPath = file.fileFrom === "local" ? localFileFullPath : googleDriveFileFullPath
 
   res.json({
     name: file.name,
     type: file.type,
-    viewUrl: `http://localhost:2000/storage/${file._id}${file.extension}`,
+    viewUrl: `http://localhost:2000${fullPath}`,
   });
 
 }
-
 
 // share file thwough email with permission (invite user)
 export const shareFileThroughEmail = async (req, res) => {
@@ -305,8 +317,12 @@ export const privateShare = async (req, res) => {
     return res.status(403).json({ error: "You do not have access to this file" });
   }
 
+  const localFileFullPath = `/storage/local-files/${file._id}${file.extension}`;
+  const googleDriveFileFullPath = `/storage/google-drive-files/${file._id}${file.extension}`;
 
-  const fileUrl = `http://localhost:2000/storage/${file._id}${file.extension}`
+  const fullPath = file.fileFrom === "local" ? localFileFullPath : googleDriveFileFullPath
+
+  const fileUrl = `http://localhost:2000${fullPath}`
 
   const fileData = {
     name: file.name,
@@ -379,5 +395,5 @@ export const removeSharedUser = async (req, res) => {
   } catch (error) {
     return res.status(400).json({ error: "file Shared not removed" })
   }
-} 
+}
 

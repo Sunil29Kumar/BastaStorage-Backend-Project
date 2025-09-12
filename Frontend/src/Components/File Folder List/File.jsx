@@ -149,9 +149,7 @@ function File() {
                     </td>
                     {/* timestamp  */}
                     <td className="p-2">
-                      {folder?.folderTimeStamp
-                        ? folder.folderTimeStamp?.folderCreatedAt
-                        : "liti"}
+                      {folder.folderTimeStamp?.folderCreatedAt.split("T")[0]}
                       {/* fdsf */}
                     </td>
                     {/* size  */}
@@ -258,7 +256,7 @@ function File() {
                       </td>
                       {/* file created at  */}
                       <td className="p-2">
-                        {file.timeStamp.fileCreatedAt}
+                        {file.timeStamp.fileCreatedAt.split("T")[0]}
                       </td>
                       {/* file size  */}
                       <td className="p-2">{formatSize(file.size)}</td>
@@ -332,13 +330,13 @@ function File() {
                                     fileId: file.id,
                                     icon: icon,
                                     fileName: file.name,
-                                    fileSize: file.size,
+                                    fileSize: formatSize(file.size),
                                     fileCreationDate:
                                       file.timeStamp.fileCreatedAt,
-                                    // fileOpenDate: file.timeStamp.opened,
+                                    fileOpenDate: file.timeStamp.opened,
                                     fileModifiedDate:
                                       file.timeStamp.lastModified,
-                                    // fileDownloadDate: file.timeStamp.lastDownload,
+                                    fileDownloadDate: file.timeStamp.lastDownload,
                                   },
                                 ]);
                               }}
