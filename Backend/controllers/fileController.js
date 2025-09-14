@@ -8,7 +8,6 @@ import User from "../models/userModel.js";
 import SharedLink from "../models/SharedLinksModel.js";
 import crypto from "crypto";
 import inviteUserByEmail from "../utils/inviteUserByEmail.js";
-import { use, useId } from "react";
 
 export const createFile = async (req, res) => {
   const parentDirId = req.params.parentDirId || req.user.rootDirId;
