@@ -11,6 +11,8 @@ import multer from "multer";
 import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 
+import rediclient from "../database/redis.js";
+
 
 
 // register user
@@ -90,32 +92,47 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "Invalid email or password" });
 
-    if (!user) {
-      return res.status(404).json({ error: "Invalid email or password" });
+    if (user.isDeleted) {
+      return res.status(403).json({ error: "Your account has been deleted. Please contact support." });
     }
-
-    const isPsswordValid = await user.comparePassword(password);
-    // console.log("matchpassword = ", isPsswordValid);
-
-    if (!isPsswordValid) {
-      return res.status(404).json({ error: "Invalid credentials" });
+    if (user) {
+      user.loginWith = "email";
+      await user.save();
     }
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) return res.status(404).json({ error: "Invalid credentials" });
 
-    const activeSessions = await Session.find({ userId: user._id }).sort({
-      createdAt: 1,
-    });
+    // check active session and limit to 2 login
+    const activeSessions = await rediclient.ft.search("userIdIdx", `@userId:{${user.id}}`, {
+      RETURN: [],
+    })
 
-    if (activeSessions.length >= 2) {
-      await Session.findByIdAndDelete(activeSessions[0]._id);
-    }
+    if (activeSessions.total >= 2) await rediclient.del(activeSessions.documents[0].id);
 
-    const session = await Session.create({ userId: user._id });
+    // create redis session and cookie
+    const sessionId = crypto.randomUUID()
+    const redisKey = `session:${sessionId}`;
+    const sessionExpiry = 1000 * 60 * 60 * 24 * 7
 
-    res.cookie("sid", session.id, {
+
+    const pipeline = rediclient.multi()
+
+    // session store userId 
+    pipeline.json.set(redisKey, "$", {
+      userId: user._id,
+    })
+    // user session tracker
+    pipeline.sAdd(`userSession:${user._id}`, sessionId);
+    pipeline.expire(redisKey, sessionExpiry / 1000)
+
+    pipeline.exec()
+
+    res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: sessionExpiry,
     });
 
     await User.updateOne(
@@ -129,11 +146,19 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// logout use
+// logout user
 export const logoutUser = async (req, res) => {
   const { sid } = req.signedCookies;
 
-  await Session.findByIdAndDelete(sid);
+  const pipeline = rediclient.multi();
+
+  // session
+  pipeline.del(`session:${sid}`);
+  // userSession
+  pipeline.sRem(`userSession:${req.user._id.toString()}`, sid);
+
+  await pipeline.exec();
+
   res.clearCookie("sid");
   await User.updateOne(
     { _id: new mongoose.Types.ObjectId(req.user.id) },
@@ -143,13 +168,29 @@ export const logoutUser = async (req, res) => {
   return res.status(200).json({ message: "user log out" });
 };
 
+
 // logout from all device
 export const logoutAllDevice = async (req, res) => {
   const { sid } = req.signedCookies;
-  const session = await Session.findById(sid);
-  await Session.deleteMany({ userId: session.userId });
-  res.clearCookie("sid");
 
+  // 2. find all session of user and delete
+  const userSessionKey = `userSession:${req.user._id.toString()}`
+  const userSessions = await rediclient.sMembers(userSessionKey);
+
+  // delete user session set
+  if (userSessions.length > 0) {
+
+    const pipeline = rediclient.multi()
+    for (const sessionId of userSessions) {
+      pipeline.del(`session:${sessionId}`);
+    }
+    pipeline.del(userSessionKey);
+    await pipeline.exec();
+
+  }
+
+  // 3. Clear cookie
+  res.clearCookie("sid");
   return res.status(200).json({ message: "user log out from all device" });
 };
 
@@ -173,7 +214,7 @@ export const updateUserProfile = async (req, res) => {
 
   try {
     // match session
-    const session = await Session.findById(sid);
+    const session = await rediclient.json.get(`session:${sid}`)
     if (!session) return res.status(401).json({ error: "Unauthorized" });
 
     // update fields
@@ -201,10 +242,18 @@ export const updateUserProfile = async (req, res) => {
 // admin user 
 export const getAllUsers = async (req, res) => {
 
-  const allSessions = await Session.find().lean();
-  const allSessionsUserId = allSessions.map(session => session.userId.toString());
+  // get all session keys
+  let cursor = "0";
+  let allSessionsUserId = []
+  do {
+    const userSessions = await rediclient.scan(cursor, {
+      MATCH: 'userSession:*',
+      COUNT: 1000
+    });
+    cursor = userSessions.cursor;
+    allSessionsUserId = allSessionsUserId.concat(userSessions.keys.map(key => key.split(":")[1]))
+  } while (cursor !== "0");
 
-  // const users = await User.find({isDeleted: false}).lean()
   const users = await User.find().lean()
 
   const userIdNameEmail = users.map(user => {
@@ -217,6 +266,7 @@ export const getAllUsers = async (req, res) => {
       isLoggedIn: allSessionsUserId.includes(user._id.toString())
     }
   })
+
 
   return res.status(200).json({ users: userIdNameEmail });
 }
@@ -241,7 +291,22 @@ export const logoutUserById = async (req, res) => {
     }
 
     // delete session by userId
-    await Session.deleteMany({ userId: new mongoose.Types.ObjectId(targetUser._id) });
+
+    const userSessionKey = `userSession:${userId}`
+    const userSession = await rediclient.sMembers(userSessionKey)
+    if (userSession.length > 0) {
+
+      const pipeline = rediclient.multi()
+
+      for (const userId of userSession) {
+        pipeline.del(`session:${userId}`)
+      }
+
+      pipeline.del(userSessionKey)
+      await pipeline.exec()
+    }
+
+
 
     // push logout timestamp in user
     await User.updateOne(
@@ -274,14 +339,25 @@ export const hardDeleteUserById = async (req, res) => {
       return res.status(403).json({ success: false, message: "You are Manager dont have permission to Delete Admin" });
     }
 
-
     await User.findByIdAndDelete(userId)
     await Directorie.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
-    await Session.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
     await File.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
-    console.log(userId);
 
-    res.json({ message: "user deleted" })
+    // use key and sessions
+    const userSessionKey = `userSession:${userId}`
+    const userSession = await rediclient.sMembers(userSessionKey)
+
+    if (userSession.length > 0) {
+      const pipeline = rediclient.multi()
+
+      for (const userId of userSession) {
+        pipeline.del(`session:${userId}`)
+      }
+      pipeline.del(userSessionKey)
+      await pipeline.exec()
+    }
+
+    return res.status(200).json({ message: "user deleted" })
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
@@ -306,8 +382,20 @@ export const softDeleteUserById = async (req, res) => {
       { $set: { isDeleted: true } }
     );
 
-    await Session.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
-    res.status(200).json({ success: true, message: "User soft deleted successfully" });
+    // await Session.deleteMany({ userId: new mongoose.Types.ObjectId(userId) })
+    const userSessionKey = `userSession:${userId}`
+    const userSessions = await rediclient.sMembers(userSessionKey)
+
+    if (userSessions.length > 0) {
+      const pipeline = await rediclient.multi()
+      for (const useId of userSessions) {
+        pipeline.del(`session:${useId}`)
+      }
+      pipeline.del(userSessionKey)
+      await pipeline.exec()
+    }
+
+    return res.status(200).json({ success: true, message: "User soft deleted successfully" });
 
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal Server Error" });

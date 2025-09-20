@@ -426,6 +426,13 @@ function ContextAPI({ children }) {
 
       const data = await response.json();
 
+      if (response.status === 403) {
+        navigate("/recover-request");
+        setGoogleLoginError(data.error);
+        setLoggedIn(false)
+        return;
+      }
+
       if (response.ok) {
         const res = await fetch(`${BASE_URL}/user`, {
           credentials: "include",
@@ -708,7 +715,7 @@ function ContextAPI({ children }) {
   async function sendDriveFilesData(file) {
     setGoogleDriveFileLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}/google-drive/file`, {
+      const response = await fetch(`${BASE_URL}/google-drive/file/${dirId || ""}`, {
         method: "POST",
         credentials: "include",
         headers: {

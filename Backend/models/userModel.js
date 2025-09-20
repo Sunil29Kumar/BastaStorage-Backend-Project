@@ -40,18 +40,23 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    role:{
+    role: {
       type: String,
-      enum: ["owner","user", "admin","manager"],
+      enum: ["owner", "user", "admin", "manager"],
       default: "user"
     },
-    isDeleted:{
+    isDeleted: {
       type: Boolean,
       default: false
     },
-    darekMode:{
+    darekMode: {
       type: Boolean,
       default: false
+    },
+    loginWith: {
+      type: String,
+      enum: ["email", "google", "github"],
+      default: "email"
     },
     userTimeStamp: {
       userCreatedAt: {

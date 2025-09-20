@@ -15,8 +15,10 @@ import nodemailer from "nodemailer";
 import RecoveryEmail from "../models/recoveryEmailModel.js";
 
 import dotenv from "dotenv";
+import rediclient from "../database/redis.js";
 dotenv.config();
 
+// send otp 
 export const sendOTPUser = async (req, res, next) => {
   const { email } = req.body;
   try {
@@ -64,9 +66,8 @@ export const loginWithGithub = async (req, res, next) => {
   }).toString();
 
   const githubAuthURL = `https://github.com/login/oauth/authorize?${params}`;
-  res.redirect(githubAuthURL);
+  return res.redirect(githubAuthURL);
 };
-
 // Callback handler for GitHub OAuth
 export const githubCallback = async (req, res, next) => {
   const { code } = req.query;
@@ -78,20 +79,34 @@ export const githubCallback = async (req, res, next) => {
 
   const user = await User.findOne({ email }).lean();
 
-  if (user) {
-    const activeSessions = await Session.find({ userId: user._id }).sort({
-      createdAt: 1,
-    });
+  // redis session & key 
+  const sessionId = crypto.randomUUID()
+  const redisKey = `session:${sessionId}`;
+  const sessionExpiry = 1000 * 60 * 60 * 24 * 7
 
-    if (activeSessions.length >= 2) {
-      await Session.findByIdAndDelete(activeSessions[0]._id);
-    }
-    const createSession = await Session.create({ userId: user._id });
-    res.cookie("sid", createSession.id, {
+
+  if (user) {
+
+    //  active session 
+    const activeSessions = await rediclient.ft.search("userIdIdx", `@userId:{${user._id.toString()}}`, {
+      RETURN: []
+    })
+
+    if (activeSessions.total >= 2) await rediclient.del(activeSessions.documents[0].id)
+
+    // redis session 
+    await rediclient.json.set(redisKey, "$", { userId: user._id.toString() })
+    await rediclient.expire(redisKey, sessionExpiry / 1000)
+
+    // user session
+    await rediclient.sAdd(`userSession:${user._id.toString()}`, sessionId)
+
+    res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: sessionExpiry
     });
+    await User.updateOne({ email }, { $set: { loginWith: "github" } });
 
     return res.redirect("http://localhost:5173/");
 
@@ -112,6 +127,7 @@ export const githubCallback = async (req, res, next) => {
         name,
         email,
         picture: avatar_url,
+        loginWith: "github",
         userTimeStamp: {
           userCreatedAt: new Date(),
           userLoginAt: [],
@@ -120,6 +136,7 @@ export const githubCallback = async (req, res, next) => {
       },
     );
     await user.save({ session });
+
     const directory = new Directory(
       {
         _id: rootDirId,
@@ -136,13 +153,18 @@ export const githubCallback = async (req, res, next) => {
     );
     await directory.save({ session });
 
+    // redis session 
+    await rediclient.json.set(redisKey, "$", { userId: user._id.toString() })
+    await rediclient.expire(redisKey, sessionExpiry / 1000)
 
-    const createSession = await Session.create({ userId });
+    // user session
+    await rediclient.sAdd(`userSession:${user._id.toString()}`, sessionId)
 
-    res.cookie("sid", createSession.id, {
+
+    res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 1000 * 60 * 24 * 7,
+      maxAge: sessionExpiry
     });
 
     await session.commitTransaction();
@@ -162,28 +184,43 @@ export const loginWithGoogle = async (req, res, next) => {
   const { sub, email, name, picture } = await verifyIdToken(idToken)
   const user = await User.findOne({ email }).lean();
 
+  // redis keys & expiery 
+  const sessionId = crypto.randomUUID()
+  const redisKey = `session:${sessionId}`;
+  const sessionExpiry = 1000 * 60 * 60 * 24 * 7
+
   if (user) {
 
     if (user.isDeleted) {
       return res.status(403).json({ error: "Your account has been deleted. Please contact support." });
     }
 
-    const activeSessions = await Session.find({ userId: user._id }).sort({
-      createdAt: 1,
-    });
+    // check active session and limit to 2 login
+    const activeSessions = await rediclient.ft.search("userIdIdx", `@userId:{${user._id.toString()}}`, {
+      RETURN: [],
+    })
 
-    if (activeSessions.length >= 2) {
-      await Session.findByIdAndDelete(activeSessions[0]._id);
-    }
-    const createSession = await Session.create({ userId: user._id });
-    res.cookie("sid", createSession.id, {
+    if (activeSessions.total >= 2) await rediclient.del(activeSessions.documents[0].id);
+
+    // create redis session and cookie
+    await rediclient.json.set(redisKey, "$", { userId: user._id })
+    await rediclient.expire(redisKey, sessionExpiry / 1000)
+
+    // user session
+    await rediclient.sAdd(`userSession:${user._id.toString()}`, sessionId)
+
+    res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: sessionExpiry
     });
+
     if (!user.password) {
       return res.status(206).json({ message: "User Logged In, Please set your password", email });
     }
+
+    await User.updateOne({ email }, { $set: { loginWith: "google" } });
+
     return res.status(200).json({ message: "User Logged In" });
   }
 
@@ -202,6 +239,7 @@ export const loginWithGoogle = async (req, res, next) => {
         name,
         email,
         picture,
+        loginWith: "google",
         userTimeStamp: {
           userCreatedAt: new Date(),
           userLoginAt: [],
@@ -226,12 +264,18 @@ export const loginWithGoogle = async (req, res, next) => {
     );
     await directory.save({ session });
 
-    const createSession = await Session.create({ userId });
 
-    res.cookie("sid", createSession.id, {
+    // create redis session 
+    await rediclient.json.set(redisKey, "$", { userId: user._id })
+    await rediclient.expire(redisKey, sessionExpiry / 1000)
+
+    // user session
+    await rediclient.sAdd(`userSession:${user._id.toString()}`, sessionId)
+
+    res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: 60 * 1000 * 60 * 24 * 7, //
+      maxAge: sessionExpiry
     });
 
     await session.commitTransaction();
@@ -246,12 +290,10 @@ export const loginWithGoogle = async (req, res, next) => {
   } catch (err) {
     session.abortTransaction();
     console.log(err);
-
     return res.status(400).json({ error: "invalid fields", details: err });
   }
 
 }
-
 // set google password 
 export const setGooglePassword = async (req, res) => {
   const { password, confirmPassword } = req.body;
