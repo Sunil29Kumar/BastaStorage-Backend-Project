@@ -7,17 +7,23 @@ import { oauth2Client } from "../utils/googleDriveAuthService.js";
 import User from "../models/userModel.js";
 import { ObjectId } from "mongodb";
 
+import z from "zod/v4";
+import { sendGoogleDriveFileSchema } from "../validators/googleDriveSchema.js";
 
 // upload google drive file by downloading from Google
 export const sendGoogleDriveFile = async (req, res) => {
   try {
-    const { file } = req.body; // frontend se metadata aayega (id, name, mimeType, size)
+
+    // schema 
+    const { success, data, error } = sendGoogleDriveFileSchema.safeParse(req.body)
+    if (!success) {
+      return res.status(400).json({ error: z.flattenError(error).fieldErrors })
+    }
+
+    const { file } = data; // frontend se metadata aayega (id, name, mimeType, size)
+
     const parentDirId = req.params.parentDirId || req.user.rootDirId;
     const userId = req.user._id;
-
-    if (!file || !file.name) {
-      return res.status(400).json({ message: "File name is missing in request" });
-    }
 
     const user = await User.findById(userId);
     if (!user) {

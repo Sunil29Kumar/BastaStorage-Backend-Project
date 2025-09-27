@@ -1,10 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import OTP from "../models/otpModel.js";
 import { sendOTP } from "../utils/sendOTP.js";
 import { verifyIdToken } from "../utils/googleAuthService.js";
 import User from "../models/userModel.js";
 import mongoose from "mongoose";
 import Directory from "../models/directoryModel.js";
-import Session from "../models/sessionModel.js";
 import { fetchGithubUser } from "../utils/githubAuthService.js";
 import { google } from "googleapis";
 import { oauth2Client } from "../utils/googleDriveAuthService.js";
@@ -14,18 +16,23 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import RecoveryEmail from "../models/recoveryEmailModel.js";
 
-import dotenv from "dotenv";
 import rediclient from "../database/redis.js";
-dotenv.config();
+
+import z from "zod/v4";
+import { otpSchema, sendOtpSchema, setGooglePasswordSchema } from "../validators/authSchema.js";
+
 
 // send otp 
 export const sendOTPUser = async (req, res, next) => {
-  const { email } = req.body;
-  try {
 
-    if (!email) {
-      return res.status(400).json({ error: "enter email" });
-    }
+  // schema 
+  const { success, data, error } = sendOtpSchema.safeParse(req.body)
+  if (!success) return res.status(400).json({ error: z.flattenError(error).fieldErrors })
+
+  const { email } = data;
+  if (!email) return res.status(400).json({ error: "enter email" });
+
+  try {
     const otp = await OTP.findOne({ email: email });
     sendOTP(email);
     return res.json({ message: `OTP Send to ${email}` });
@@ -36,8 +43,14 @@ export const sendOTPUser = async (req, res, next) => {
 
 // verify otp
 export const verifyOtp = async (req, res, next) => {
-  const { email, otp } = req.body;
 
+  // schema 
+  const { success, data, error } = otpSchema.safeParse(req.body)
+  if (!success) {
+    return res.status(400).json({ error: "Invalid Credentials" });
+  }
+
+  const { email, otp } = data;
 
   try {
     const otpModel = await OTP.findOne({ email: email });
@@ -50,7 +63,6 @@ export const verifyOtp = async (req, res, next) => {
 
     return res.status(200).json({ message: "OTP Succesfully Match" });
   } catch (error) {
-
     return res.status(400).json({ error: error.message });
   }
 };
@@ -296,7 +308,13 @@ export const loginWithGoogle = async (req, res, next) => {
 }
 // set google password 
 export const setGooglePassword = async (req, res) => {
-  const { password, confirmPassword } = req.body;
+
+  // schema 
+  const { success, data, error } = setGooglePasswordSchema.safeParse(req.body)
+  if (!success) return res.status(400).json({ error: z.flattenError(error).fieldErrors })
+
+
+  const { password, confirmPassword } = data;
 
   if (!password || !confirmPassword) {
     return res
@@ -427,8 +445,7 @@ export const googleDriveFilesFolder = async (req, res) => {
       pageSize: 1000,
       fields: "files(id, name, size, mimeType, webViewLink, thumbnailLink, createdTime)"
     });
-
-
+    
     // console.log("Files in folder:", result.data.files);
     res.json({ files: result.data.files });
 

@@ -1,28 +1,32 @@
-import { ObjectId } from "mongodb";
 import User from "../models/userModel.js";
 import Directory from "../models/directoryModel.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
-import bcrypt from "bcrypt";
-import Session from "../models/sessionModel.js";
-import { sendOTP } from "../utils/sendOTP.js";
 import OTP from "../models/otpModel.js";
-import multer from "multer";
 import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 
 import rediclient from "../database/redis.js";
+import { loginSchema, registerSchema, updateUserRoleSchema } from "../validators/userSchema.js";
+import z from "zod/v4";
 
 
-
-// register user
+// ----------- ) register user
 export const registerUser = async (req, res, next) => {
-  const { name, email, password, otp } = req.body;
 
+  // schema 
+  const { success, data, error } = registerSchema.safeParse(req.body)
+  if (!success) {
+    return res.status(400).json({ error: z.flattenError(error).fieldErrors })
+  }
+
+  // verify all field 
+  const { name, email, password, otp } = data;
   if (!name || !email || !password) {
     return res.status(400).json({ error: "All files are required" });
   }
 
+  // verify otp 
   const otpRecord = await OTP.findOne({ email, otp });
   if (!otpRecord) {
     return res.status(400).json({ message: "invalide otp enter again" });
@@ -35,6 +39,7 @@ export const registerUser = async (req, res, next) => {
 
     session.startTransaction();
 
+    // create user 
     const user = new User(
       {
         _id: userId,
@@ -53,6 +58,7 @@ export const registerUser = async (req, res, next) => {
     );
     await user.save({ session });
 
+    // create user directory 
     const directory = new Directory(
       {
         _id: rootDirId,
@@ -72,7 +78,8 @@ export const registerUser = async (req, res, next) => {
 
     await session.commitTransaction();
 
-    return res.status(200).json({ message: "User Register!" });
+    return res.status(200).json({ message: "User Register" });
+
   } catch (err) {
     session.abortTransaction();
     if (err.code === 121) {
@@ -87,9 +94,18 @@ export const registerUser = async (req, res, next) => {
   }
 };
 
-// login user
+// ----------- ) login user
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+
+  // login schema 
+  const { success, data, error } = loginSchema.safeParse(req.body)
+  if (!success) {
+    // console.log(z.flattenError(error));
+    return res.status(400).json({ error: "Invalid Credentials" });
+  }
+
+  const { email, password } = data;
+
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: "Invalid email or password" });
@@ -97,10 +113,12 @@ export const loginUser = async (req, res) => {
     if (user.isDeleted) {
       return res.status(403).json({ error: "Your account has been deleted. Please contact support." });
     }
+    // update login with 
     if (user) {
       user.loginWith = "email";
       await user.save();
     }
+    // comparing password 
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) return res.status(404).json({ error: "Invalid credentials" });
 
@@ -115,7 +133,6 @@ export const loginUser = async (req, res) => {
     const sessionId = crypto.randomUUID()
     const redisKey = `session:${sessionId}`;
     const sessionExpiry = 1000 * 60 * 60 * 24 * 7
-
 
     const pipeline = rediclient.multi()
 
@@ -135,6 +152,7 @@ export const loginUser = async (req, res) => {
       maxAge: sessionExpiry,
     });
 
+    // update user timestamp 
     await User.updateOne(
       { email },
       { $push: { "userTimeStamp.userLoginAt": new Date() } }
@@ -203,6 +221,7 @@ export const userProfile = async (req, res) => {
 
 // update user profile 
 export const updateUserProfile = async (req, res) => {
+
   const userId = req.user._id;
   const { sid } = req.signedCookies;
   const { name } = req.body;
@@ -275,6 +294,10 @@ export const getAllUsers = async (req, res) => {
 export const logoutUserById = async (req, res) => {
   const { userId } = req.body;
   const currentUser = req.user
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "UserId is required" });
+  }
   try {
 
     const targetUser = await User.findById(userId);
@@ -325,12 +348,14 @@ export const logoutUserById = async (req, res) => {
 export const hardDeleteUserById = async (req, res) => {
   const { userId } = req.body
   const currentUser = req.user
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "User ID is required" });
+  }
   try {
 
     const targetUser = await User.findById(userId);
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "User ID is required" });
-    }
+
 
     if (targetUser._id.toString() == currentUser._id.toString()) {
       return res.status(403).json({ success: false, message: "You cannot Delete yourself" });
@@ -367,6 +392,9 @@ export const hardDeleteUserById = async (req, res) => {
 export const softDeleteUserById = async (req, res) => {
   const { userId } = req.body;
   const currentUser = req.user;
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "User ID is required" });
+  }
   try {
     const targetUser = await User.findById(userId);
 
@@ -404,8 +432,11 @@ export const softDeleteUserById = async (req, res) => {
 
 // update user role 
 export const updateUserRole = async (req, res) => {
-  const { userId, newRole } = req.body;
-  console.log(req.body);
+
+  const { success, data, error } = updateUserRoleSchema.safeParse(req.body)
+  if (!success) return res.status(400).json({ error: z.flattenError(error).fieldErrors })
+
+  const { userId, newRole } = data;
 
   const currentUser = req.user;
 

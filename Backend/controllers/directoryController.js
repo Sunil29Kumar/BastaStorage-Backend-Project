@@ -121,13 +121,13 @@ export const deleteDirectoryById = async (req, res) => {
     async function deleteDirectoriesRecursive(dirId) {
       let files = await File.find(
         { parentDirId: new ObjectId(dirId) }
-        // {projection: {extension: 1}}
+        
       )
         .select("extension")
         .lean();
       let directory = await Directorie.find(
         { parentDirId: new ObjectId(dirId) },
-        // {projection: {name: 1}}
+
       )
         .select("name")
         .lean();
@@ -145,7 +145,7 @@ export const deleteDirectoryById = async (req, res) => {
     const { files, directory } = await deleteDirectoriesRecursive(id);
 
     for (const { _id, extension } of files) {
-      await rm(`./storage/${_id.toString()}${extension}`);
+      await rm(`./storage/local-files/${_id.toString()}${extension}`);
     }
 
     await File.deleteMany({ _id: { $in: files.map(({ _id }) => _id) } });

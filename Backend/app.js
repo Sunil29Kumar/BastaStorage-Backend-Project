@@ -47,7 +47,7 @@ app.use("/google-drive", checkAuth, googleDriveRoute);
 
 app.use((err, req, res, next) => {
   console.error("unexpected error", err);
-  res.status(500).json({ error: "somethig went wrong" });
+  return res.status(500).json({ error: "somethig went wrong" });
 });
 
 app.listen(process.env.PORT, () => {

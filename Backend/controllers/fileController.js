@@ -8,9 +8,23 @@ import User from "../models/userModel.js";
 import SharedLink from "../models/SharedLinksModel.js";
 import crypto from "crypto";
 import inviteUserByEmail from "../utils/inviteUserByEmail.js";
+import { createFileSchema, renameFileSchema } from "../validators/fileSchema.js";
+import z from "zod/v4";
 
 export const createFile = async (req, res) => {
-  const parentDirId = req.params.parentDirId || req.user.rootDirId;
+
+  // schema validate
+  const { success, data, error } = createFileSchema.safeParse({
+    params: req.params,
+    headers: req.headers,
+  });
+
+  if (!success) {
+    return res.status(400).json({ error: z.flattenError(error).fieldErrors });
+  }
+
+
+  const parentDirId = data.params.parentDirId || req.user.rootDirId;
   const userId = req.user._id;
 
   const parentDirData = await Directorie.findOne({
@@ -23,14 +37,14 @@ export const createFile = async (req, res) => {
       .status(400)
       .json({ message: "Parent Directory Data is undefined" });
   }
-  
-  const filename = req.headers.filename || "untitled";
+
+  const filename = data.headers.filename || "untitled";
   if (!filename) {
     return res.status(400).json({ error: "Filename is required." });
   }
-  const size = parseInt(req.headers.size);
+  const size = parseInt(data.headers.size);
   const extension = path.extname(filename);
-  const type = req.headers.type;
+  const type = data.headers.type;
 
 
   // find user 
@@ -74,6 +88,7 @@ export const createFile = async (req, res) => {
     await File.deleteOne({ _id: fileData.insertedId });
     return res.status(400).json({ message: "Failed to Upload" });
   });
+
 };
 
 
@@ -124,13 +139,21 @@ export const getFile = async (req, res) => {
   });
 };
 
-export const renameFile = async (req, res) => {
-  const id = req.params.id || req.user.rootDirId;
-  const newFileName = req.body.newFilename;
 
-  if (!newFileName) {
-    return res.status(404).json({ message: "New filename is required" });
-  }
+// --- rename file 
+export const renameFile = async (req, res) => {
+
+  // schema 
+  const { success, data, error } = renameFileSchema.safeParse({
+    params: req.params,
+    body: req.body
+  })
+
+  if(!success)  return res.status(400).json({ error: z.flattenError(error).fieldErrors });
+
+  const id = data.params.id || req.user.rootDirId;
+  const newFileName = data.body.newFilename;
+
 
   try {
 
@@ -164,6 +187,7 @@ export const renameFile = async (req, res) => {
   }
 };
 
+// --- delete file 
 export const deleteFile = async (req, res) => {
   const id = req.params.id || req.user.rootDirId;
   const userId = req.user._id;
