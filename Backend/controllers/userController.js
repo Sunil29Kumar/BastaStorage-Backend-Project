@@ -7,8 +7,11 @@ import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 
 import rediclient from "../database/redis.js";
-import { loginSchema, registerSchema, updateUserRoleSchema } from "../validators/userSchema.js";
+
+// zod 
 import z from "zod/v4";
+import { loginSchema, registerSchema, updateUserRoleSchema } from "../validators/userSchema.js";
+
 
 
 // ----------- ) register user
@@ -72,7 +75,6 @@ export const registerUser = async (req, res, next) => {
           lastDownload: [],
         },
       },
-
     );
     await directory.save({ session });
 
@@ -100,7 +102,6 @@ export const loginUser = async (req, res) => {
   // login schema 
   const { success, data, error } = loginSchema.safeParse(req.body)
   if (!success) {
-    // console.log(z.flattenError(error));
     return res.status(400).json({ error: "Invalid Credentials" });
   }
 
@@ -150,6 +151,8 @@ export const loginUser = async (req, res) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
+      sameSite: "lax",
+      secure: true
     });
 
     // update user timestamp 
@@ -226,6 +229,8 @@ export const updateUserProfile = async (req, res) => {
   const { sid } = req.signedCookies;
   const { name } = req.body;
 
+  console.log(req.file);
+
 
   if (name.length < 3) {
     return res.status(400).json({ error: "Name must be at least 3 characters long" });
@@ -239,7 +244,7 @@ export const updateUserProfile = async (req, res) => {
     // update fields
     let updateData = { name };
     if (req.file) {
-      updateData.picture = `/storage/user-photo/${req.file.filename}`;
+      updateData.picture = req.file.path;
     }
 
     const updateUser = await User.findByIdAndUpdate(
@@ -258,7 +263,8 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
-// admin user 
+
+//  ---admin user 
 export const getAllUsers = async (req, res) => {
 
   // get all session keys

@@ -7,6 +7,8 @@ function FolderInformation() {
   const infoRef = useRef(null);
 
   useEffect(() => {
+    console.log(folderInfo);
+    
     function handleClickOutSide(event) {
       if (infoRef.current && !infoRef.current.contains(event.target))
         setShowFolderInfo(false);
@@ -43,29 +45,29 @@ function FolderInformation() {
           {/* table  */}
           <table className="table-auto w-full text-sm">
             <tbody>
-              {/* FILE ID  */}
+              {/* FOLDER ID  */}
               <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">File ID:</td>
+                <td className="pt-2 font-semibold">Folder ID:</td>
               </tr>
 
               <tr className="  border-blue-200">
                 <td className="py-1">{folderInfo[0].folderId}</td>
               </tr>
-              {/* file name  */}
+              {/* folder name  */}
               <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">File Name:</td>
+                <td className="pt-2 font-semibold">Folder Name: </td>
               </tr>
               <tr className=" border-blue-200">
                 <td className="py-1">{folderInfo[0].folderName}</td>
               </tr>
-              {/* file size  */}
+              {/* folder size  */}
               <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">File Size:</td>
+                <td className="pt-2 font-semibold">Folder Size:</td>
               </tr>
               <tr className=" border-blue-200">
-                {/* <td className="py-1">{formatFileSize(fileinfo[0].fileSize)}</td> */}
+                <td className="py-1">{folderInfo[0].folderSize}</td>
               </tr>
-              {/* file created at  */}
+              {/* folder created at  */}
               <tr className=" border-blue-200">
                 <td className="pt-2 font-semibold">Created At:</td>
               </tr>
@@ -75,22 +77,22 @@ function FolderInformation() {
 
               {/* file opened date  */}
 
-              {/* <tr className=" border-blue-200">
+              <tr className=" border-blue-200">
                 <td className="pt-2 font-semibold">Opened:</td>
-              </tr> */}
-              {/* <tr className=" border-blue-200">
+              </tr>
+              <tr className=" border-blue-200">
                 <td className="py-1 text-[1vw] font-normal">
-                  {fileinfo[0].folderOpendedDate?.length > 0
-                    ? fileinfo[0].folderOpendedDate.map((data, i) => (
+                  {folderInfo[0].folderOpendedDate?.length > 0
+                    ? folderInfo[0].folderOpendedDate.map((data, i) => (
                         <div key={i}>{data}</div>
                       ))
                     : "N/A"}
                 </td>
-              </tr> */}
+              </tr>
 
               {/* last modified date  */}
 
-              {/* <tr className=" border-blue-200">
+              <tr className=" border-blue-200">
                 <td className="pt-2 font-semibold">Last Modified:</td>
               </tr>
               <tr className=" border-blue-200">
@@ -101,7 +103,7 @@ function FolderInformation() {
                       ))
                     : "N/A"}
                 </td>
-              </tr> */}
+              </tr>
             </tbody>
           </table>
         </div>

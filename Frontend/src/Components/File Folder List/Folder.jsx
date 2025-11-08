@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 import { Link } from "react-router-dom";
-import { use } from "react";
+import { formatSize } from "../../Utils/formatSize.js";
 
 function Folder() {
   const {
@@ -129,7 +129,12 @@ function Folder() {
                             {
                               folderId: folder.id,
                               folderName: folder.name,
-                              folderSize: null,
+                              folderSize: formatSize(folder.size),
+                              folderCreationDate:folder.folderTimeStamp.folderCreatedAt,
+                              folderOpendedDate: folder.folderTimeStamp.opened,
+                              folderLastModified:
+                                folder.folderTimeStamp.lastModified,
+                              
                             },
                           ]);
                         }}

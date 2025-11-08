@@ -24,6 +24,9 @@ const fileSchema = await mongoose.Schema(
     type: {
       type: String,
     },
+    URL: {
+      type: String,
+    },
     fileFrom: {
       type: String,
       enum: ["local", "googleDrive"],

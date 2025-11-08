@@ -1,4 +1,4 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const directorySchema = new Schema(
   {
@@ -16,6 +16,22 @@ const directorySchema = new Schema(
       minlength: 1,
       maxlength: 255,
     },
+    size: {
+      type: Number,
+      default: 0,
+    },
+    path: [
+      {
+        dirName: {
+          type: String
+        },
+        dirPathId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Directorie",
+        }
+      },
+
+    ],
     folderTimeStamp: {
       folderCreatedAt: {
         type: Date,
@@ -31,7 +47,7 @@ const directorySchema = new Schema(
       },
     },
   },
-  {timestamps: false, statics: "throw"}
+  { timestamps: false, statics: "throw" }
 ); // since you're managing your own timestamps
 
 const Directorie = mongoose.model("Directorie", directorySchema);

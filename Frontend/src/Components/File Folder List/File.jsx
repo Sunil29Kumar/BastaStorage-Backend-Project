@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 import { fileFormats } from "../../Utils/FileTypes.jsx";
 import { Link, useLocation } from "react-router-dom";
+import { formatSize } from "../../Utils/formatSize.js";
 
 function File() {
   const location = useLocation();
@@ -66,12 +67,6 @@ function File() {
       }
     }
     return "file";
-  };
-  const formatSize = (bytes) => {
-    if (bytes < 1024) return `${bytes} bytes`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
-    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   };
 
   const handleMenuToggle = (e) => {
@@ -153,7 +148,7 @@ function File() {
                       {/* fdsf */}
                     </td>
                     {/* size  */}
-                    <td className="p-2">-</td>
+                    <td className="p-2">{formatSize(folder.size)}</td>
 
                     {/* ------------- menu bar Section  */}
                     <td className="p-2 relative text-center ">
@@ -205,7 +200,11 @@ function File() {
                                 {
                                   folderId: folder.id,
                                   folderName: folder.name,
-                                  folderSize: null,
+                                  folderSize: formatSize(folder.size),
+                                  folderCreationDate: folder.folderTimeStamp.folderCreatedAt,
+                                  folderOpendedDate: folder.folderTimeStamp.opened,
+                                  folderLastModified:
+                                    folder.folderTimeStamp.lastModified,
                                 },
                               ]);
                             }}
@@ -248,7 +247,7 @@ function File() {
                       <td className="p-2 text-2xl">{icon}</td>
                       {/* file name  */}
                       <td className="p-2 cursor-pointer flex flex-col gap-1  ">
-                        <a href={`${BASE_URL}/file/${file.id}`} className=" ">
+                        <a href={file.URL?file.URL :`${BASE_URL}/file/${file.id}`} className=" ">
                           {file.name.length > 45
                             ? file.name.slice(0, 45) + "..."
                             : file.name}

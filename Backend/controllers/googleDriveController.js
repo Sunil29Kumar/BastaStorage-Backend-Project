@@ -7,7 +7,7 @@ import { oauth2Client } from "../utils/googleDriveAuthService.js";
 import User from "../models/userModel.js";
 import { ObjectId } from "mongodb";
 
-import z from "zod/v4";
+// import z from "zod/v4";
 import { sendGoogleDriveFileSchema } from "../validators/googleDriveSchema.js";
 
 // upload google drive file by downloading from Google
@@ -21,6 +21,8 @@ export const sendGoogleDriveFile = async (req, res) => {
     }
 
     const { file } = data; // frontend se metadata aayega (id, name, mimeType, size)
+    // console.log("req.file:", req.file);
+    
 
     const parentDirId = req.params.parentDirId || req.user.rootDirId;
     const userId = req.user._id;

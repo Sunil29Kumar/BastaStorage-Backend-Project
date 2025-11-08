@@ -4,11 +4,6 @@ export const createFileSchema = z.object({
     params: z.object({
         parentDirId: z.string().optional(),
     }),
-    headers: z.object({
-        filename: z.string().min(3, "Filename is required"),
-        size: z.string().min(1, "File size is required"),
-        type: z.string().min(3, "File type is required"),
-    }),
 });
 
 

@@ -1,5 +1,6 @@
-import { createWriteStream } from "fs";
-import { rm } from "fs/promises";
+import dotenv from 'dotenv';
+dotenv.config();
+
 import path from "path";
 import { ObjectId } from "mongodb";
 import Directorie from "../models/directoryModel.js";
@@ -11,87 +12,98 @@ import inviteUserByEmail from "../utils/inviteUserByEmail.js";
 import { createFileSchema, renameFileSchema } from "../validators/fileSchema.js";
 import z from "zod/v4";
 
+import { deleteLocalFile, renameLocalFile } from '../utils/cloudinaryActions.js';
+
+
+
+// upload file 
 export const createFile = async (req, res) => {
 
   // schema validate
   const { success, data, error } = createFileSchema.safeParse({
     params: req.params,
-    headers: req.headers,
   });
 
   if (!success) {
     return res.status(400).json({ error: z.flattenError(error).fieldErrors });
   }
 
+  const { file } = req;
+  if (!file) {
+    return res.status(400).json({ error: "File is required." });
+  }
 
   const parentDirId = data.params.parentDirId || req.user.rootDirId;
   const userId = req.user._id;
 
-  const parentDirData = await Directorie.findOne({
-    _id: new ObjectId(parentDirId),
-    userId
-  });
+  try {
 
-  if (!parentDirData) {
-    return res
-      .status(400)
-      .json({ message: "Parent Directory Data is undefined" });
-  }
+    const parentDirData = await Directorie.findOne({
+      _id: new ObjectId(parentDirId),
+      userId
+    });
 
-  const filename = data.headers.filename || "untitled";
-  if (!filename) {
-    return res.status(400).json({ error: "Filename is required." });
-  }
-  const size = parseInt(data.headers.size);
-  const extension = path.extname(filename);
-  const type = data.headers.type;
+    if (!parentDirData) {
+      return res
+        .status(400)
+        .json({ message: "Parent Directory Data is undefined" });
+    }
 
 
-  // find user 
-  const user = await User.findById(userId);
-
-  if (user.usedSpace + size > user.totalSpace) {
-    return res.status(400).json({ message: "You have exceeded your storage limit." });
-  }
-
-
-  const fileData = await File.create({
-    parentDirId: parentDirData._id,
-    userId: req.user._id,
-    name: filename,
-    extension,
-    size,
-    type,
-    fileFrom: "local",
-    timeStamp: {
-      fileCreatedAt: new Date(),
-      opened: [],
-      lastModified: [],
-      lastDownload: [],
-    },
-  });
-
-  const fileID = fileData._id.toString();
-  const fullFileName = `${fileID}${extension}`;
-
-  const writeStream = createWriteStream(`./storage/local-files/${fullFileName}`);
-  req.pipe(writeStream);
+    const filename = file?.originalname || "untitled";
+    if (!filename) {
+      return res.status(400).json({ error: "Filename is required." });
+    }
+    const size = parseInt(file?.size);
+    const extension = path.extname(filename);
+    const type = file?.mimetype || "application/octet-stream";
 
 
-  req.on("end", async () => {
+    // find user 
+    const user = await User.findById(userId);
+
+    if (user.usedSpace + size > user.totalSpace) {
+      return res.status(400).json({ message: "You have exceeded your storage limit." });
+    }
+
+    const fileData = await File.create({
+      parentDirId: parentDirData._id,
+      userId: req.user._id,
+      name: filename,
+      extension,
+      size,
+      type,
+      URL: decodeURIComponent(file?.path || ""),
+      fileFrom: "local",
+      timeStamp: {
+        fileCreatedAt: new Date(),
+        opened: [],
+        lastModified: [],
+        lastDownload: [],
+      },
+    });
+
     // update size in User 
     user.usedSpace += size;
     await user.save();
-    return res.status(200).json({ message: "File Uploaded" });
-  });
-  req.on("error", async () => {
-    await File.deleteOne({ _id: fileData.insertedId });
-    return res.status(400).json({ message: "Failed to Upload" });
-  });
 
+    // update directory size
+    parentDirData.size += size;
+    await parentDirData.save();
+
+
+    return res.status(200).json({ message: "File Uploaded" });
+
+
+  } catch (error) {
+    return res.status(400).json({ message: "Failed to Upload" });
+
+  }
 };
 
 
+
+// ----- get file 
 export const getFile = async (req, res) => {
   const id = req.params.id || req.user.rootDirId;
 
@@ -149,7 +161,7 @@ export const renameFile = async (req, res) => {
     body: req.body
   })
 
-  if(!success)  return res.status(400).json({ error: z.flattenError(error).fieldErrors });
+  if (!success) return res.status(400).json({ error: z.flattenError(error).fieldErrors });
 
   const id = data.params.id || req.user.rootDirId;
   const newFileName = data.body.newFilename;
@@ -162,9 +174,16 @@ export const renameFile = async (req, res) => {
       return res.status(404).json({ error: "File not found" });
     }
 
+    // rename in cloudinary 
+    const newCloudinaryPublicId = await renameLocalFile(file.URL, newFileName, file);
+
+    console.log("np = ", newCloudinaryPublicId);
+    
+
     // check owner 
     if (file.userId.toString() === req.user._id.toString()) {
       file.name = newFileName;
+      file.URL = newCloudinaryPublicId
       file.timeStamp.lastModified.push(new Date());
       file.save();
       return res.status(200).json({ message: "File Renamed" });
@@ -181,43 +200,50 @@ export const renameFile = async (req, res) => {
     file.timeStamp.lastModified.push(new Date());
     file.save();
 
+
+
     return res.status(200).json({ message: "File Renamed" });
   } catch (error) {
     return res.status(404).json({ error: "File not renamed" });
   }
 };
 
+
+
 // --- delete file 
 export const deleteFile = async (req, res) => {
-  const id = req.params.id || req.user.rootDirId;
+  const id = req.params.id;
   const userId = req.user._id;
 
   try {
-
     const user = await User.findById(userId);
-
     const fileData = await File.findOne({
       _id: new ObjectId(id),
       userId: req.user._id,
     });
 
+    if (!fileData) {
+      return res.status(404).json({ message: "File not found" });
+    }
 
-    const localFileFullPath = `./storage/local-files/${id}${fileData.extension}`;
-    const googleDriveFileFullPath = `./storage/google-drive-files/${id}${fileData.extension}`;
 
-    const fullPath = fileData.fileFrom === "local" ? localFileFullPath : googleDriveFileFullPath
+    const cloudinaryURL = fileData.URL;  // https://res.cloudinary.com/dhsmjvdei/image/upload/v1762336076/BastaStorage/LocalFiles/qgteiel6qngzcg9gik7s.png
 
-    // await rm(`./storage/${id}${fileData.extension}`);
-    await rm(fullPath);
-    await File.deleteOne({ _id: new ObjectId(id), userId: req.user._id });
+    await deleteLocalFile(cloudinaryURL, fileData);
 
-    // update size in User
+
+    // Delete from DB
+    await File.deleteOne({ _id: fileData._id });
+
+    // Update used space
     user.usedSpace -= fileData.size;
     await user.save();
 
     return res.status(200).json({ message: "File Deleted Successfully" });
+
   } catch (err) {
-    return res.status(404).json({ message: err.message });
+    console.error("Delete file error:", err);
+    return res.status(500).json({ message: err.message });
   }
 };
 

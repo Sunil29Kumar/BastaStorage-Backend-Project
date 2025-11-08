@@ -36,7 +36,7 @@ function TopMenu() {
             className=" rounded-full w-[4vw] h-[4vw] cursor-pointer  flex justify-center items-center text-[2vw] font-bold overflow-hidden "
           >
             {storeUserData && (
-              <img src={storeUserData.picture ? `http://localhost:2000${storeUserData.picture}` : "/user-img.png"} className="  w-full h-full object-cover " />
+              <img src={storeUserData.picture ? storeUserData.picture : "/user-img.png"} className="  w-full h-full object-cover " />
             )}
 
           </div>

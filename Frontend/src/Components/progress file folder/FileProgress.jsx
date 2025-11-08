@@ -3,7 +3,7 @@ import {BastaStorageContext} from "../../hooks/Context/ContextAPI";
 
 function FileProgress() {
   const {
-    FileProgress,
+    fileProgress,
     currentFileName,
     setCurrentFileName,
     setFileProgress,
@@ -50,7 +50,7 @@ function FileProgress() {
             <div className="flex flex-col text-gray-500 mt-0.5">
               <p>Time left - {fileUplodingRemainingTime} s</p>
               <div className=" flex justify-between ">
-                <span>Uploading... {FileProgress}%</span>
+                <span>Uploading... {fileProgress}%</span>
                 <button
                   onClick={() => {
                     handleClose;
@@ -67,7 +67,7 @@ function FileProgress() {
             <div className="w-[100%] bg-gray-200 h-2 rounded-full mt-3 overflow-hidden">
               <div
                 className="h-full bg-green-500 rounded-full transition-all duration-300 ease-in-out"
-                style={{width: `${FileProgress}%`}}
+                style={{width: `${fileProgress}%`}}
               ></div>
             </div>
           </div>

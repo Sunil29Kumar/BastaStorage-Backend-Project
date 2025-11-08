@@ -16,8 +16,10 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import RecoveryEmail from "../models/recoveryEmailModel.js";
 
+// redis 
 import rediclient from "../database/redis.js";
 
+// zod 
 import z from "zod/v4";
 import { otpSchema, sendOtpSchema, setGooglePasswordSchema } from "../validators/authSchema.js";
 
@@ -33,6 +35,7 @@ export const sendOTPUser = async (req, res, next) => {
   if (!email) return res.status(400).json({ error: "enter email" });
 
   try {
+
     const otp = await OTP.findOne({ email: email });
     sendOTP(email);
     return res.json({ message: `OTP Send to ${email}` });
@@ -116,7 +119,9 @@ export const githubCallback = async (req, res, next) => {
     res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: sessionExpiry
+      maxAge: sessionExpiry,
+      sameSite: "lax",
+      secure: true
     });
     await User.updateOne({ email }, { $set: { loginWith: "github" } });
 
@@ -176,7 +181,9 @@ export const githubCallback = async (req, res, next) => {
     res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: sessionExpiry
+      maxAge: sessionExpiry,
+      sameSite: "lax",
+      secure: true
     });
 
     await session.commitTransaction();
@@ -224,7 +231,9 @@ export const loginWithGoogle = async (req, res, next) => {
     res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: sessionExpiry
+      maxAge: sessionExpiry,
+      sameSite: "lax",
+      secure: true
     });
 
     if (!user.password) {
@@ -287,7 +296,9 @@ export const loginWithGoogle = async (req, res, next) => {
     res.cookie("sid", sessionId, {
       httpOnly: true,
       signed: true,
-      maxAge: sessionExpiry
+      maxAge: sessionExpiry,
+      sameSite: "lax",
+      secure: true
     });
 
     await session.commitTransaction();
@@ -445,7 +456,7 @@ export const googleDriveFilesFolder = async (req, res) => {
       pageSize: 1000,
       fields: "files(id, name, size, mimeType, webViewLink, thumbnailLink, createdTime)"
     });
-    
+
     // console.log("Files in folder:", result.data.files);
     res.json({ files: result.data.files });
 
@@ -454,7 +465,6 @@ export const googleDriveFilesFolder = async (req, res) => {
     res.status(500).send("Google Drive API failed");
   }
 };
-
 
 
 // request recovery  

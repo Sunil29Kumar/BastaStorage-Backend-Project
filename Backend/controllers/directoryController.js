@@ -19,10 +19,17 @@ export const createDirectory = async (req, res) => {
       return res.status(404).json({ message: "parentdir is undefinde" });
     }
 
+    const path = [
+      ...(parentDir.path || []), // existing ancestors
+      { dirName: dirname, dirPathId: parentDir._id }, // parent itself
+    ];
+
     await Directorie.insertOne({
       parentDirId: parentDir._id,
       userId: user._id,
       name: dirname,
+      size: 0,
+      path,
       folderTimeStamp: {
         folderCreatedAt: new Date(),
         opened: [],
@@ -56,6 +63,8 @@ export const getDirectoryById = async (req, res) => {
     }
 
     const files = await File.find({ parentDirId: directoryData._id }).lean();
+
+
     if (!files) {
       return res.status(404).json({ message: "files is undefind" });
     }
@@ -70,14 +79,21 @@ export const getDirectoryById = async (req, res) => {
       { $push: { "folderTimeStamp.opened": new Date() } }
     );
 
+
+
+
     if (!directories) {
       return res.status(404).json({ error: "directories is undefind" });
     } else {
+      // console.log("dd = ", directoryData.path);
+      // console.log("d = ", directories);
+
       return res.status(200).json({
         ...directoryData,
         files: files.map((file) => ({ ...file, id: file._id })),
         directories: directories.map((dir) => ({ ...dir, id: dir._id })),
-        storageData: { totalSpace: currentUser.totalSpace, usedSpace: currentUser.usedSpace, remainingSpace: currentUser.remainingSpace }
+        storageData: { totalSpace: currentUser.totalSpace, usedSpace: currentUser.usedSpace, remainingSpace: currentUser.remainingSpace, },
+        path: directoryData.path || []
       });
     }
   } catch (error) {
@@ -106,6 +122,7 @@ export const updateDirectoryById = async (req, res) => {
   }
 };
 
+// ------- delete directories 
 export const deleteDirectoryById = async (req, res) => {
   const id = req.params.id || req.user.rootDirId;
 
@@ -121,7 +138,6 @@ export const deleteDirectoryById = async (req, res) => {
     async function deleteDirectoriesRecursive(dirId) {
       let files = await File.find(
         { parentDirId: new ObjectId(dirId) }
-        
       )
         .select("extension")
         .lean();
@@ -133,26 +149,46 @@ export const deleteDirectoryById = async (req, res) => {
         .lean();
 
       for (const subDir of directory) {
-        // console.log("directory name:", subDir);
         let { files: childFiles, directory: childDirectories } =
           await deleteDirectoriesRecursive(subDir._id);
         files = [...files, ...childFiles];
         directory = [...directory, ...childDirectories];
       }
+
       return { files, directory };
     }
 
     const { files, directory } = await deleteDirectoriesRecursive(id);
 
+
     for (const { _id, extension } of files) {
-      await rm(`./storage/local-files/${_id.toString()}${extension}`);
+      const localPath = `./storage/local-files/${_id.toString()}${extension}`;
+      const drivePath = `./storage/google-drive-files/${_id.toString()}${extension}`;
+
+      // remove file from local `storage`
+      try {
+        await rm(localPath)
+      } catch (error) {
+        if (error.code !== "ENOENT") console.log(error);
+      }
+
+      // remove file from google drive `storage`
+      try {
+        await rm(drivePath)
+      } catch (error) {
+        if (error.code !== "ENOENT") console.log(error);
+      }
+
     }
+
 
     await File.deleteMany({ _id: { $in: files.map(({ _id }) => _id) } });
     await Directorie.deleteMany({
       _id: { $in: [...directory.map(({ _id }) => _id), new ObjectId(id)] },
     });
+
     return res.status(200).json({ message: "folder Delete" });
+
   } catch (error) {
     console.log(error);
   }

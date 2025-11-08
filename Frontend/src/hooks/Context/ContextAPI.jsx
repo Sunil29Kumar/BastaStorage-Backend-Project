@@ -12,10 +12,15 @@ export const BastaStorageContext = createContext();
 function ContextAPI({ children }) {
   const BASE_URL = "http://localhost:2000";
   const [directoriesList, setDirectoriesList] = useState([]);
+
+  // Breadcrum 
+  const [currentDirPath, setCurrentDirPath] = useState([])
+
   const [filesList, setFilesList] = useState([]);
   const [storageData, setStorageData] = useState({})
   const [storageFullMessage, setStorageFullMessage] = useState("");
   const [isStorageFull, setIsStorageFull] = useState(false);
+
 
   const [newFilename, setNewFilename] = useState("");
   const [newDirname, setNewDirname] = useState("");
@@ -26,7 +31,7 @@ function ContextAPI({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // file FileProgress
-  const [FileProgress, setFileProgress] = useState(0);
+  const [fileProgress, setFileProgress] = useState(0);
   const [currentFileName, setCurrentFileName] = useState("");
   const [isFileInProgress, setIsFileInProgress] = useState(false);
   const [fileUplodingRemainingTime, setFileUploadingRemainingTime] =
@@ -178,7 +183,7 @@ function ContextAPI({ children }) {
     localStorage.setItem("isDarkMode", newTheme)
   }
 
-  // GET Request file and dir
+  // ----- GET Request file and dir
   async function getDirectoryItems() {
     // if (!loggedIn) return; // 
     const response = await fetch(`${BASE_URL}/directory/${dirId || ""}`, {
@@ -191,38 +196,59 @@ function ContextAPI({ children }) {
       }
       return;
     }
+
     setDirectoriesList(data.directories);
+
+    setCurrentDirPath(data.path)
+
     setFilesList(data.files);
     setStorageData(data.storageData);
 
   }
   useEffect(() => {
-
     getDirectoryItems();
   }, [dirId]);
 
-  // upload file
+
+  // ------- upload file
   const xhrRef = useRef(null);
   async function uploadFile(e) {
     const file = e.target.files[0];
-    console.log(file);
 
-    console.log("file = >>>>", file);
     setCurrentFileName(file.name);
+
+    const formData = new FormData()
+    formData.append("file", file)
 
     const xhr = new XMLHttpRequest();
     xhrRef.current = xhr;
     const uploadStartTime = new Date().getTime();
     xhr.open("POST", `${BASE_URL}/file/${dirId || ""}`, true);
 
-    xhr.setRequestHeader("filename", file.name);
     xhr.withCredentials = true;
-    xhr.setRequestHeader("size", file.size);
-    xhr.setRequestHeader("type", file.type);
+
+    // progress bar 
+    xhr.upload.addEventListener("progress", (e) => {
+      console.log(123123123);
+
+      const currentTime = new Date().getTime();
+      const timeElapsed = (currentTime - uploadStartTime) / 1000; 
+      const uploadSpeed = e.loaded / timeElapsed;
+      const remainingBytes = e.total - e.loaded;
+      const remainingTime = remainingBytes / uploadSpeed;
+      const totalFileProgress = (e.loaded / e.total) * 100; 
+
+      setFileProgress(totalFileProgress.toFixed(2));
+      setFileUploadingRemainingTime(remainingTime.toFixed(1));
+      setIsFileInProgress(true);
+    });
+
+
     xhr.addEventListener("load", () => {
       if (xhr.status === 200) {
         getDirectoryItems();
         setIsFileUploadingCancle(false);
+
         setTimeout(() => {
           setIsFileUploaded(true);
           setIsFileInProgress(false);
@@ -233,8 +259,9 @@ function ContextAPI({ children }) {
       }
       else {
         const response = JSON.parse(xhr.responseText);
+        console.log(response);
+
         console.error("Upload failed:", response.message);
-        // alert(response.message);
         setIsStorageFull(true);
         setIsFileInProgress(false);
         setStorageFullMessage(response.message);
@@ -242,23 +269,11 @@ function ContextAPI({ children }) {
           setStorageFullMessage("");
           setIsStorageFull(false);
         }, 1000);
-
       }
-
     });
-    xhr.upload.addEventListener("progress", (e) => {
-      const currentTime = new Date().getTime();
-      const timeElapsed = (currentTime - uploadStartTime) / 1000; // in second
-      const uploadSpeed = e.loaded / timeElapsed;
-      const remainingBytes = e.total - e.loaded;
-      const remainingTime = remainingBytes / uploadSpeed;
-      const totalFileProgress = (e.loaded / e.total) * 100; // total percentage %
 
-      setFileProgress(totalFileProgress.toFixed(2));
-      setFileUploadingRemainingTime(remainingTime.toFixed(1));
-      setIsFileInProgress(true);
-    });
-    xhr.send(file);
+
+    xhr.send(formData);
   }
 
   // cancle uploading
@@ -280,7 +295,7 @@ function ContextAPI({ children }) {
     }
   }
 
-  // delete file
+  // ----- delete file
   async function handleDeleteFile(fileId) {
     const response = await fetch(`${BASE_URL}/file/${fileId}`, {
       method: "DELETE",
@@ -291,7 +306,7 @@ function ContextAPI({ children }) {
     await getDirectoryItems();
   }
 
-  // delete directroy
+  // ------ delete directroy
   async function handleDeleteDirectory(directoryId) {
     const response = await fetch(`${BASE_URL}/directory/${directoryId}`, {
       method: "DELETE",
@@ -1053,12 +1068,16 @@ function ContextAPI({ children }) {
         filesList,
         setFilesList,
 
+        // BreadCrum 
+        currentDirPath,
+        setCurrentDirPath,
+
         // storage full message
         storageData,
         storageFullMessage,
         isStorageFull,
 
-        FileProgress,
+        fileProgress,
         setFileProgress,
         newFilename,
         setNewFilename,

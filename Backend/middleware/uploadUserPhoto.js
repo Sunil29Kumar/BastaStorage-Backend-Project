@@ -1,17 +1,17 @@
-import multer from "multer";
-import path from "path";
-import crypto from "crypto";
+// ----- cloudinary setup 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./storage/user-photo");  // sirf directory
+import multer from 'multer';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../utils/cloudinary.js';
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'BastaStorage/UserPhotos',
+    resource_type: 'auto', 
   },
-  filename: function (req, file, cb) {
-    const extension = path.extname(file.originalname);
-    const randomId = crypto.randomUUID();
-    const fullName = `${randomId}${extension}`;
-    cb(null, fullName);
-  }
 });
 
 export const upload = multer({ storage });
+
+

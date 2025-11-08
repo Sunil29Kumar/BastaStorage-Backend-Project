@@ -6,7 +6,7 @@ import RemainingStorage from "./Total Storage/RemainingStorage";
 
 function SideBar() {
   const location = useLocation();
-  const {  setShowFileFolderMenu, isGDBoxOpen, isDarkMode } = useContext(BastaStorageContext);
+  const { setShowFileFolderMenu, isGDBoxOpen, isDarkMode } = useContext(BastaStorageContext);
 
   return (
     <div className={`  sideBar w-[17%] relative  flex gap-5 flex-col justify-between  px-2 pb-2 rounded-md  ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black border-r-2 border-blue-100"}`}>
@@ -37,7 +37,7 @@ function SideBar() {
           </Link>
         </div>
         <RemainingStorage />
-        
+
       </div>
 
       <div className="flex items-start">

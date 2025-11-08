@@ -11,12 +11,14 @@ function UploadFile() {
         className={`flex items-center gap-2 px-3 py-2 cursor-pointer  transition ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}
       >
         <i className="ri-upload-cloud-line text-lg text-green-500"></i>
-        <input type="file"
+        <input
+          type="file"
+          name="file"
           onClick={() => {
             setIsGDBoxOpen(false)
             setShowInputBox(false)
           }}
-          onChange={uploadFile} 
+          onChange={uploadFile}
           className="hidden" />
         <span>Upload File</span>
       </label>

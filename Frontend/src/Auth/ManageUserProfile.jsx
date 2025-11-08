@@ -41,7 +41,7 @@ function ManageUserProfile() {
                 <div className={`flex flex-col items-center gap-3 border-b pb-5 ${isDarkMode ? "border-gray-100" : "border-gray-800"}`}>
                     <div className="relative w-28 h-28 rounded-full overflow-hidden shadow-lg ">
                         <img
-                            src={storeUserData.picture ? `http://localhost:2000${storeUserData.picture}` : "/user-img.png"}
+                            src={storeUserData.picture ? storeUserData.picture : "/user-img.png"}
                             alt="profile"
                             className="w-full h-full object-cover"
                         />
