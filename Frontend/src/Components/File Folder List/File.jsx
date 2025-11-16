@@ -247,7 +247,8 @@ function File() {
                       <td className="p-2 text-2xl">{icon}</td>
                       {/* file name  */}
                       <td className="p-2 cursor-pointer flex flex-col gap-1  ">
-                        <a href={file.URL?file.URL :`${BASE_URL}/file/${file.id}`} className=" ">
+                        {/* <a href={file.URL?file.URL :`${BASE_URL}/file/${file.id}`} className=" "> */}
+                        <a href={`${BASE_URL}/file/${file.id}`} className=" ">
                           {file.name.length > 45
                             ? file.name.slice(0, 45) + "..."
                             : file.name}

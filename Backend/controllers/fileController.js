@@ -11,8 +11,7 @@ import crypto from "crypto";
 import inviteUserByEmail from "../utils/inviteUserByEmail.js";
 import { createFileSchema, renameFileSchema } from "../validators/fileSchema.js";
 import z from "zod/v4";
-
-import { deleteLocalFile, renameLocalFile } from '../utils/cloudinaryActions.js';
+import { createGetSignedUrl, deleteFileFromS3, generateSignedUrl } from "../utils/s3.js";
 
 
 
@@ -28,10 +27,13 @@ export const createFile = async (req, res) => {
     return res.status(400).json({ error: z.flattenError(error).fieldErrors });
   }
 
-  const { file } = req;
-  if (!file) {
+  const { fileName, fileType, fileSize } = req.body;
+
+
+  if (!fileName || !fileType) {
     return res.status(400).json({ error: "File is required." });
   }
+
 
   const parentDirId = data.params.parentDirId || req.user.rootDirId;
   const userId = req.user._id;
@@ -50,13 +52,12 @@ export const createFile = async (req, res) => {
     }
 
 
-    const filename = file?.originalname || "untitled";
+    const filename = fileName || "untitled";
     if (!filename) {
       return res.status(400).json({ error: "Filename is required." });
     }
-    const size = parseInt(file?.size);
+    const size = parseInt(fileSize) || 0;
     const extension = path.extname(filename);
-    const type = file?.mimetype || "application/octet-stream";
 
 
     // find user 
@@ -71,9 +72,8 @@ export const createFile = async (req, res) => {
       userId: req.user._id,
       name: filename,
       extension,
-      size,
-      type,
-      URL: decodeURIComponent(file?.path || ""),
+      size: size,
+      type: fileType,
       fileFrom: "local",
       timeStamp: {
         fileCreatedAt: new Date(),
@@ -91,8 +91,11 @@ export const createFile = async (req, res) => {
     parentDirData.size += size;
     await parentDirData.save();
 
+    //  Get signed URL from s3Controller
+    const { uploadURL, fileUrl } = await generateSignedUrl({ fileName: `${fileData._id}${fileData.extension}`, fileType });
 
-    return res.status(200).json({ message: "File Uploaded" });
+
+    return res.status(200).json({ message: "File Uploaded", uploadURL });
 
 
   } catch (error) {
@@ -113,42 +116,28 @@ export const getFile = async (req, res) => {
     userId: req.user._id,
   });
 
-  if (!fileData) {
-    return res.status(404).json({ message: "file not found" });
-  }
+  if (!fileData) return res.status(404).json({ message: "file not found" });
 
-  const localFileFullPath = `${process.cwd()}/storage/local-files/${id}${fileData.extension}`;
-  const googleDriveFileFullPath = `${process.cwd()}/storage/google-drive-files/${id}${fileData.extension}`;
-
-  const fullPath = fileData.fileFrom === "local" ? localFileFullPath : googleDriveFileFullPath
 
   // agar user download karna chahta hai
   if (req.query.action === "download") {
-    // download time ko database me push kar rahe hain
-    await File.updateOne(
-      { _id: new ObjectId(id) },
-      { $push: { "timeStamp.lastDownload": new Date() } }
-    );
-
     // response me header set kar rahe hain ki file download ho
-    res.setHeader("Content-Disposition", `attachment; filename="${fileData.name}"`);
-    return res.download(fullPath, fileData.name);
+    // res.setHeader("Content-Disposition", `attachment; filename="${fileData.name}"`);
+    const signedUrl = await createGetSignedUrl({ fileKey: `${fileData._id}${fileData.extension}`, fileName: fileData.name, download: true });
+
+    return res.redirect(signedUrl);
   }
 
-  // agar simple file dekh raha hai (download nahi)
-  await File.updateOne(
-    { _id: new ObjectId(id) },
-    {
-      $push: { "timeStamp.opened": new Date() },
-    }
-  );
-
   // file ko browser me send kar rahe hain
-  res.sendFile(fullPath, (err) => {
-    if (!res.headersSent && err) {
-      return res.status(404).json({ error: "File not found!" });
-    }
-  });
+  const signedUrl = await createGetSignedUrl({ fileKey: `${fileData._id}${fileData.extension}`, fileName: fileData.name, download: false });
+  // res.sendFile(signedUrl, (err) => {
+  //   if (!res.headersSent && err) {
+  //     return res.status(404).json({ error: "File not found!" });
+  //   }
+  // });
+
+  return res.redirect(signedUrl);
+
 };
 
 
@@ -174,16 +163,10 @@ export const renameFile = async (req, res) => {
       return res.status(404).json({ error: "File not found" });
     }
 
-    // rename in cloudinary 
-    const newCloudinaryPublicId = await renameLocalFile(file.URL, newFileName, file);
-
-    console.log("np = ", newCloudinaryPublicId);
-    
 
     // check owner 
     if (file.userId.toString() === req.user._id.toString()) {
       file.name = newFileName;
-      file.URL = newCloudinaryPublicId
       file.timeStamp.lastModified.push(new Date());
       file.save();
       return res.status(200).json({ message: "File Renamed" });
@@ -225,12 +208,8 @@ export const deleteFile = async (req, res) => {
     if (!fileData) {
       return res.status(404).json({ message: "File not found" });
     }
-
-
-    const cloudinaryURL = fileData.URL;  // https://res.cloudinary.com/dhsmjvdei/image/upload/v1762336076/BastaStorage/LocalFiles/qgteiel6qngzcg9gik7s.png
-
-    await deleteLocalFile(cloudinaryURL, fileData);
-
+    // Delete from S3
+    await deleteFileFromS3(`${fileData._id}${fileData.extension}`);
 
     // Delete from DB
     await File.deleteOne({ _id: fileData._id });

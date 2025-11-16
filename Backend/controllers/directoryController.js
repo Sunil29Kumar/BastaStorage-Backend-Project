@@ -4,6 +4,7 @@ import { rm } from "fs/promises";
 import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 import User from "../models/userModel.js";
+import { deleteFilesFromS3 } from "../utils/s3.js";
 
 export const createDirectory = async (req, res) => {
   const user = req.user;
@@ -125,7 +126,7 @@ export const updateDirectoryById = async (req, res) => {
 // ------- delete directories 
 export const deleteDirectoryById = async (req, res) => {
   const id = req.params.id || req.user.rootDirId;
-
+  const userId = req.user._id;
   try {
     const checkIsUserDirectory = await Directorie.findOne({
       _id: new ObjectId(id),
@@ -160,32 +161,22 @@ export const deleteDirectoryById = async (req, res) => {
 
     const { files, directory } = await deleteDirectoriesRecursive(id);
 
+    const totalDeletedSize = files.reduce((acc, file) => acc + (file.size || 0), 0);
 
-    for (const { _id, extension } of files) {
-      const localPath = `./storage/local-files/${_id.toString()}${extension}`;
-      const drivePath = `./storage/google-drive-files/${_id.toString()}${extension}`;
+    // Delete from S3
+    const fileKeys = files.map(({ _id, extension }) => `${_id}${extension}`);
+    await deleteFilesFromS3(fileKeys);
 
-      // remove file from local `storage`
-      try {
-        await rm(localPath)
-      } catch (error) {
-        if (error.code !== "ENOENT") console.log(error);
-      }
-
-      // remove file from google drive `storage`
-      try {
-        await rm(drivePath)
-      } catch (error) {
-        if (error.code !== "ENOENT") console.log(error);
-      }
-
-    }
-
-
+    // delete from data base
     await File.deleteMany({ _id: { $in: files.map(({ _id }) => _id) } });
     await Directorie.deleteMany({
       _id: { $in: [...directory.map(({ _id }) => _id), new ObjectId(id)] },
     });
+
+    // update user usedSpace and remainingSpace
+    const user = await User.findById(userId);
+    user.usedSpace = - totalDeletedSize;
+    await user.save();
 
     return res.status(200).json({ message: "folder Delete" });
 

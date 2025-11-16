@@ -210,71 +210,79 @@ function ContextAPI({ children }) {
   }, [dirId]);
 
 
-  // ------- upload file
   const xhrRef = useRef(null);
+
   async function uploadFile(e) {
     const file = e.target.files[0];
-
     setCurrentFileName(file.name);
 
-    const formData = new FormData()
-    formData.append("file", file)
+    try {
+      //  Step 1: Get Signed URL from backend
+      const res = await fetch(`${BASE_URL}/file/${dirId || ""}`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+        }),
+      });
 
-    const xhr = new XMLHttpRequest();
-    xhrRef.current = xhr;
-    const uploadStartTime = new Date().getTime();
-    xhr.open("POST", `${BASE_URL}/file/${dirId || ""}`, true);
+      const { uploadURL } = await res.json();
+      
 
-    xhr.withCredentials = true;
+      //  Step 2: Upload directly to S3 using XMLHttpRequest (to track progress)
+      const xhr = new XMLHttpRequest();
+      xhrRef.current = xhr;
+      const uploadStartTime = new Date().getTime();
 
-    // progress bar 
-    xhr.upload.addEventListener("progress", (e) => {
-      console.log(123123123);
+      xhr.open("PUT", uploadURL, true);
+      xhr.setRequestHeader("Content-Type", file.type);
 
-      const currentTime = new Date().getTime();
-      const timeElapsed = (currentTime - uploadStartTime) / 1000; 
-      const uploadSpeed = e.loaded / timeElapsed;
-      const remainingBytes = e.total - e.loaded;
-      const remainingTime = remainingBytes / uploadSpeed;
-      const totalFileProgress = (e.loaded / e.total) * 100; 
+      //  Progress tracking during S3 upload
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          const currentTime = new Date().getTime();
+          const timeElapsed = (currentTime - uploadStartTime) / 1000;
+          const uploadSpeed = e.loaded / timeElapsed;
+          const remainingBytes = e.total - e.loaded;
+          const remainingTime = remainingBytes / uploadSpeed;
+          const progress = (e.loaded / e.total) * 100;
 
-      setFileProgress(totalFileProgress.toFixed(2));
-      setFileUploadingRemainingTime(remainingTime.toFixed(1));
-      setIsFileInProgress(true);
-    });
+          setFileProgress(progress.toFixed(2));
+          setFileUploadingRemainingTime(remainingTime.toFixed(1));
+          setIsFileInProgress(true);
+        }
+      });
 
+      xhr.addEventListener("load", () => {
+        if (xhr.status === 200) {
 
-    xhr.addEventListener("load", () => {
-      if (xhr.status === 200) {
-        getDirectoryItems();
-        setIsFileUploadingCancle(false);
-
-        setTimeout(() => {
-          setIsFileUploaded(true);
+          console.log("✅ Uploaded to S3 successfully");
           setIsFileInProgress(false);
-          setCurrentFileName("");
-          setStorageFullMessage("");
-          setFileProgress(0);
-        }, 1000);
-      }
-      else {
-        const response = JSON.parse(xhr.responseText);
-        console.log(response);
+          setIsFileUploaded(true);
 
-        console.error("Upload failed:", response.message);
-        setIsStorageFull(true);
-        setIsFileInProgress(false);
-        setStorageFullMessage(response.message);
-        setTimeout(() => {
-          setStorageFullMessage("");
-          setIsStorageFull(false);
-        }, 1000);
-      }
-    });
+          // refresh file list
+          getDirectoryItems();
 
+          setTimeout(() => {
+            setCurrentFileName("");
+            setFileProgress(0);
+          }, 800);
+        } else {
+          console.error("S3 upload failed:", xhr.statusText);
+        }
+      });
 
-    xhr.send(formData);
+      xhr.send(file);
+    } catch (error) {
+      console.error("Error during upload:", error);
+    }
   }
+
 
   // cancle uploading
   function cancleUpload() {
@@ -294,6 +302,8 @@ function ContextAPI({ children }) {
       }, 1000);
     }
   }
+
+
 
   // ----- delete file
   async function handleDeleteFile(fileId) {

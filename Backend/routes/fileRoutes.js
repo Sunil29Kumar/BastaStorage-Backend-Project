@@ -14,7 +14,7 @@ import {
   updateSharedFilePermission,
 } from "../controllers/fileController.js";
 import checkAuth from "../middleware/authMiddleware.js";
-import { upload } from "../middleware/uploadLocalFile.js";
+
 
 
 const router = express.Router();
@@ -23,7 +23,7 @@ router.param("id", checkAuth, validatinoIdMiddleware);
 router.param("parentDirId", checkAuth, validatinoIdMiddleware);
 
 // Create 
-router.post("/:parentDirId?", checkAuth, upload.single("file"), createFile);
+router.post("/:parentDirId?", checkAuth, createFile);
 
 // Read
 // route to read/download a file

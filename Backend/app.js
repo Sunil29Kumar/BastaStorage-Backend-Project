@@ -5,6 +5,7 @@ import directoryRoutes from "./routes/directoryRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import authRoute from "./routes/authRoute.js";
+
 import googleDriveRoute from "./routes/googleDriveRoute.js";
 import cookieParser from "cookie-parser";
 import checkAuth from "./middleware/authMiddleware.js";
@@ -125,12 +126,12 @@ app.use(
 );
 
 
-
 app.use("/directory", checkAuth, directoryRoutes);
 app.use("/file", fileRoutes);
 app.use("/", userRoutes);
 app.use("/auth", authRoute);
 app.use("/google-drive", checkAuth, googleDriveRoute);
+// app.use("/s3", s3Route);
 
 app.use((err, req, res, next) => {
   console.error("unexpected error", err);
