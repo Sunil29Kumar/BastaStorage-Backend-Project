@@ -4,7 +4,9 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch app.js"
+    "dev": "node --watch --no-deprecation --env-file=.env app.js",
+    "start": "node --no-deprecation --env-file=.env app.js",
+    "setup":"node --env-file=.env database/setup.js"
   },
   "keywords": [],
   "author": "",
