@@ -120,7 +120,7 @@ export const githubCallback = async (req, res, next) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
-      sameSite: "lax",
+      sameSite: "none",
       secure: true
     });
     await User.updateOne({ email }, { $set: { loginWith: "github" } });
@@ -232,7 +232,7 @@ export const loginWithGoogle = async (req, res, next) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
-      sameSite: "lax",
+      sameSite: "none",
       secure: true
     });
 
