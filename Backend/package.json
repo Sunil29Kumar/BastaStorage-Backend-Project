@@ -9,6 +9,9 @@
     "setup":"node --env-file=.env database/setup.js",
     "build":"npm install"
   },
+  "engines": {
+    "node": "20.15.0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
