@@ -120,7 +120,7 @@ app.use(express.json());
 // allowing cors
 app.use(
   cors({
-    origin: true,
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );

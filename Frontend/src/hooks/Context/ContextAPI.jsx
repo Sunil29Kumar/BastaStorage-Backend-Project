@@ -1,16 +1,15 @@
 import { createContext } from "react";
-import { use } from "react";
 import { useRef } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Switch from '@mui/material/Switch'
+
+
 
 
 export const BastaStorageContext = createContext();
 
 function ContextAPI({ children }) {
-  const BASE_URL = "http://localhost:2000";
+  const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "http://localhost:2000";
   const [directoriesList, setDirectoriesList] = useState([]);
 
   // Breadcrum 
@@ -232,7 +231,7 @@ function ContextAPI({ children }) {
       });
 
       const { uploadURL } = await res.json();
-      
+
 
       //  Step 2: Upload directly to S3 using XMLHttpRequest (to track progress)
       const xhr = new XMLHttpRequest();
