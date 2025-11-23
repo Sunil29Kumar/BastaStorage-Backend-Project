@@ -5,10 +5,6 @@ import { createClient } from "redis";
 
 const rediclient = createClient({
     url: process.env.REDIS_URL,
-    socket: {
-        tls: true,
-        rejectUnauthorized: false,
-    },
 });
 
 rediclient.on("error", (err) => console.log("Redis Error:", err));
