@@ -12,6 +12,7 @@ import RecoverRequest from "./Account recover/RecoverRequest";
 import RecoverAccount from "./Account recover/RecoverAccount";
 import SharedFileViewer from "./Components/Share files/SharedFileViewer";
 import PrivateShareFileViewer from "./Components/Share files/PrivateShareFileViewer";
+import Plans from "./plans/plans";
 
 function App() {
   return (
@@ -111,6 +112,16 @@ function App() {
         }
       />
 
+
+      {/* plans  */}
+      <Route
+        path="/plans"
+        element={
+          <BastaStorageProvider>
+            <Plans />
+          </BastaStorageProvider>
+        }
+      />
 
 
     </Routes>

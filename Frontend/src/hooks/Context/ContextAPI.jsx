@@ -9,7 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 export const BastaStorageContext = createContext();
 
 function ContextAPI({ children }) {
-  const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "http://localhost:2000";
+  const BASE_URL = "http://localhost:2000";
   const [directoriesList, setDirectoriesList] = useState([]);
 
   // Breadcrum 
@@ -1061,6 +1061,14 @@ function ContextAPI({ children }) {
       setInviteUserMessage({ message: "", error: data.error });
     }
   }
+
+
+  // ---------------- subscription plans and payment integration
+
+
+
+
+
 
 
   return (

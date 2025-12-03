@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function RemainingStorage() {
-  const { storageData,isDarkMode } = useContext(BastaStorageContext);
+  const { storageData, isDarkMode } = useContext(BastaStorageContext);
 
   // convert bytes -> MB & GB
   const usedMB = storageData?.usedSpace / (1024 * 1024);
@@ -44,6 +44,15 @@ function RemainingStorage() {
       >
         Get more storage
       </Link>
+
+      <div>
+        <Link
+          to={"/plans"}
+          className="text-blue-400 text-sm font-medium hover:underline "
+        >
+          View Plans
+        </Link>
+      </div>
     </div>
   );
 }

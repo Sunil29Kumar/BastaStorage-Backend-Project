@@ -9,6 +9,9 @@ import authRoute from "./routes/authRoute.js";
 import googleDriveRoute from "./routes/googleDriveRoute.js";
 import cookieParser from "cookie-parser";
 import checkAuth from "./middleware/authMiddleware.js";
+import subscriptionRoute from "./routes/subscriptionRoute.js";
+import webhookRoute from "./routes/webhookRoute.js";
+
 import { connectDB } from "./database/db.js";
 import path from "path";
 
@@ -126,17 +129,24 @@ app.use(
 );
 
 
+
 app.use("/directory", checkAuth, directoryRoutes);
 app.use("/file", fileRoutes);
 app.use("/", userRoutes);
 app.use("/auth", authRoute);
 app.use("/google-drive", checkAuth, googleDriveRoute);
-// app.use("/s3", s3Route);
 
+// subscription and webhook routes
+app.use("/webhook", webhookRoute);
+app.use("/subscription",checkAuth, subscriptionRoute);
+
+
+// global error handler middleware
 app.use((err, req, res, next) => {
   console.error("unexpected error", err);
   return res.status(500).json({ error: "somethig went wrong" });
 });
+
 
 app.listen(process.env.PORT, () => {
   console.log(`Server Started on port ${process.env.PORT}`);
