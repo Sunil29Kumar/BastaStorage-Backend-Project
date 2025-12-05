@@ -63,6 +63,7 @@ export const createFile = async (req, res) => {
     // find user 
     const user = await User.findById(userId);
 
+    // check storage limit
     if (user.usedSpace + size > user.totalSpace) {
       return res.status(400).json({ message: "You have exceeded your storage limit." });
     }

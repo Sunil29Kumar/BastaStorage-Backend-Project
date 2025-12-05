@@ -1,6 +1,9 @@
 import { useEffect } from "react";
+import { useContext } from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, redirect, useNavigate } from "react-router-dom";
+import { BastaStorageContext } from "../hooks/Context/ContextAPI";
+import PlanCard from "./PlanCard.jsx";
 
 
 const PLAN_CATALOG = {
@@ -18,7 +21,7 @@ const PLAN_CATALOG = {
                 "Basic link sharing",
                 "Standard download speed",
             ],
-            popular: false,
+            popular: true,
         },
         {
             id: "plan_Rlq7hitgvaDl8S",
@@ -34,7 +37,7 @@ const PLAN_CATALOG = {
                 "Email + Chat support",
                 "Password-protected links",
             ],
-            popular: true, // MOST POPULAR
+            popular: false,
         },
         {
             id: "plan_Rlq9w3xcX5Dzqd",
@@ -68,7 +71,7 @@ const PLAN_CATALOG = {
                 "Basic link sharing",
                 "Standard download speed",
             ],
-            popular: false,
+            popular: true,
         },
         {
             id: "plan_Rlq8ww0f2qVHFb",
@@ -84,7 +87,7 @@ const PLAN_CATALOG = {
                 "Email + Chat support",
                 "Password-protected links",
             ],
-            popular: true,
+            popular: false,
         },
         {
             id: "plan_RlqB5gOigJ0THa",
@@ -107,86 +110,15 @@ const PLAN_CATALOG = {
 
 
 
-
-
-function Price({ value }) {
-    return (
-        <div className="flex items-baseline gap-1">
-            <span className="text-lg font-semibold text-slate-700">₹</span>
-            <span className="text-4xl font-bold tracking-tight text-slate-900">
-                {value}
-            </span>
-        </div>
-    );
-}
-
-function PlanCard({ plan, onSelect }) {
-    return (
-        <div
-            className={`relative flex flex-col rounded-2xl border backdrop-blur-xl bg-white/60 p-6 shadow-lg transition hover:scale-[1.02] ${plan.popular
-                ? "border-blue-600 shadow-blue-200 ring-2 ring-blue-400/30"
-                : "border-slate-200"
-                }`}
-        >
-            {plan.popular && (
-                <div className="absolute -top-3 right-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full shadow-md">
-                    Most Popular
-                </div>
-            )}
-
-            <div className="mb-3 flex items-center justify-between">
-                <div>
-                    <h3 className="text-xl font-semibold text-slate-900">{plan.name}</h3>
-                    <p className="text-sm text-slate-500">{plan.tagline}</p>
-                </div>
-                <span className="rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs text-slate-700">
-                    {plan.storage}
-                </span>
-            </div>
-
-            <div className="mb-4 flex items-end gap-2">
-                <Price value={plan.price} />
-                <span className="mb-2 text-sm text-slate-500">{plan.period}</span>
-            </div>
-
-            <ul className="mb-5 space-y-3 text-sm text-slate-600">
-                {plan.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                        <svg
-                            className="mt-0.5 h-4 w-4 text-blue-600"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            strokeWidth="2"
-                            stroke="currentColor"
-                        >
-                            <path
-                                d="M5 13l4 4L19 7"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
-                        <span>{f}</span>
-                    </li>
-                ))}
-            </ul>
-
-            <button
-                // onClick={() => onSelect?.(plan)}
-                onClick={() => onSelect(plan)}
-                className={`mt-auto w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${plan.popular
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-slate-900 text-white hover:bg-slate-800"
-                    }`}
-            >
-                {plan.cta}
-            </button>
-        </div>
-    );
-}
-
 export default function Plans() {
     const [mode, setMode] = useState("monthly");
     const plans = PLAN_CATALOG[mode];
+    const [checking, setChecking] = useState(false);
+    const [currentSubscription, setCurrentSubscription] = useState(null);
+
+    const navigate = useNavigate();
+    const { getDirectoryItems } = useContext(BastaStorageContext)
+
 
     // Load Razorpay script
     useEffect(() => {
@@ -224,16 +156,75 @@ export default function Plans() {
             name: "BastaStorage",
             description: "Subscription Payment",
             handler: function (response) {
-                console.log("Payment successful:", response);
+                if (response.razorpay_payment_id) {
+                    setChecking(true);
+                    startPolling(data.subscriptionId);
+                }
             },
             notes: {
                 plan_id: planId,
-            },
-            theme: {
-                color: "#3399cc",
-            },
+            }
         });
         rzp.open();
+    }
+
+
+    // Polling function to check subscription status
+    function startPolling(subId) {
+        const interval = setInterval(async () => {
+            const res = await fetch(
+                `http://localhost:2000/subscription/status/${subId}`,
+                { credentials: "include" }
+            );
+
+            const data = await res.json();
+
+            if (data.status === "active") {
+                clearInterval(interval);
+                setChecking(false);
+                navigate("/");
+                getDirectoryItems();
+            }
+        }, 3000);  // every 3 seconds
+    }
+
+
+    // get current subscription
+    async function fetchCurrentSubscription() {
+        const res = await fetch("http://localhost:2000/subscription/current", {
+            credentials: "include",
+        });
+        const data = await res.json();
+        // console.log(data);
+        setCurrentSubscription(data.subscription);
+    }
+
+    useEffect(() => {
+        fetchCurrentSubscription();
+    }, []);
+
+
+    // pause subscription
+    async function handlePauseSubscription(subscriptionId) {
+        const response = await fetch(`http://localhost:2000/subscription/pause/${subscriptionId}`, {
+            method: "POST",
+            credentials: "include",
+        });
+        const data = await response.json();
+        console.log("Subscription paused:", data);
+        fetchCurrentSubscription();
+    }
+
+
+    // Resume subscripition
+    async function handleResumeSubscription(subscriptionId) {
+        const response = await fetch(`http://localhost:2000/subscription/resume/${subscriptionId}`, {
+            method: "POST",
+            credentials: "include",
+        });
+        const data = await response.json();
+        console.log("Subscription resumed:", data);
+        fetchCurrentSubscription();
     }
 
 
@@ -241,7 +232,7 @@ export default function Plans() {
         <div className="mx-auto max-w-6xl px-4 py-10">
             {/* Hero Section */}
             <div className="text-center mb-10">
-                <Link to="/" className="text-blue-600 font-bold text-md mb-4 inline-block">Back to Home</Link>
+                <Link to="/" className="text-blue-600 font-bold text-md mb-4 inline-block">🏡 Back to Home</Link>
                 <h1 className="text-4xl font-bold text-slate-900">BastaStorage Plans</h1>
                 <h1 className="text-2xl  text-slate-500">Choose Your Plan</h1>
 
@@ -278,6 +269,9 @@ export default function Plans() {
                         key={`${mode}-${plan.id}`}
                         plan={plan}
                         onSelect={(p) => handleCreateSubscription(p.id)}
+                        currentSubscription={currentSubscription}
+                        handlePauseSubscription={handlePauseSubscription}
+                        handleResumeSubscription={handleResumeSubscription}
                     />
                 ))}
             </div>
@@ -285,6 +279,22 @@ export default function Plans() {
             <p className="mt-10 text-xs text-slate-500 text-center">
                 This is a demo. Integrate with Razorpay Subscriptions to enable billing.
             </p>
+
+
+            {/* payment verification */}
+            {checking && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center">
+                    <div className="text-center text-white">
+                        <div className="loader"></div>
+                        <p className="mt-3 text-lg">
+                            Verifying payment…
+                            <br />
+                            Please wait, don’t refresh or close this tab.
+                        </p>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
