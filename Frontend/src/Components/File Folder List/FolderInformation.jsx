@@ -6,109 +6,203 @@ function FolderInformation() {
 
   const infoRef = useRef(null);
 
-  useEffect(() => {
-    console.log(folderInfo);
-    
-    function handleClickOutSide(event) {
-      if (infoRef.current && !infoRef.current.contains(event.target))
-        setShowFolderInfo(false);
-    }
-    document.addEventListener("mousedown", handleClickOutSide);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutSide);
-    };
-  }, [setShowFolderInfo]);
 
   return (
     <div
       ref={infoRef}
-      className={`absolute right-[2%] bottom-[0%] z-50 w-[30vw] h-[80vh] rounded-xl shadow-xl p-5 overflow-auto ${isDarkMode ? "bg-gray-900 border-gray-700" : "bg-white  border-gray-300"}`}
+      className={`w-[30vw]  h-[100vh] rounded-2xl  shadow-2xl overflow-hidden transform transition-all animate-in slide-in-from-bottom-4 duration-300 ${isDarkMode
+        ? "bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700"
+        : "bg-gradient-to-br bg-gray-300 border-gray-200"
+        }`}
     >
       {folderInfo.length > 0 && (
-        <div className="">
-          <div
-            className={`flex relative justify-between items-center w-full mb-4 ${isDarkMode ? "text-white" : "text-gray-800"}`}>
-            <h2 className="text-lg font-semibold  flex gap-2 ">
-              <p>{"🗂️"}</p>
-              {folderInfo[0].folderName.length > 20
-                ? folderInfo[0].folderName.slice(0, 20) + "..."
-                : folderInfo[0].folderName}
-            </h2>
+        <div className="flex flex-col h-full ">
+          {/* Header Section */}
+          <div className={`relative px-6 py-5 `}>
+            <div className="flex items-start gap-3 pr-10">
+
+              {/* Folder Icon with Background */}
+              <div className={`p-3 rounded-xl ${isDarkMode ? "bg-blue-500/20" : "bg-blue-100"
+                }`}>
+                <span className="text-3xl">🗂️</span>
+              </div>
+
+              {/* Folder Name */}
+              <div className="flex-1 min-w-0">
+                <h2 className={`text-xl font-bold truncate ${isDarkMode ? "text-white" : "text-gray-900"
+                  }`}>
+                  {folderInfo[0].folderName.length > 25
+                    ? folderInfo[0].folderName.slice(0, 25) + "..."
+                    : folderInfo[0].folderName}
+                </h2>
+                <p className={`text-sm mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}>
+                  Folder Information
+                </p>
+              </div>
+            </div>
+
+            {/* Close Button */}
             <button
               onClick={() => setShowFolderInfo(false)}
-              className="cursor-pointer hover:text-red-500 transition-colors absolute right-[5%] top-[0%] m-2"
+              className={`absolute top-5 right-5 p-2  transition-all duration-200  px-3 py-2  rounded-full cursor-pointer  ${isDarkMode
+                ? "hover:bg-gray-500/20 text-gray-400 hover:text-gray-300"
+                : "hover:bg-blue-50 text-gray-500 hover:text-blue-600"
+                }`}
             >
-              <i className="ri-close-line text-2xl"></i>
+              <i className="ri-arrow-right-s-fill text-3xl"></i>
             </button>
           </div>
 
-          {/* table  */}
-          <table className="table-auto w-full text-sm">
-            <tbody>
-              {/* FOLDER ID  */}
-              <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">Folder ID:</td>
-              </tr>
+          {/* Content Section */}
+          <div className="px-6 py-5 overflow-y-auto  custom-scrollbar">
+            <div className="space-y-4">
 
-              <tr className="  border-blue-200">
-                <td className="py-1">{folderInfo[0].folderId}</td>
-              </tr>
-              {/* folder name  */}
-              <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">Folder Name: </td>
-              </tr>
-              <tr className=" border-blue-200">
-                <td className="py-1">{folderInfo[0].folderName}</td>
-              </tr>
-              {/* folder size  */}
-              <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">Folder Size:</td>
-              </tr>
-              <tr className=" border-blue-200">
-                <td className="py-1">{folderInfo[0].folderSize}</td>
-              </tr>
-              {/* folder created at  */}
-              <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">Created At:</td>
-              </tr>
-              <tr className=" border-blue-200">
-                <td className="py-1">{folderInfo[0].folderCreationDate}</td>
-              </tr>
+              {/* Folder ID */}
+              <div className={`p-4 rounded-xl ${isDarkMode ? "bg-gray-800/70" : "bg-gray-50"
+                }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <i className={`ri-hashtag text-lg ${isDarkMode ? "text-blue-400" : "text-blue-600"
+                    }`}></i>
+                  <span className={`text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}>
+                    Folder ID
+                  </span>
+                </div>
+                <p className={`text-sm font-mono break-all ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}>
+                  {folderInfo[0].folderId}
+                </p>
+              </div>
 
-              {/* file opened date  */}
+              {/* Folder Name */}
+              <div className={`p-4 rounded-xl ${isDarkMode ? "bg-gray-800/70" : "bg-gray-50"
+                }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <i className={`ri-folder-line text-lg ${isDarkMode ? "text-blue-400" : "text-blue-600"
+                    }`}></i>
+                  <span className={`text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}>
+                    Folder Name
+                  </span>
+                </div>
+                <p className={`text-sm break-words ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}>
+                  {folderInfo[0].folderName}
+                </p>
+              </div>
 
-              <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">Opened:</td>
-              </tr>
-              <tr className=" border-blue-200">
-                <td className="py-1 text-[1vw] font-normal">
-                  {folderInfo[0].folderOpendedDate?.length > 0
-                    ? folderInfo[0].folderOpendedDate.map((data, i) => (
-                        <div key={i}>{data}</div>
-                      ))
-                    : "N/A"}
-                </td>
-              </tr>
+              {/* Folder Size */}
+              <div className={`p-4 rounded-xl ${isDarkMode ? "bg-gray-800/70" : "bg-gray-50"
+                }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <i className={`ri-database-2-line text-lg ${isDarkMode ? "text-blue-400" : "text-blue-600"
+                    }`}></i>
+                  <span className={`text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}>
+                    Size
+                  </span>
+                </div>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}>
+                  {folderInfo[0].folderSize}
+                </p>
+              </div>
 
-              {/* last modified date  */}
+              {/* Created At */}
+              <div className={`p-4 rounded-xl ${isDarkMode ? "bg-gray-800/70" : "bg-gray-50"
+                }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <i className={`ri-calendar-line text-lg ${isDarkMode ? "text-blue-400" : "text-blue-600"
+                    }`}></i>
+                  <span className={`text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}>
+                    Created At
+                  </span>
+                </div>
+                <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}>
+                  {folderInfo[0].folderCreationDate}
+                </p>
+              </div>
 
-              <tr className=" border-blue-200">
-                <td className="pt-2 font-semibold">Last Modified:</td>
-              </tr>
-              <tr className=" border-blue-200">
-                <td className="py-1 text-[1vw] font-normal">
-                  {folderInfo[0].folderModifiedDate?.length > 0
-                    ? folderInfo[0].folderModifiedDate.map((data, i) => (
-                        <div key={i}>{data}</div>
-                      ))
-                    : "N/A"}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              {/* Opened History */}
+              <div className={`p-4 rounded-xl ${isDarkMode ? "bg-gray-800/70" : "bg-gray-50"
+                }`}>
+                <div className="flex items-center gap-2 mb-3">
+                  <i className={`ri-eye-line text-lg ${isDarkMode ? "text-blue-400" : "text-blue-600"
+                    }`}></i>
+                  <span className={`text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}>
+                    Opened History
+                  </span>
+                </div>
+                {folderInfo[0].folderOpendedDate?.length > 0 ? (
+                  <div className="space-y-2">
+                    {folderInfo[0].folderOpendedDate.map((data, i) => (
+                      <div
+                        key={i}
+                        className={`text-sm px-3 py-2 rounded-lg ${isDarkMode
+                          ? "bg-gray-700/50 text-gray-400"
+                          : "bg-white text-gray-600"
+                          }`}
+                      >
+                        <i className="ri-time-line mr-2 text-xs"></i>
+                        {data}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={`text-sm italic ${isDarkMode ? "text-gray-500" : "text-gray-500"
+                    }`}>
+                    No history available
+                  </p>
+                )}
+              </div>
+
+              {/* Last Modified */}
+              <div className={`p-4 rounded-xl ${isDarkMode ? "bg-gray-800/70" : "bg-gray-50"
+                }`}>
+                <div className="flex items-center gap-2 mb-3">
+                  <i className={`ri-edit-line text-lg ${isDarkMode ? "text-blue-400" : "text-blue-600"
+                    }`}></i>
+                  <span className={`text-sm font-semibold ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}>
+                    Last Modified
+                  </span>
+                </div>
+                {folderInfo[0].folderLastModified?.length > 0 ? (
+                  <div className="space-y-2">
+                    {folderInfo[0].folderLastModified.map((data, i) => (
+                      <div
+                        key={i}
+                        className={`text-sm px-3 py-2 rounded-lg ${isDarkMode
+                          ? "bg-gray-700/50 text-gray-400"
+                          : "bg-white text-gray-600"
+                          }`}
+                      >
+                        <i className="ri-time-line mr-2 text-xs"></i>
+                        {data}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={`text-sm italic ${isDarkMode ? "text-gray-500" : "text-gray-500"
+                    }`}>
+                    Not modified yet
+                  </p>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+
         </div>
       )}
     </div>
+
+
   );
 }
 

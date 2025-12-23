@@ -4,8 +4,6 @@ import BastaStoreDashboard from "./BastaStoreDashboard";
 import { Route, Routes } from "react-router-dom";
 import BastaStorageProvider from "./hooks/Context/ContextAPI";
 import Login from "./Auth/Login";
-import MyDrive from "./Components/MyDrive";
-import StorageDashboard from "./Components/Total Storage/StorageDashboard";
 import GetAllUser from "./Admin Dash/GetAllUser";
 
 import RecoverRequest from "./Account recover/RecoverRequest";
@@ -13,6 +11,8 @@ import RecoverAccount from "./Account recover/RecoverAccount";
 import SharedFileViewer from "./Components/Share files/SharedFileViewer";
 import PrivateShareFileViewer from "./Components/Share files/PrivateShareFileViewer";
 import Plans from "./plans/plans";
+import ManageSubscription from "./plans/ManageSubscription";
+import MyFiles from "./Components/MyFiles";
 
 function App() {
   return (
@@ -26,6 +26,7 @@ function App() {
           </BastaStorageProvider>
         }
       />
+
       <Route
         path="/directory/:dirId"
         element={
@@ -53,7 +54,7 @@ function App() {
         }
       />
       <Route
-        path="/my-drive"
+        path="/my-files"
         element={
           <BastaStorageProvider>
             <BastaStoreDashboard />
@@ -61,10 +62,10 @@ function App() {
         }
       />
       <Route
-        path="/storage-dashboard"
+        path="/overview"
         element={
           <BastaStorageProvider>
-            <StorageDashboard />
+            <BastaStoreDashboard />
           </BastaStorageProvider>
         }
       />
@@ -119,6 +120,15 @@ function App() {
         element={
           <BastaStorageProvider>
             <Plans />
+          </BastaStorageProvider>
+        }
+      />
+
+      <Route
+        path="/manage-subscription"
+        element={
+          <BastaStorageProvider>
+            <ManageSubscription />
           </BastaStorageProvider>
         }
       />

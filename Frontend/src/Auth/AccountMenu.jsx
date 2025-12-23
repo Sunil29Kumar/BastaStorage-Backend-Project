@@ -11,6 +11,7 @@ function AccountMenu() {
   } = useContext(BastaStorageContext);
 
   const accoutnRef = useRef(null);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (accoutnRef.current && !accoutnRef.current.contains(event.target))
@@ -25,42 +26,78 @@ function AccountMenu() {
   return (
     <div
       ref={accoutnRef}
-      className={`absolute min-w-[25vw]  right-[1%] top-[11%]  shadow-xl rounded-md p-4 space-y-2   flex flex-col gap-2 ${isDarkMode ? "bg-gray-800" : "bg-white"} `}
+      className={`absolute z-[999] right-6 top-20 min-w-[25vw] rounded-xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 transition-all ${
+        isDarkMode 
+        ? "bg-gray-700 backdrop-blur-xl border border-white/10 text-white" 
+        : "bg-white/95 backdrop-blur-xl border border-gray-100 text-gray-800"
+      }`}
     >
       {storeUserData && (
-        <div className=" w-full flex flex-col items-center justify-center  gap-5 ">
-          <h2 className="text-[1.2vw] ">{storeUserData.email}</h2>
-          <div className=" w-full flex flex-col justify-center items-center  " >
-            <div className=" w-[4vw] h-[4vw] rounded-[100%]  overflow-hidden " >
-              <img src={storeUserData.picture ? `http://localhost:2000${storeUserData.picture}` : "/user-img.png"} className=" w-full h-full object-cover " />
+        <div className="flex flex-col items-center">
+          {/* USER IMAGE SECTION */}
+          <div className="relative group mb-4">
+            <div className={`w-24 h-24 rounded-full p-1 border-2 border-dashed ${isDarkMode ? "border-blue-500/50" : "border-blue-400"}`}>
+              <div className="w-full h-full rounded-full overflow-hidden shadow-inner ring-4 ring-transparent group-hover:ring-blue-500/20 transition-all">
+                <img 
+                  src={storeUserData.picture ? `http://localhost:2000${storeUserData.picture}` : "/user-img.png"} 
+                  className="w-full h-full object-cover" 
+                  alt="profile"
+                />
+              </div>
             </div>
+            {/* Status Indicator */}
+            <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-white dark:border-[#1c1f23] rounded-full shadow-lg"></div>
+          </div>
 
-            <h2 className="font-semibold text-lg">Hi, {storeUserData.name}</h2>
+          {/* USER DETAILS */}
+          <div className="text-center space-y-1 mb-6">
+            <h2 className="text-xl font-black tracking-tight leading-tight">
+              {storeUserData.name}
+            </h2>
+            <p className="text-[11px] font-bold uppercase tracking-widest opacity-40">
+              {storeUserData.email}
+            </p>
+          </div>
+
+          {/* ACTIONS SECTION */}
+          <div className="w-full space-y-3">
+            <button
+              onClick={() => {
+                setIsManageProfileShowing(true);
+                setAccountMenu(false);
+              }}
+              className={`w-full cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-[1.4rem] text-xs font-black uppercase tracking-widest transition-all active:scale-95 ${
+                isDarkMode 
+                ? "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20" 
+                : "bg-blue-500 text-white hover:bg-blue-600 shadow-lg shadow-blue-500/20"
+              }`}
+            >
+              <i className="ri-user-settings-line text-base"></i>
+              Manage Profile
+            </button>
+
+            <button
+              onClick={() => {
+                setAccountMenu(false);
+                setShowLogOutBox(true);
+              }}
+              className={`w-full flex cursor-pointer items-center justify-center gap-2 py-3.5 rounded-[1.4rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
+                isDarkMode 
+                ? " border-white/5 hover:bg-red-500/10 hover:border-red-500/20 text-red-400" 
+                : "border-gray-100 hover:bg-red-50 hover:text-red-600 text-red-400"
+              }`}
+            >
+              <i className="ri-logout-circle-line text-sm"></i>
+              Log Out
+            </button>
           </div>
         </div>
       )}
-      <div className=" flex w-[100%]  justify-center">
-        <button
-          onClick={() => {
-            setIsManageProfileShowing(true)
-            setAccountMenu(false);
 
-          }}
-
-          className={` cursor-pointer px-7 py-2 rounded-2xl ${isDarkMode ? "bg-black text-white hover:bg-gray-900 " : "bg-blue-100 text-black"} `}>
-          Manage You Profile
-        </button>
-      </div>
-      <div className=" flex w-[100%]  justify-end">
-        <button
-          onClick={() => {
-            setAccountMenu(false);
-            setShowLogOutBox(true);
-          }}
-          className={`cursor-pointer text-left px-4 py-2 rounded-2xl h text-red-600 font-medium ${isDarkMode ? "hover:bg-red-500 hover:text-black " : "hover:bg-red-200"}`}
-        >
-          Logout
-        </button>
+      {/* FOOTER - Policy links */}
+      <div className="mt-6 pt-4 border-t border-gray-500/10 flex justify-center gap-4">
+        <span className="text-[9px] font-bold opacity-30 hover:opacity-100 cursor-pointer uppercase tracking-tighter transition-opacity">Privacy Policy</span>
+        <span className="text-[9px] font-bold opacity-30 hover:opacity-100 cursor-pointer uppercase tracking-tighter transition-opacity">Terms of Service</span>
       </div>
     </div>
   );

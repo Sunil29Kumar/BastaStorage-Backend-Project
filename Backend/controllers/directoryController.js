@@ -6,6 +6,8 @@ import File from "../models/fileModel.js";
 import User from "../models/userModel.js";
 import { deleteFilesFromS3 } from "../utils/s3.js";
 
+
+// create directory
 export const createDirectory = async (req, res) => {
   const user = req.user;
   const parentDirId = req.params.parentDirId || user.rootDirId;
@@ -17,7 +19,7 @@ export const createDirectory = async (req, res) => {
     });
 
     if (!parentDir) {
-      return res.status(404).json({ message: "parentdir is undefinde" });
+      return res.status(404).json({ error: "parentdir is undefinde" });
     }
 
     const path = [
@@ -39,12 +41,13 @@ export const createDirectory = async (req, res) => {
       },
     });
 
-    return res.status(200).json({ message: "Directory Created!" });
+    return res.status(200).json({ message: ` ${dirname} Directory Created` });
   } catch (err) {
     return res.status(404).json({ err: err.message });
   }
 };
 
+// get directory by id
 export const getDirectoryById = async (req, res) => {
   const user = req.user;
   const id = req.params.id || user.rootDirId;
@@ -67,7 +70,7 @@ export const getDirectoryById = async (req, res) => {
 
 
     if (!files) {
-      return res.status(404).json({ message: "files is undefind" });
+      return res.status(404).json({ error: "files is undefind" });
     }
 
     const directories = await Directorie.find({
@@ -99,9 +102,12 @@ export const getDirectoryById = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    return res.status(404).json({ error: "Directory not found" });
   }
 };
 
+
+// ------- update directories
 export const updateDirectoryById = async (req, res) => {
   const { id } = req.params;
   const user = req.user;
@@ -117,9 +123,9 @@ export const updateDirectoryById = async (req, res) => {
       }
     );
 
-    return res.status(200).json({ message: "Directory Renamed" });
+    return res.status(200).json({ message: `Directory Renamed to ${newDirName}` });
   } catch (error) {
-    return res.status(404).json({ message: "Directory not Renamed" });
+    return res.status(404).json({ error: "Directory not Renamed" });
   }
 };
 
@@ -133,20 +139,20 @@ export const deleteDirectoryById = async (req, res) => {
       userId: req.user._id,
     }).select("_id");
     if (!checkIsUserDirectory) {
-      return res.json({ message: "id not matach" });
+      return res.json({ error: "Directory not found or you do not have access to it!" });
     }
 
     async function deleteDirectoriesRecursive(dirId) {
       let files = await File.find(
         { parentDirId: new ObjectId(dirId) }
       )
-        .select("extension")
+        .select("_id extension size")
         .lean();
       let directory = await Directorie.find(
         { parentDirId: new ObjectId(dirId) },
 
       )
-        .select("name")
+        .select("_id name")
         .lean();
 
       for (const subDir of directory) {
@@ -178,9 +184,10 @@ export const deleteDirectoryById = async (req, res) => {
     user.usedSpace = - totalDeletedSize;
     await user.save();
 
-    return res.status(200).json({ message: "folder Delete" });
+    return res.status(200).json({ message: `Directory deleted successfully` });
 
   } catch (error) {
     console.log(error);
+    return res.status(404).json({ error: "Directory not deleted" });
   }
 };

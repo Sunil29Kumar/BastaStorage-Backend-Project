@@ -18,6 +18,10 @@ import StorageFullMessage from "./Components/Total Storage/StorageFullMessage.js
 import GoogleLoginSetPasswordMessage from "./Auth/GoogleLoginSetPasswordMessage.jsx";
 import ShareFilesDashboard from "./Components/Share files/ShareFilesDashboard.jsx";
 import LinkCopiedMessage from "./Components/Share files/LinkCopiedMessage.jsx";
+import GoogleDriveLayout from "./Components/Google Drive/GoogleDriveLayout.jsx";
+import MyFiles from "./Components/MyFiles.jsx";
+import FileDeleteRenameMessage from "./Components/progress file folder/FileDeleteRenameMessage.jsx";
+import DirDeleteRenameMessage from "./Components/progress file folder/DirDeleteRenameMessage.jsx";
 
 
 function BastaStoreDashboard() {
@@ -33,21 +37,25 @@ function BastaStoreDashboard() {
     showLogOutBox,
     showFileFolderMenu,
     isFileInProgress,
+    fileRenameMessage, fileDeleteMessage,
+    dirRenameMessage, dirDeleteMessage,
     isFileUploaded,
     isFileUploadingCancle,
     isManageProfileShowing,
     isStorageFull,
     storeUserData,
     showShareFile,
-    isShareLinkCopied
+    isShareLinkCopied,
+    isGDBoxOpen
   } = useContext(BastaStorageContext);
 
 
   return (
-    <div className={`px-3 py-2  ${isDarkMode ? "bg-black text-white" : "bg-blue-50 text-black"} h-[100vh]`}>
-      <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl p-1 flex   relative  ">
+    <div className={` ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"} h-[100vh]`}>
+      <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl  flex relative  ">
         <SideBar />
         <FilesFolderList />
+        {isGDBoxOpen && <GoogleDriveLayout />}
         {showInputBox && <CreateFolderInputBox />}
         {showFileRenameInputBox && <RenameFileInputBox />}
         {showFolderRenameInputBox && <RenameFolderInputBox />}
@@ -62,7 +70,9 @@ function BastaStoreDashboard() {
         {isStorageFull && <StorageFullMessage />}
         {storeUserData?.isPasswordSet === false && <GoogleLoginSetPasswordMessage />}
         {showShareFile && <ShareFilesDashboard />}
-        {isShareLinkCopied && <LinkCopiedMessage/>}
+        {isShareLinkCopied && <LinkCopiedMessage />}
+        {((fileRenameMessage.message.length > 0 || fileRenameMessage.error.length > 0) || (fileDeleteMessage.message.length > 0 || fileDeleteMessage.error.length > 0)) && <FileDeleteRenameMessage />}
+        {((dirRenameMessage.message.length > 0 || dirRenameMessage.error.length > 0) || (dirDeleteMessage.message.length > 0 || dirDeleteMessage.error.length > 0)) && <DirDeleteRenameMessage />}
 
       </div>
     </div>

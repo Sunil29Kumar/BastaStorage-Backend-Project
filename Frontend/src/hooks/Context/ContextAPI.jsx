@@ -12,6 +12,9 @@ function ContextAPI({ children }) {
   const BASE_URL = "http://localhost:2000";
   const [directoriesList, setDirectoriesList] = useState([]);
 
+  // nab bar minimize button 
+  const [isNavMinimized, setIsNavMinimized] = useState(false);
+
   // Breadcrum 
   const [currentDirPath, setCurrentDirPath] = useState([])
 
@@ -19,6 +22,9 @@ function ContextAPI({ children }) {
   const [storageData, setStorageData] = useState({})
   const [storageFullMessage, setStorageFullMessage] = useState("");
   const [isStorageFull, setIsStorageFull] = useState(false);
+
+  // quick access file
+  const [currentQuickAccessFile, setCurrentQuickAccessFile] = useState("")
 
 
   const [newFilename, setNewFilename] = useState("");
@@ -37,6 +43,16 @@ function ContextAPI({ children }) {
     useState(0);
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [isFileUploadingCancle, setIsFileUploadingCancle] = useState(false);
+
+  // file upload , rename , delete message
+  const [fileUploadMessage, setFileuploadMessage] = useState({ message: "", error: "" })
+  const [fileRenameMessage, setFileRenameMessage] = useState({ message: "", error: "" })
+  const [fileDeleteMessage, setFileDeleteMessage] = useState({ message: "", error: "" })
+
+  // Directory upload , rename , delete message
+  const [dirUploadMessage, setDirUploadMessage] = useState({ message: "", error: "" })
+  const [dirRenameMessage, setDirRenameMessage] = useState({ message: "", error: "" })
+  const [dirDeleteMessage, setDirDeleteMessage] = useState({ message: "", error: "" })
 
   // get current folder name
   const [currentFolderName, setCurrentFolderName] = useState("");
@@ -88,6 +104,7 @@ function ContextAPI({ children }) {
 
   // fetch LOGIN DATA : fetch user Data after login
   const [storeUserData, setStoreUserData] = useState(null);
+
 
   // logOut states
   const [showLogOutBox, setShowLogOutBox] = useState(false);
@@ -160,6 +177,116 @@ function ContextAPI({ children }) {
   });
 
 
+  // subscription plans and payment integration
+  const PLAN_CATALOG = {
+    monthly: [
+      {
+        id: "plan_Rlq3ab5HeGgjyG",
+        name: "Starter",
+        tagline: "Perfect for basic personal backup",
+        storage: "1 TB",
+        price: 149,
+        period: "/mo",
+        cta: "Start with 1 TB",
+        features: [
+          "Secure cloud storage",
+          "Basic link sharing",
+          "Standard download speed",
+        ],
+        popular: true,
+      },
+      {
+        id: "plan_Rlq7hitgvaDl8S",
+        name: "Pro",
+        tagline: "Best for creators & professionals",
+        storage: "5 TB",
+        price: 349,
+        period: "/mo",
+        cta: "Upgrade to 5 TB",
+        features: [
+          "Everything in Starter",
+          "Faster uploads",
+          "Email + Chat support",
+          "Password-protected links",
+        ],
+        popular: false,
+      },
+      {
+        id: "plan_Rlq9w3xcX5Dzqd",
+        name: "Ultimate",
+        tagline: "For teams & advanced users",
+        storage: "10 TB",
+        price: 799,
+        period: "/mo",
+        cta: "Go Unlimited",
+        features: [
+          "Everything in Pro",
+          "Version history (30 days)",
+          "Priority support",
+          "Team management tools",
+        ],
+        popular: false,
+      },
+    ],
+
+    yearly: [
+      {
+        id: "plan_Rlq6UhmQHI5dOm",
+        name: "Starter",
+        tagline: "Basic storage for individuals",
+        storage: "1 TB",
+        price: 1499,
+        period: "/yr",
+        cta: "Start with 1 TB",
+        features: [
+          "Secure cloud storage",
+          "Basic link sharing",
+          "Standard download speed",
+        ],
+        popular: true,
+      },
+      {
+        id: "plan_Rlq8ww0f2qVHFb",
+        name: "Pro",
+        tagline: "Ideal for creators & devs",
+        storage: "5 TB",
+        price: 3499,
+        period: "/yr",
+        cta: "Upgrade to 5 TB",
+        features: [
+          "Everything in Starter",
+          "Fast uploads",
+          "Email + Chat support",
+          "Password-protected links",
+        ],
+        popular: false,
+      },
+      {
+        id: "plan_RlqB5gOigJ0THa",
+        name: "Ultimate",
+        tagline: "Teams & advanced users",
+        storage: "10 TB",
+        price: 7999,
+        period: "/yr",
+        cta: "Go Unlimited",
+        features: [
+          "Everything in Pro",
+          "Version history (30 days)",
+          "Priority support",
+          "Team management tools",
+        ],
+        popular: false,
+      },
+    ],
+  };
+
+
+  const [checking, setChecking] = useState(false);
+  const [currentSubscription, setCurrentSubscription] = useState(null);
+  const [subscriptionMessage, setSubscriptionMessage] = useState("");
+
+
+
 
 
 
@@ -209,8 +336,9 @@ function ContextAPI({ children }) {
   }, [dirId]);
 
 
-  const xhrRef = useRef(null);
 
+  // ----- UPLOAD FILE
+  const xhrRef = useRef(null);
   async function uploadFile(e) {
     const file = e.target.files[0];
     setCurrentFileName(file.name);
@@ -230,7 +358,18 @@ function ContextAPI({ children }) {
         }),
       });
 
-      const { uploadURL } = await res.json();
+      const data = await res.json();
+
+      if (res.status === 403) {
+        setFileuploadMessage({ message: "", error: data.error })
+        setIsFileInProgress(false);
+        setCurrentFileName("");
+        setFileProgress(0);
+        setTimeout(() => {
+          setFileuploadMessage({ message: "", error: "" })
+        }, 4000);
+        return;
+      }
 
 
       //  Step 2: Upload directly to S3 using XMLHttpRequest (to track progress)
@@ -238,7 +377,7 @@ function ContextAPI({ children }) {
       xhrRef.current = xhr;
       const uploadStartTime = new Date().getTime();
 
-      xhr.open("PUT", uploadURL, true);
+      xhr.open("PUT", data.uploadURL, true);
       xhr.setRequestHeader("Content-Type", file.type);
 
       //  Progress tracking during S3 upload
@@ -260,7 +399,7 @@ function ContextAPI({ children }) {
       xhr.addEventListener("load", () => {
         if (xhr.status === 200) {
 
-          console.log("✅ Uploaded to S3 successfully");
+          // console.log("✅ Uploaded to S3 successfully");
           setIsFileInProgress(false);
           setIsFileUploaded(true);
 
@@ -282,13 +421,12 @@ function ContextAPI({ children }) {
     }
   }
 
-
   // cancle uploading
   function cancleUpload() {
 
     if (xhrRef.current && xhrRef.current.readyState !== XMLHttpRequest.DONE) {
       xhrRef.current.abort();
-      console.log("Upload cancelled.");
+      // console.log("Upload cancelled.");
       setIsFileUploaded(false);
 
       setTimeout(() => {
@@ -303,6 +441,38 @@ function ContextAPI({ children }) {
   }
 
 
+  // create directory
+  async function handleCreateDirectory(e) {
+    e.preventDefault();
+    const url = `${BASE_URL}/directory/${dirId || ""}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        dirname: newDirname,
+      },
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    if (response.status === 200) {
+      setDirUploadMessage({ message: data.message, error: "" })
+      setNewDirname("");
+      setShowInputBox(false);
+      await getDirectoryItems();
+      setTimeout(() => {
+        setDirUploadMessage({ message: "", error: "" })
+      }, 4000);
+    }
+    else {
+      setDirUploadMessage({ message: "", error: data.error })
+      setNewDirname("");
+      setShowInputBox(false);
+      await getDirectoryItems();
+      setTimeout(() => {
+        setDirUploadMessage({ message: "", error: "" })
+      }, 4000);
+    }
+  }
 
   // ----- delete file
   async function handleDeleteFile(fileId) {
@@ -311,8 +481,21 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
+    if (response.status === 200) {
+      setFileDeleteMessage({ message: data.message, error: "" })
+      await getDirectoryItems();
+      setTimeout(() => {
+        setFileDeleteMessage({ message: "", error: "" })
+      }, 4000);
+    }
+    else {
+      setFileDeleteMessage({ message: "", error: data.error })
+      await getDirectoryItems();
+      setTimeout(() => {
+        setFileDeleteMessage({ message: "", error: "" })
+      }, 4000);
+    }
     console.log(data);
-    await getDirectoryItems();
   }
 
   // ------ delete directroy
@@ -323,7 +506,20 @@ function ContextAPI({ children }) {
     });
     const data = await response.json();
     console.log(data);
-    getDirectoryItems();
+    if (response.status === 200) {
+      setDirDeleteMessage({ message: data.message, error: "" })
+      await getDirectoryItems();
+      setTimeout(() => {
+        setDirDeleteMessage({ message: "", error: "" })
+      }, 4000);
+    }
+    else {
+      setDirDeleteMessage({ message: "", error: data.error })
+      await getDirectoryItems();
+      setTimeout(() => {
+        setDirDeleteMessage({ message: "", error: "" })
+      }, 4000);
+    }
   }
 
   // rename file , directory
@@ -346,10 +542,23 @@ function ContextAPI({ children }) {
     });
     const data = await response.json();
     console.log(data);
-    setNewFilename("");
-    setSelectedId(null);
-    setShowFileRenameInputBox(false);
-    await getDirectoryItems();
+    if (response.status === 200) {
+      setNewFilename("");
+      setSelectedId(null);
+      setShowFileRenameInputBox(false);
+      await getDirectoryItems();
+      setFileRenameMessage({ message: data.message, error: "" })
+      setTimeout(() => {
+        setFileRenameMessage({ message: "", error: "" })
+      }, 4000);
+    }
+    else {
+      setFileRenameMessage({ message: "", error: data.error })
+      setTimeout(() => {
+        setFileRenameMessage({ message: "", error: "" })
+      }, 4000);
+    }
+
   }
 
   // save rename directory
@@ -365,29 +574,25 @@ function ContextAPI({ children }) {
     });
     const data = await response.json();
     console.log(data);
-    setNewFilename("");
-    setSelectedId(null);
-    setShowFolderRenameInputBox(false);
-    await getDirectoryItems();
+    if (response.status === 200) {
+      setDirRenameMessage({ message: data.message, error: "" })
+      setNewFilename("");
+      setSelectedId(null);
+      setShowFolderRenameInputBox(false);
+      await getDirectoryItems();
+      setTimeout(() => {
+        setDirRenameMessage({ message: "", error: "" })
+      }, 4000);
+    }
+    else {
+      setDirRenameMessage({ message: "", error: data.error })
+      setTimeout(() => {
+        setDirRenameMessage({ message: "", error: "" })
+      }, 4000);
+    }
   }
 
-  // create directory
-  async function handleCreateDirectory(e) {
-    e.preventDefault();
-    const url = `${BASE_URL}/directory/${dirId || ""}`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        dirname: newDirname,
-      },
-      credentials: "include",
-    });
-    const data = await response.json();
-    console.log(data);
-    setNewDirname("");
-    setShowInputBox(false);
-    await getDirectoryItems();
-  }
+
 
   // Register Post Request
   async function handleRegister(e) {
@@ -1063,11 +1268,124 @@ function ContextAPI({ children }) {
   }
 
 
-  // ---------------- subscription plans and payment integration
+  // ------------------ subscription plans and payment integration
+
+  // create subscription
+  async function createSubscription(planId) {
+    // step 1: create subscription on backend
+    const respone = await fetch("http://localhost:2000/subscription", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ planId }),
+    });
+
+    const data = await respone.json();
+    console.log("Subscription created:", data);
+
+
+    // step 2: open Razorpay checkout
+    const rzp = new Razorpay({
+      key: "rzp_test_Rlt6OLxXwUqVXj",
+      subscription_id: data.subscriptionId,
+      name: "BastaStorage",
+      description: "Subscription Payment",
+      handler: function (response) {
+        if (response.razorpay_payment_id) {
+          setChecking(true);
+          startPolling(data.subscriptionId);
+        }
+      },
+      notes: {
+        plan_id: planId,
+      }
+    });
+    rzp.open();
+  }
+
+  // Polling function to check subscription status
+  function startPolling(subId) {
+    const interval = setInterval(async () => {
+      const res = await fetch(
+        `http://localhost:2000/subscription/status/${subId}`,
+        { credentials: "include" }
+      );
+
+      const data = await res.json();
+
+      if (data.status === "active" || data.status === "completed") {
+        clearInterval(interval);
+        setChecking(false);
+        navigate("/");
+        getDirectoryItems();
+      }
+    }, 3000);
+  }
+
+
+  // get current subscription
+  async function fetchCurrentSubscription() {
+    const res = await fetch("http://localhost:2000/subscription/current", {
+      credentials: "include",
+    });
+    const data = await res.json();
+    console.log("current subscription =>", data);
+    setCurrentSubscription(data.subscription);
+  }
 
 
 
+  // pause subscription
+  async function handlePauseSubscription(subscriptionId) {
+    const response = await fetch(`http://localhost:2000/subscription/pause/${subscriptionId}`, {
+      method: "POST",
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log("Subscription paused:", data);
+    setSubscriptionMessage(data.message || "");
+    fetchCurrentSubscription();
+    setTimeout(() => {
+      setSubscriptionMessage("")
+      navigate("/");
+    }, 3000);
+  }
 
+
+  // Resume subscripition
+  async function handleResumeSubscription(subscriptionId) {
+    const response = await fetch(`http://localhost:2000/subscription/resume/${subscriptionId}`, {
+      method: "POST",
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log("Subscription resumed:", data);
+    setSubscriptionMessage(data.message || "");
+    fetchCurrentSubscription();
+    setTimeout(() => {
+      setSubscriptionMessage("")
+      navigate("/");
+    }, 3000);
+  }
+
+
+  // cancle subscription
+  async function handleCancelSubscription(subscriptionId) {
+    const response = await fetch(`http://localhost:2000/subscription/cancel/${subscriptionId}`, {
+      method: "POST",
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log("Subscription cancelled:", data);
+    setSubscriptionMessage(data.message || "");
+    fetchCurrentSubscription();
+    setTimeout(() => {
+      setSubscriptionMessage("")
+      navigate("/");
+    }, 3000);
+  }
 
 
 
@@ -1076,111 +1394,61 @@ function ContextAPI({ children }) {
       value={{
         BASE_URL,
         // dark mode
-        toggleDarkMode,
-        isDarkMode,
+        toggleDarkMode, isDarkMode,
         // setIsDarkMode,
 
-        directoriesList,
-        setDirectoriesList,
-        filesList,
-        setFilesList,
+        directoriesList, setDirectoriesList, filesList, setFilesList,
+
+        // nav bar minimize buttion
+        isNavMinimized, setIsNavMinimized,
 
         // BreadCrum 
-        currentDirPath,
-        setCurrentDirPath,
+        currentDirPath, setCurrentDirPath,
 
         // storage full message
-        storageData,
-        storageFullMessage,
-        isStorageFull,
+        storageData, storageFullMessage, isStorageFull,
 
-        fileProgress,
-        setFileProgress,
-        newFilename,
-        setNewFilename,
-        newDirname,
-        setNewDirname,
-        dirId,
-        showInputBox,
-        setShowInputBox,
-        showFileRenameInputBox,
-        setShowFileRenameInputBox,
-        showFolderRenameInputBox,
-        setShowFolderRenameInputBox,
-        selectedId,
-        setSelectedId,
-        fileInfo,
-        setFileInfo,
-        showFileInfo,
-        setShowFileInfo,
-        folderInfo,
-        setFolderInfo,
-        showFolderInfo,
-        setShowFolderInfo,
+        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, dirId, showInputBox, setShowInputBox, fileUploadMessage,
+
+        fileRenameMessage, fileDeleteMessage,
+        dirUploadMessage, dirDeleteMessage, dirRenameMessage,
+
+        showFileRenameInputBox, setShowFileRenameInputBox, showFolderRenameInputBox, setShowFolderRenameInputBox, selectedId, setSelectedId, fileInfo, setFileInfo, showFileInfo, setShowFileInfo, folderInfo, setFolderInfo, showFolderInfo, setShowFolderInfo,
+
+        // quick access file 
+        currentQuickAccessFile, setCurrentQuickAccessFile,
 
         // ------- share file + share link
-        setShowShareFile,
-        showShareFile,
-        setShareFileId,
-        shareFileId,
-        shareLink,
-        isShareLinkCopied,
-        setIsShareLinkCopied,
+        setShowShareFile, showShareFile, setShareFileId, shareFileId, shareLink, isShareLinkCopied, setIsShareLinkCopied,
         // invite user 
-        inviteUser,
-        inviteUserMessage,
-        inviteLoading,
+        inviteUser, inviteUserMessage, inviteLoading,
         // fetch shared user 
         fetchSharedUsers,
         // update shared file permission 
-        updateSharedFilePermission,
-        updatePermissionLoading,
-        sharedUsersData,
+        updateSharedFilePermission, updatePermissionLoading, sharedUsersData,
         // remove shared user
         removeSharedUser,
 
         //--- logout,    
-        showLogOutBox,
-        setShowLogOutBox,
-        accountMenu,
-        setAccountMenu,
-        storeUserData,
-        setStoreUserData,
+        showLogOutBox, setShowLogOutBox, accountMenu, setAccountMenu, storeUserData, setStoreUserData,
 
         // fetch user data 
         fetchUserData,
         // update user data 
-        updateUserData,
-        isUpdatedUserData,
-        userUpdateMessage,
-        setIsUpdatedUserData,
+        updateUserData, isUpdatedUserData, userUpdateMessage, setIsUpdatedUserData,
 
         // all user 
-        allUsers,
-        getAllUsers,
+        allUsers, getAllUsers,
 
         // logout user by admin and manager 
         // delete user by id 
-        logoutUserById,
-        hardDeleteUserById,
-        softDeleteUserById,
-        logoutDeleteByIdMessage,
+        logoutUserById, hardDeleteUserById, softDeleteUserById, logoutDeleteByIdMessage,
 
         // register 
-        registerData,
-        setRegisterData,
-        errorRegister,
-        setErrorRegister,
-        registerLimiterError,
+        registerData, setRegisterData, errorRegister, setErrorRegister, registerLimiterError,
 
         // login 
-        loginData,
-        setLoginData,
-        loginError,
-        setLoginError,
-        loggedIn,
-        setLoggedIn,
-        loginLimiter,
+        loginData, setLoginData, loginError, setLoginError, loggedIn, setLoggedIn, loginLimiter,
 
         // 
 
@@ -1214,23 +1482,10 @@ function ContextAPI({ children }) {
         logoutFromAllDevice,
 
         // otp
-        otp,
-        setOtp,
-        sendOPT,
-        otpSent,
-        otpCountDown,
-        setOtpCountDown,
-        otpError,
-        isOtpWrong,
-        sentOtpMessage,
-        otpLimiterError,
+        otp, setOtp, sendOPT, otpSent, otpCountDown, setOtpCountDown, otpError, isOtpWrong, sentOtpMessage, otpLimiterError,
 
         // verify otp
-        verifyUserOtp,
-        setVerifyOtpMessage,
-        verifyOtpMessage,
-        isVerifyOtpWrong,
-        setIsVerifyOtpWrong,
+        verifyUserOtp, setVerifyOtpMessage, verifyOtpMessage, isVerifyOtpWrong, setIsVerifyOtpWrong,
 
         // login with google 
         loginWithGoogle,
@@ -1251,11 +1506,7 @@ function ContextAPI({ children }) {
         setIsManageProfileShowing,
 
         // googleDriveFiles 
-        googleDriveFiles,
-        getGoogleDriveFilesFolder,
-        googleDriveFilesData,
-        isGDBoxOpen,
-        setIsGDBoxOpen,
+        googleDriveFiles, getGoogleDriveFilesFolder, googleDriveFilesData, isGDBoxOpen, setIsGDBoxOpen,
 
         // sending google drive files data to backend 
         sendDriveFilesData,
@@ -1271,6 +1522,8 @@ function ContextAPI({ children }) {
         updateUserRole,
         updateRoleMessage,
 
+        // subscription plans and payment integration
+        PLAN_CATALOG, createSubscription, setChecking, checking, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, handleCancelSubscription, currentSubscription, subscriptionMessage
 
       }}
     >

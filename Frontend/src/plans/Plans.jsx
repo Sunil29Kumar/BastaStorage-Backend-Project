@@ -6,118 +6,15 @@ import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import PlanCard from "./PlanCard.jsx";
 
 
-const PLAN_CATALOG = {
-    monthly: [
-        {
-            id: "plan_Rlq3ab5HeGgjyG",
-            name: "Starter",
-            tagline: "Perfect for basic personal backup",
-            storage: "1 TB",
-            price: 149,
-            period: "/mo",
-            cta: "Start with 1 TB",
-            features: [
-                "Secure cloud storage",
-                "Basic link sharing",
-                "Standard download speed",
-            ],
-            popular: true,
-        },
-        {
-            id: "plan_Rlq7hitgvaDl8S",
-            name: "Pro",
-            tagline: "Best for creators & professionals",
-            storage: "5 TB",
-            price: 349,
-            period: "/mo",
-            cta: "Upgrade to 5 TB",
-            features: [
-                "Everything in Starter",
-                "Faster uploads",
-                "Email + Chat support",
-                "Password-protected links",
-            ],
-            popular: false,
-        },
-        {
-            id: "plan_Rlq9w3xcX5Dzqd",
-            name: "Ultimate",
-            tagline: "For teams & advanced users",
-            storage: "10 TB",
-            price: 799,
-            period: "/mo",
-            cta: "Go Unlimited",
-            features: [
-                "Everything in Pro",
-                "Version history (30 days)",
-                "Priority support",
-                "Team management tools",
-            ],
-            popular: false,
-        },
-    ],
-
-    yearly: [
-        {
-            id: "plan_Rlq6UhmQHI5dOm",
-            name: "Starter",
-            tagline: "Basic storage for individuals",
-            storage: "1 TB",
-            price: 1499,
-            period: "/yr",
-            cta: "Start with 1 TB",
-            features: [
-                "Secure cloud storage",
-                "Basic link sharing",
-                "Standard download speed",
-            ],
-            popular: true,
-        },
-        {
-            id: "plan_Rlq8ww0f2qVHFb",
-            name: "Pro",
-            tagline: "Ideal for creators & devs",
-            storage: "5 TB",
-            price: 3499,
-            period: "/yr",
-            cta: "Upgrade to 5 TB",
-            features: [
-                "Everything in Starter",
-                "Fast uploads",
-                "Email + Chat support",
-                "Password-protected links",
-            ],
-            popular: false,
-        },
-        {
-            id: "plan_RlqB5gOigJ0THa",
-            name: "Ultimate",
-            tagline: "Teams & advanced users",
-            storage: "10 TB",
-            price: 7999,
-            period: "/yr",
-            cta: "Go Unlimited",
-            features: [
-                "Everything in Pro",
-                "Version history (30 days)",
-                "Priority support",
-                "Team management tools",
-            ],
-            popular: false,
-        },
-    ],
-};
-
 
 
 export default function Plans() {
     const [mode, setMode] = useState("monthly");
-    const plans = PLAN_CATALOG[mode];
-    const [checking, setChecking] = useState(false);
-    const [currentSubscription, setCurrentSubscription] = useState(null);
 
-    const navigate = useNavigate();
-    const { getDirectoryItems } = useContext(BastaStorageContext)
+
+    const {PLAN_CATALOG, getDirectoryItems, setChecking, checking, createSubscription, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, subscriptionMessage, currentSubscription } = useContext(BastaStorageContext)
+
+    const plans = PLAN_CATALOG[mode];
 
 
     // Load Razorpay script
@@ -132,100 +29,13 @@ export default function Plans() {
     }, []);
 
 
-    // handle create subscription
-    async function handleCreateSubscription(planId) {
-        // step 1: create subscription on backend
-        const respone = await fetch("http://localhost:2000/subscription", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({ planId }),
-        });
-
-        const data = await respone.json();
-        console.log("Subscription created:", data);
-
-
-
-        // step 2: open Razorpay checkout
-        const rzp = new Razorpay({
-            key: "rzp_test_Rlt6OLxXwUqVXj",
-            subscription_id: data.subscriptionId,
-            name: "BastaStorage",
-            description: "Subscription Payment",
-            handler: function (response) {
-                if (response.razorpay_payment_id) {
-                    setChecking(true);
-                    startPolling(data.subscriptionId);
-                }
-            },
-            notes: {
-                plan_id: planId,
-            }
-        });
-        rzp.open();
-    }
-
-
-    // Polling function to check subscription status
-    function startPolling(subId) {
-        const interval = setInterval(async () => {
-            const res = await fetch(
-                `http://localhost:2000/subscription/status/${subId}`,
-                { credentials: "include" }
-            );
-
-            const data = await res.json();
-
-            if (data.status === "active") {
-                clearInterval(interval);
-                setChecking(false);
-                navigate("/");
-                getDirectoryItems();
-            }
-        }, 3000);  // every 3 seconds
-    }
-
-
-    // get current subscription
-    async function fetchCurrentSubscription() {
-        const res = await fetch("http://localhost:2000/subscription/current", {
-            credentials: "include",
-        });
-        const data = await res.json();
-        // console.log(data);
-        setCurrentSubscription(data.subscription);
-    }
 
     useEffect(() => {
         fetchCurrentSubscription();
     }, []);
 
 
-    // pause subscription
-    async function handlePauseSubscription(subscriptionId) {
-        const response = await fetch(`http://localhost:2000/subscription/pause/${subscriptionId}`, {
-            method: "POST",
-            credentials: "include",
-        });
-        const data = await response.json();
-        console.log("Subscription paused:", data);
-        fetchCurrentSubscription();
-    }
 
-
-    // Resume subscripition
-    async function handleResumeSubscription(subscriptionId) {
-        const response = await fetch(`http://localhost:2000/subscription/resume/${subscriptionId}`, {
-            method: "POST",
-            credentials: "include",
-        });
-        const data = await response.json();
-        console.log("Subscription resumed:", data);
-        fetchCurrentSubscription();
-    }
 
 
     return (
@@ -268,7 +78,7 @@ export default function Plans() {
                     <PlanCard
                         key={`${mode}-${plan.id}`}
                         plan={plan}
-                        onSelect={(p) => handleCreateSubscription(p.id)}
+                        onSelect={(p) => createSubscription(p.id)}
                         currentSubscription={currentSubscription}
                         handlePauseSubscription={handlePauseSubscription}
                         handleResumeSubscription={handleResumeSubscription}
@@ -292,6 +102,14 @@ export default function Plans() {
                             Please wait, don’t refresh or close this tab.
                         </p>
                     </div>
+                </div>
+            )}
+
+
+            {/* Subscription Message */}
+            {subscriptionMessage && (
+                <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg">
+                    {subscriptionMessage}
                 </div>
             )}
 

@@ -9,153 +9,142 @@ function Folder() {
     directoriesList,
     renameFile,
     handleDeleteDirectory,
-    showFolderRenameInputBox,
     setShowFolderRenameInputBox,
     setShowFolderInfo,
     setFolderInfo,
-    setCurrentFolderName,
   } = useContext(BastaStorageContext);
 
-  const [isFolderShowing, setIsFolderShowing] = useState(true);
-  const [folderHeight, setFolderHeight] = useState("0vh");
-  const [folderOverFlow, setFolderOverFlow] = useState("hidden");
-
-  // use useRef to disable menubar after click on body
   const [openFolderMenueId, setOpenFolderMenueId] = useState(null);
   const menuRef = useRef(null);
+
+  // Close menu on click outside
   useEffect(() => {
     function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target))
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
         setOpenFolderMenueId(null);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
-    <div className="  ">
-      {/* folders  */}
-      <button
-        onClick={() => {
-          if (folderHeight == "30vh") {
-            setIsFolderShowing(true);
-            setFolderOverFlow("hidden");
-            setFolderHeight("0vh");
-          } else {
-            setFolderHeight("30vh");
-            setIsFolderShowing(false);
-            setFolderOverFlow("visible");
-          }
-        }}
-        className={` text-[1.3vw]  text-start cursor-pointer px-3 py-1  rounded-2xl  ${isDarkMode ? "text-gray-100 hover:bg-gray-800 " : " text-black hover:bg-blue-300"} `}
-      >
-        {" "}
-        {isFolderShowing ? (
-          <i className="ri-arrow-right-s-fill"></i>
-        ) : (
-          <i className="ri-arrow-down-s-fill"></i>
-        )}{" "}
-        Suggested Folder
-      </button>
-      {/* folder div  */}
-      <div
-        style={{ maxHeight: `${folderHeight}`, overflow: `${folderOverFlow}` }}
-      >
-        {/* folder data  */}
-        <div className=" h-[100%] flex flex-wrap justify-start items-start  gap-4 mt-3  ">
-          {directoriesList && directoriesList.length > 0 ? (
-            directoriesList.map((folder, index) => (
-              <div
-                key={folder.id}
-                className={` flex justify-between w-[25vw] px-3 py-2 items-center   cursor-pointer   transition duration-300 ease-in rounded-md ${isDarkMode ? " text-gray-100 bg-gray-800 hover:bg-black " : "bg-blue-50 hover:bg-blue-100"}`}
-              >
-                <Link
-                  to={`/directory/${folder.id}`}
-                  className=" font-[3vw] flex gap-3 justify-center items-center  "
-                >
-                  <div className=" text-[2vw] ">🖿</div>
-                  <div className="hover:text-[1.5vw]">
-                    {folder.name.slice(0, 15)}
-                  </div>
-                </Link>
+    <div className="p-4 bg-gray-50 rounded-2xl min-h-[20vh] max-h-[35vh] overflow-x-hidden ">
 
-
-                {/* ----------- menu section  */}
-                {/* menu button  */}
-                <div className=" relative ">
-                  <button
-                    className=" cursor-pointer "
-                    onClick={() => setOpenFolderMenueId(folder.id)}
-                  >
-                    <i className="ri-more-2-fill"></i>
-                  </button>
-                  {/* menu box  */}
-                  {openFolderMenueId === folder.id && (
-                    <div
-                      ref={menuRef}
-                      className={`absolute  right-0 z-30  w-[16VW] px-4 py-4 border border-gray-400 rounded-md  shadow-md flex flex-col gap-3 ${isDarkMode ? "bg-gray-900  text-gray-100" : "bg-white text-black"}`}
-                    >
-                      {/* name  */}
-                      <p className={`text-center  py-2 rounded-2xl ${isDarkMode ? "bg-gray-800 text-gray-100" : "bg-blue-200"} `}>
-                        {folder.name.length > 10
-                          ? folder.name.slice(0, 10)
-                          : folder.name}
-                      </p>
-                      <div
-                        onClick={() => {
-                          setOpenFolderMenueId(null);
-                          renameFile(folder.id, folder.name);
-                          setShowFolderRenameInputBox(true);
-                        }}
-                        className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
-                      >
-                        <i className="ri-edit-2-line"></i>
-                        Rename
-                      </div>
-                      <div
-                        onClick={() => handleDeleteDirectory(folder.id)}
-                          className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
-                      >
-                        <i className="ri-delete-bin-fill"></i>
-                        Delete
-                      </div>
-                      <div
-                        onClick={() => {
-                          setShowFolderInfo(true);
-                          setOpenFolderMenueId(null);
-                          setFolderInfo([
-                            {
-                              folderId: folder.id,
-                              folderName: folder.name,
-                              folderSize: formatSize(folder.size),
-                              folderCreationDate:folder.folderTimeStamp.folderCreatedAt,
-                              folderOpendedDate: folder.folderTimeStamp.opened,
-                              folderLastModified:
-                                folder.folderTimeStamp.lastModified,
-                              
-                            },
-                          ]);
-                        }}
-                          className={` cursor-pointer p-2  rounded-md flex gap-2 ${isDarkMode ? "hover:bg-gray-700" : " hover:bg-blue-100"}`}
-                      >
-                        <i className="ri-edit-2-line"></i>
-                        Folder Information
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className=" w-[100%] flex justify-center " >
-              <p className=" bg-gray-200 rounded-md text-gray-600 px-7 py-4  ">click + to add Folders</p>
-            </div>
-          )}
+      <div className="flex items-center gap-3 mb-6">
+        <i className="ri-folder-4-line text-yellow-500 text-2xl "></i>
+        <div>
+          <h4 className="text-xl font-bold tracking-tight">Folders</h4>
+          <p className="text-xs opacity-50 font-medium">{directoriesList.length} items stored</p>
         </div>
       </div>
+
+      {/* Professional Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4   ">
+        {directoriesList.map((folder) => (
+          <div
+            key={folder.id}
+            className={`group  relative flex items-center justify-between p-3 rounded-xl border transition-all duration-200 
+              ${isDarkMode
+                ? "bg-gray-800/50 border-gray-700 hover:bg-gray-700 hover:border-blue-500 text-gray-100"
+                : "bg-white border-gray-200 hover:shadow-lg hover:border-blue-400 text-gray-800"
+              }`}
+          >
+            {/* Folder Main Link */}
+            <Link
+              to={`/directory/${folder.id}`}
+              className="flex items-center gap-3 overflow-hidden"
+            >
+              <div className="text-3xl text-blue-500 group-hover:scale-110 transition-transform duration-200">
+                <i className="ri-folder-4-line"></i>
+              </div>
+              <span className="text-sm font-medium truncate">
+                {folder.name}
+              </span>
+            </Link>
+
+            {/* Menu Button */}
+            <div className="relative ">
+              <button
+                onClick={() => setOpenFolderMenueId(openFolderMenueId === folder.id ? null : folder.id)}
+                className={`p-1.5 rounded-full transition-colors ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-100"
+                  }`}
+              >
+                <i className="ri-more-2-fill"></i>
+              </button>
+
+              {/* Dropdown Menu */}
+              {openFolderMenueId === folder.id && (
+                <div
+                  ref={menuRef}
+                  className={`absolute right-0  mt-2 w-48 rounded-lg shadow-xl z-100 border py-1 animate-in fade-in zoom-in duration-150 
+                    ${isDarkMode ? "bg-gray-900 border-gray-700 shadow-black/50" : "bg-white border-gray-100"}`}
+                >
+                  <div className={`px-4 py-2 text-xs font-bold uppercase tracking-wider opacity-50 border-b mb-1 ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                    Folder Options
+                  </div>
+
+                  <MenuAction
+                    icon="ri-edit-line"
+                    label="Rename"
+                    onClick={() => {
+                      renameFile(folder.id, folder.name);
+                      setShowFolderRenameInputBox(true);
+                      setOpenFolderMenueId(null);
+                    }}
+                    isDarkMode={isDarkMode}
+                  />
+
+                  <MenuAction
+                    icon="ri-information-line"
+                    label="Details"
+                    onClick={() => {
+                      setFolderInfo([{
+                        folderId: folder.id,
+                        folderName: folder.name,
+                        folderSize: formatSize(folder.size),
+                        folderCreationDate: folder.folderTimeStamp.folderCreatedAt,
+                        folderOpendedDate: folder.folderTimeStamp.opened,
+                        folderLastModified: folder.folderTimeStamp.lastModified,
+                      }]);
+                      setShowFolderInfo(true);
+                      setOpenFolderMenueId(null);
+                    }}
+                    isDarkMode={isDarkMode}
+                  />
+
+                  <div className={`my-1 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`} />
+
+                  <MenuAction
+                    icon="ri-delete-bin-7-line"
+                    label="Delete"
+                    danger
+                    onClick={() => handleDeleteDirectory(folder.id)}
+                    isDarkMode={isDarkMode}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
+  );
+}
+
+// Sub-component for Menu Items to keep code clean
+function MenuAction({ icon, label, onClick, danger, isDarkMode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors
+        ${danger ? "text-red-500 hover:bg-red-50" : isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-50"}
+        ${isDarkMode && danger ? "hover:bg-red-900/20" : ""}
+      `}
+    >
+      <i className={icon}></i>
+      {label}
+    </button>
   );
 }
 

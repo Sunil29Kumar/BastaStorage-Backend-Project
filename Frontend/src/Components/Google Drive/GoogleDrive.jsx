@@ -1,37 +1,50 @@
-
-import { useContext } from 'react'
-import { BastaStorageContext } from '../../hooks/Context/ContextAPI'
+import { useContext } from "react";
+import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function GoogleDrive() {
-    const { isDarkMode, setShowFileFolderMenu, googleDriveFiles, setIsGDBoxOpen, googleDriveFilesData } = useContext(BastaStorageContext);
-    return (
+  const {
+    isDarkMode,
+    setShowFileFolderMenu,
+    googleDriveFiles,
+    setIsGDBoxOpen,
+    googleDriveFilesData,
+    isNavMinimized
+  } = useContext(BastaStorageContext);
 
-        googleDriveFilesData.length == 0 ? (
-            <div
-                onClick={() => {
-                    googleDriveFiles()
-                    setIsGDBoxOpen(true)
-                    setShowFileFolderMenu(false)
-                }} className={`relative  cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}>
-                <div className=' w-[3vw] h-[3vw]  cursor-pointer '>
-                    <img src='/google drive.png' />
-                </div>
-            </div>)
-            :
-            (<div
-                onClick={() => {
-                    setIsGDBoxOpen(true)
-                    setShowFileFolderMenu(false)
-                }}
-                className={`relative  cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}>
-                <div>
-                    <div className=' w-[3vw] h-[3vw]  cursor-pointer '>
-                        <img src='/google drive.png' /></div>
-                </div>
-            </div>)
+  const handleClick = () => {
+    if (googleDriveFilesData.length === 0) {
+      googleDriveFiles(); // first time fetch
+    }
+    setIsGDBoxOpen(true);
+    setShowFileFolderMenu(false);
+  };
 
+  return (
+    <button
+      onClick={handleClick}
+      className={`
+        w-full flex items-center gap-3
+        ${isNavMinimized ? "px-2 py-2" : "px-4 py-2"} rounded-lg
+        transition-all duration-200
+        cursor-pointer
+        ${isDarkMode
+          ? "hover:bg-gray-700 text-gray-200"
+          : "hover:bg-gray-100 text-gray-700"}
+      `}
+    >
+      {/* Icon */}
+      <div className={`flex items-center justify-center rounded-md bg-white ${isNavMinimized ? "w-11 h-11" : "w-9 h-9"}`}>
+        <img
+          src="/google drive.png"
+          alt="Google Drive"
+          className="w-full h-full object-contain"
+        />
+      </div>
 
-    )
+      {/* Text */}
+      {!isNavMinimized && <span className="text-sm font-medium">Google Drive</span>}
+    </button>
+  );
 }
 
-export default GoogleDrive
+export default GoogleDrive;

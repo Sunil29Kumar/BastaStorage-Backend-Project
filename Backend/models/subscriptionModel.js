@@ -46,9 +46,10 @@ const subscriptionSchema = new Schema(
         quantity: { type: Number },
 
         // Pause
-        pauseAt: { type: Date },
-        resumeAt: { type: Date },
-        pauseReason: { type: String },
+        pauseAt: [{ type: Date }],
+
+        // Resume
+        resumeAt: [{ type: Date }],
 
         // Cancel
         cancelAt: { type: Date },
@@ -58,9 +59,6 @@ const subscriptionSchema = new Schema(
         // Notes
         notes: { type: Object },
 
-        // Payloads
-        rawSubscriptionPayload: { type: Object },
-        rawPaymentPayload: { type: Object },
 
         // Payment fields
         paymentId: { type: String },
@@ -71,9 +69,8 @@ const subscriptionSchema = new Schema(
         paymentCurrency: { type: String },
 
         orderId: { type: String },
-        invoiceId: { type: String },
-        tokenId: { type: String },
-        cardId: { type: String },
+
+        invoiceIds: [{ type: String }],
     },
     {
         timestamps: true,

@@ -12,13 +12,13 @@ function GoogleDriveLayout() {
 
 
     return (
-        <div className={`absolute left-[100%] bottom-0  w-[50vw] h-[65vh]    rounded-md  flex flex-col p-4 overflow-x-auto z-[1] ${isDarkMode ? "bg-gray-900 text-white border-l-2 border-blue-400" : "bg-white text-black border-2 border-blue-400"}`}>
+        <div className={` bottom-0  w-[35vw] h-[100vh]    rounded-r-4xl  flex flex-col p-4 overflow-x-auto z-[1] ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black "}`}>
 
             {googleDriveFilesData.length > 0 && googleDriveFilesData ?
 
                 <>
                     <GoogleDriveNavbar />
-                    <div className=' overflow-x-auto '>
+                    <div className=' overflow-x-auto flex flex-col gap-3 '>
                         <GoogleDriveFolders />
                         <GoogleDriveFiles />
                     </div>

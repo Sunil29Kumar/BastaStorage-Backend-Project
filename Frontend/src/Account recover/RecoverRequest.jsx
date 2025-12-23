@@ -9,88 +9,105 @@ function RecoverRequest() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log(googleLoginError);
-  }, [googleLoginError]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) return;
 
     setLoading(true);
     try {
-      await sendRecoverRequest(email); 
+      await sendRecoverRequest(email);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200 px-4">
-      <div className="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full">
-        {/* Heading */}
-        <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-2">
-          Recover Your Account
-        </h2>
-
-        {/* Error message if any */}
-        {googleLoginError && (
-          <div className="bg-red-100 text-red-600 text-sm p-3 rounded-md mb-4 text-center">
-            {googleLoginError}
+    <div className="min-h-screen flex items-center justify-center  px-4">
+      {/* Card */}
+      <div className="w-full max-w-md backdrop-blur-xl bg-white/90 rounded-3xl shadow-2xl p-8">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-blue-600 text-white flex items-center justify-center text-2xl">
+            🔐
           </div>
-        )}
+          <h2 className="text-3xl font-bold text-gray-800">
+            Account Recovery
+          </h2>
+          <p className="text-gray-600 mt-1 text-sm">
+            Enter your email to receive a recovery link
+          </p>
+        </div>
 
-        {/* Subtitle */}
-        <p className="text-gray-600 text-center mb-6">
-          Enter your registered email and we’ll send you a recovery link.
-        </p>
+        {/* Error (Google / API) */}
+        {
+          googleLoginError && (
+            <div className="mb-4 text-sm text-red-700 bg-red-100 border border-red-200 rounded-lg px-4 py-2 text-center">
+              {googleLoginError}
+            </div>
+          )
+        }
+
+
+
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-              required
-            />
-          </div>
+        {!recoveryRequestMessage.message && (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+                required
+              />
+            </div>
 
-          {!recoveryRequestMessage.message && (
             <button
               type="submit"
-              disabled={loading} // ⬅️ disable button while sending
-              className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
+              className="w-full flex justify-center items-center gap-2 bg-blue-600 cursor-pointer text-white font-semibold py-3 rounded-xl transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Sending..." : "Send Recovery Link"}
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Sending...
+                </>
+              ) : (
+                "Send Recovery Link"
+              )}
             </button>
-          )}
-        </form>
+          </form>
+        )}
 
+        {/* Error message */}
         {recoveryRequestMessage.error && (
-          <div className="mt-4 bg-red-100 text-red-700 p-3 rounded-md text-center">
+          <div className="mt-5 text-sm text-red-700 bg-red-100 border border-red-200 rounded-lg px-4 py-2 text-center">
             {recoveryRequestMessage.error}
           </div>
         )}
 
-        {/* Footer text */}
-        <p className="mt-6 text-sm text-gray-500 text-center">
-          Don’t have an account?{" "}
-          <Link to="/Register" className="text-indigo-600 hover:underline">
-            Register here
-          </Link>
-        </p>
-
+        {/* Success message */}
         {recoveryRequestMessage.message && (
-          <div className="mt-4 bg-green-100 text-green-700 p-3 rounded-md text-center">
-            {recoveryRequestMessage.message}
+          <div className="mt-5 text-sm text-green-700 bg-green-100 border border-green-200 rounded-lg px-4 py-3 text-center">
+            ✅ {recoveryRequestMessage.message}
           </div>
         )}
+
+        {/* Footer */}
+        <div className="mt-6 text-center text-sm text-gray-600">
+          Don’t have an account?{" "}
+          <Link
+            to="/Register"
+            className="text-indigo-600 font-medium hover:underline"
+          >
+            Register
+          </Link>
+        </div>
       </div>
     </div>
   );

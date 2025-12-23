@@ -1,13 +1,7 @@
-import Razorpay from "razorpay";
 import dotenv from "dotenv";
-import Subscription from "../models/subscriptionModel.js";
-import plans from "../utils/plans.js";
 dotenv.config();
-
-const razor = new Razorpay({
-    key_id: process.env.RZP_KEY_ID,
-    key_secret: process.env.RZP_KEY_SECRET
-});
+import Subscription from "../models/subscriptionModel.js";
+import razor from "../utils/razorpay.js";
 
 
 export const createSubscription = async (req, res) => {
@@ -32,7 +26,14 @@ export const createSubscription = async (req, res) => {
         });
 
 
-        // Save subscription details to the database
+        // check existing user
+        const existingSubscription = await Subscription.findOne({ userId: req.user._id, planId: planId })
+        if (existingSubscription) {
+            return res.status(404).json({ error: "This Plan already On Boarding" })
+        }
+
+
+        // Save New subscription in DB
         const newSubscription = new Subscription({
             razorpaySubscriptionId: subscription.id,
             planId: planId,
@@ -52,7 +53,6 @@ export const createSubscription = async (req, res) => {
     }
 };
 
-
 // Get subscription status
 export const getSubscriptionStatus = async (req, res) => {
     try {
@@ -69,6 +69,35 @@ export const getSubscriptionStatus = async (req, res) => {
     }
 };
 
+// invoice
+export const getInvoice = async (req, res) => {
+    try {
+        const { subscriptionId } = req.params;
+
+        const userId = req.user._id;
+
+        // Verify invoice belongs to user's subscription
+        const subscriptionRecord = await Subscription.findOne({ userId, razorpaySubscriptionId: subscriptionId });
+        if (!subscriptionRecord) {
+            return res.status(404).json({ error: "Invoice not found for this user" });
+        }
+
+        // Fetch invoice from Razorpay
+        const invoices = [];
+
+        // Jo invoice IDs tum webhook me store karte ho
+        for (const invoiceId of subscriptionRecord.invoiceIds) {
+            const invoice = await razor.invoices.fetch(invoiceId);
+
+            invoices.push({ short_url: invoice?.short_url, amountPaid: invoice?.amount_paid, billingDate: invoice?.billing_start });
+        }
+
+
+        return res.status(200).json({ invoices });
+    } catch (error) {
+        return res.status(500).json({ error: "Failed to get invoice" });
+    }
+}
 
 // current subscription
 export const getCurrentSubscription = async (req, res) => {
@@ -136,6 +165,8 @@ export const resumeSubscription = async (req, res) => {
             resume_at: "immediate",
             reason: "User requested resume"
         });
+        console.log("resume sub result =", resumedSubscription);
+
         if (!resumedSubscription) {
             return res.status(404).json({ error: "Subscription not found or could not be resumed" });
         }
@@ -145,5 +176,41 @@ export const resumeSubscription = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Failed to resume subscription" });
+    }
+};
+
+
+// cancle subscription
+export const cancelSubscription = async (req, res) => {
+    try {
+        const { subscriptionId } = req.params;
+        console.log("subid=", subscriptionId);
+        const userId = req.user._id;
+
+        // Verify subscription belongs to user
+        const subscriptionRecord = await Subscription.findOne({ razorpaySubscriptionId: subscriptionId, userId });
+        if (!subscriptionRecord) {
+            return res.status(404).json({ error: "Subscription not found for this user" });
+        }
+        // Cancel subscription on Razorpay
+        const cancelledSubscription = await razor.subscriptions.cancel(subscriptionId, {
+            cancel_at: "immediate",
+            reason: "User requested cancellation"
+        });
+        if (!cancelledSubscription) {
+            return res.status(404).json({ error: "Subscription not found or could not be cancelled" });
+        }
+
+        const updatedSubscription = await Subscription.findOneAndUpdate(
+            { userId, razorpaySubscriptionId: subscriptionId },
+            { status: "cancelled" },
+            { new: true }
+        );
+
+        return res.status(200).json({ message: "Subscription cancelled successfully" });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Failed to cancel subscription" });
     }
 };

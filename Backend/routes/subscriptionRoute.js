@@ -1,5 +1,5 @@
 import express from "express";
-import { createSubscription, getCurrentSubscription, getSubscriptionStatus, pauseSubscription, resumeSubscription } from "../controllers/subscriptionController.js";
+import { cancelSubscription, createSubscription, getCurrentSubscription, getInvoice, getSubscriptionStatus, pauseSubscription, resumeSubscription } from "../controllers/subscriptionController.js";
 
 const route = express.Router();
 
@@ -14,7 +14,15 @@ route.get("/current", getCurrentSubscription)
 route.post("/pause/:subscriptionId", pauseSubscription)
 
 // resume subscription
-route.post("/resume/:subscriptionId",resumeSubscription)
+route.post("/resume/:subscriptionId", resumeSubscription)
+
+
+// cancel subscription
+route.post("/cancel/:subscriptionId", cancelSubscription)
+
+
+// invoice 
+route.get("/invoice/:subscriptionId", getInvoice)
 
 
 export default route;

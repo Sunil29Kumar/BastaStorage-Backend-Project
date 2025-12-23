@@ -6,9 +6,12 @@ import { google } from "googleapis";
 import { oauth2Client } from "../utils/googleDriveAuthService.js";
 import User from "../models/userModel.js";
 import { ObjectId } from "mongodb";
+import { Upload } from "@aws-sdk/lib-storage";
+import { s3Client } from "../utils/s3.js";
 
 // import z from "zod/v4";
 import { sendGoogleDriveFileSchema } from "../validators/googleDriveSchema.js";
+import { generateSignedUrl } from "../utils/s3.js";
 
 // upload google drive file by downloading from Google
 export const sendGoogleDriveFile = async (req, res) => {
@@ -22,7 +25,7 @@ export const sendGoogleDriveFile = async (req, res) => {
 
     const { file } = data; // frontend se metadata aayega (id, name, mimeType, size)
     // console.log("req.file:", req.file);
-    
+
 
     const parentDirId = req.params.parentDirId || req.user.rootDirId;
     const userId = req.user._id;
@@ -53,7 +56,9 @@ export const sendGoogleDriveFile = async (req, res) => {
       extension,
       size: file.size,
       type: file.mimeType,
-      fileFrom: "googleDrive",
+      uploadedFrom: {
+        source: "Google Drive",
+      },
       timeStamp: {
         fileCreatedAt: new Date(file.createdTime),
         opened: [],
@@ -64,7 +69,6 @@ export const sendGoogleDriveFile = async (req, res) => {
 
 
     const fullFileName = `${googleDriveFileData._id}${extension}`;
-    const destPath = `./storage/google-drive-files/${fullFileName}`;
 
     // Google Drive API client
     const drive = google.drive({ version: "v3", auth: oauth2Client });
@@ -75,29 +79,30 @@ export const sendGoogleDriveFile = async (req, res) => {
       { responseType: "stream" }
     );
 
-    const dest = fs.createWriteStream(destPath);
-
-    await new Promise((resolve, reject) => {
-      driveResponse.data
-        .on("end", async () => {
-          // update size in User
-          await User.findByIdAndUpdate(
-            { _id: userId },
-            { $inc: { usedSpace: file.size } }
-          );
-          resolve();
-        })
-        .on("error", async (err) => {
-          console.error("Download error:", err);
-          await File.deleteOne({ _id: googleDriveFileData._id });
-          reject(err);
-        })
-        .pipe(dest);
+    // upload to S3
+    const upload = new Upload({
+      client: s3Client,
+      params: {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fullFileName,
+        Body: driveResponse.data, //  Google Drive stream
+        ContentType: file.mimeType,
+      },
     });
 
-    res.status(200).json({ message: "Your file has been added to BastaStorage from Google Drive" });
+    await upload.done();
+
+    // update size in User
+    await User.findByIdAndUpdate(
+      { _id: userId },
+      { $inc: { usedSpace: file.size } }
+    );
+
+    return res.status(200).json({ message: "Your file has been added to BastaStorage from Google Drive" });
+
   } catch (error) {
+
     console.error(error);
-    res.status(500).json({ message: "Failed to upload file" });
+    res.status(500).json({ message: "Failed to upload file from Google Drive" });
   }
 };

@@ -1,5 +1,5 @@
-import React, {useContext, useEffect} from "react";
-import {BastaStorageContext} from "../../hooks/Context/ContextAPI";
+import React, { useContext, useEffect } from "react";
+import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function FileUploadCancleMessage() {
   const {
@@ -7,6 +7,7 @@ function FileUploadCancleMessage() {
     isFileUploadingCancle,
     setIsFileUploaded,
     setIsFileUploadingCancle,
+    fileUploadMessage
   } = useContext(BastaStorageContext);
 
   useEffect(() => {
@@ -16,7 +17,7 @@ function FileUploadCancleMessage() {
         setIsFileUploadingCancle(false);
       }, 1500);
 
-      return ()=> clearTimeout(time)
+      return () => clearTimeout(time)
     }
   }, [
     isFileUploaded,
@@ -35,6 +36,11 @@ function FileUploadCancleMessage() {
       {isFileUploadingCancle && (
         <div className="px-4 py-3 rounded-xl bg-red-100 text-red-800 shadow-md animate-fade-in-out">
           ❌ File Upload cancelled!
+        </div>
+      )}
+      {fileUploadMessage.error && (
+        <div className="px-4 py-3 rounded-xl bg-red-100 text-red-800 shadow-md animate-fade-in-out">
+          ❌ {fileUploadMessage.error}
         </div>
       )}
     </div>

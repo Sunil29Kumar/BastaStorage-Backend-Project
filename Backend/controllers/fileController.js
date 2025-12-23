@@ -12,6 +12,7 @@ import inviteUserByEmail from "../utils/inviteUserByEmail.js";
 import { createFileSchema, renameFileSchema } from "../validators/fileSchema.js";
 import z from "zod/v4";
 import { createGetSignedUrl, deleteFileFromS3, generateSignedUrl } from "../utils/s3.js";
+import Subscription from '../models/subscriptionModel.js';
 
 
 
@@ -27,19 +28,23 @@ export const createFile = async (req, res) => {
     return res.status(400).json({ error: z.flattenError(error).fieldErrors });
   }
 
-  const { fileName, fileType, fileSize } = req.body;
 
+  const { fileName, fileType, fileSize } = req.body;
 
   if (!fileName || !fileType) {
     return res.status(400).json({ error: "File is required." });
   }
 
-
   const parentDirId = data.params.parentDirId || req.user.rootDirId;
   const userId = req.user._id;
 
-  try {
+  // validate user subscription status is paused or not
+  const subscription = await Subscription.findOne({ userId: req.user._id });
+  if (subscription.status === "paused") {
+    return res.status(403).json({ error: "Your Subscription is paused. File upload is not allowed." });
+  }
 
+  try {
     const parentDirData = await Directorie.findOne({
       _id: new ObjectId(parentDirId),
       userId
@@ -75,7 +80,9 @@ export const createFile = async (req, res) => {
       extension,
       size: size,
       type: fileType,
-      fileFrom: "local",
+      uploadedFrom: {
+        source: "Local Storage",
+      },
       timeStamp: {
         fileCreatedAt: new Date(),
         opened: [],
@@ -94,6 +101,8 @@ export const createFile = async (req, res) => {
 
     //  Get signed URL from s3Controller
     const { uploadURL, fileUrl } = await generateSignedUrl({ fileName: `${fileData._id}${fileData.extension}`, fileType });
+    console.log("uurl =",uploadURL);
+    
 
 
     return res.status(200).json({ message: "File Uploaded", uploadURL });
@@ -170,7 +179,7 @@ export const renameFile = async (req, res) => {
       file.name = newFileName;
       file.timeStamp.lastModified.push(new Date());
       file.save();
-      return res.status(200).json({ message: "File Renamed" });
+      return res.status(200).json({ message: `File Renamed to ${newFileName}` });
     }
 
     // check shared with edit permission 
@@ -186,7 +195,7 @@ export const renameFile = async (req, res) => {
 
 
 
-    return res.status(200).json({ message: "File Renamed" });
+    return res.status(200).json({ message: `File Renamed to ${newFileName}` });
   } catch (error) {
     return res.status(404).json({ error: "File not renamed" });
   }
@@ -219,7 +228,7 @@ export const deleteFile = async (req, res) => {
     user.usedSpace -= fileData.size;
     await user.save();
 
-    return res.status(200).json({ message: "File Deleted Successfully" });
+    return res.status(200).json({ message: ` ${fileData.name} File Deleted Successfully` });
 
   } catch (err) {
     console.error("Delete file error:", err);

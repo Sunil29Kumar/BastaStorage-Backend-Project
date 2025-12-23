@@ -1,6 +1,5 @@
-export default function PlanCard({ plan, onSelect, currentSubscription, handlePauseSubscription,handleResumeSubscription }) {
-    const isCurrent = plan.id === currentSubscription?.planId && currentSubscription?.status === "active";
-    const isPaused = plan.id === currentSubscription?.planId && currentSubscription?.status === "paused";
+export default function PlanCard({ plan, onSelect, currentSubscription }) {
+
 
     return (
         <div
@@ -21,11 +20,11 @@ export default function PlanCard({ plan, onSelect, currentSubscription, handlePa
             )}
 
             {/* Current Plan Badge */}
-            {currentSubscription?.planId === plan.id && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xl px-4 py-1 font-semibold rounded-full shadow">
+            {/* {currentSubscription?.planId === plan.id && (
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white text-md px-4 py-1 font-semibold rounded-full shadow">
                     ✔ Current Plan
                 </div>
-            )}
+            )} */}
 
             {/* Header */}
             <div className="mb-4 flex items-center justify-between">
@@ -73,37 +72,26 @@ export default function PlanCard({ plan, onSelect, currentSubscription, handlePa
             </ul>
 
             {/* CTA Button */}
-            {isCurrent || isPaused ? (
-                isPaused ? <div className="flex gap-3">
-                    <button
-                        onClick={() => handleResumeSubscription(currentSubscription?.razorpaySubscriptionId)}
-                        className="w-1/2 py-3 rounded-xl bg-yellow-500 text-white font-semibold hover:bg-yellow-600 transition">
-                        Resume
-                    </button>
+
+
+            {currentSubscription?.planId === plan.id ?
+                <div className=" bg-green-600 text-white text-md text-center px-4 py-3 font-semibold rounded-full shadow">
+                    ✔ Current Plan
                 </div>
-                    :
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => handlePauseSubscription(currentSubscription?.razorpaySubscriptionId)}
-                            className="w-1/2 py-3 rounded-xl bg-yellow-500 text-white font-semibold hover:bg-yellow-600 transition">
-                            Pause
-                        </button>
-                        <button className="w-1/2 py-3 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition">
-                            Cancel
-                        </button>
-                    </div>
-            ) : (
+                :
                 <button
                     onClick={() => onSelect(plan)}
                     className={`mt-auto w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all
                     ${plan.popular
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : "bg-slate-900 text-white hover:bg-slate-800"
-                        }`}
+                        } `}
                 >
                     {plan.cta}
                 </button>
-            )}
+            }
+
+
         </div>
     );
 }

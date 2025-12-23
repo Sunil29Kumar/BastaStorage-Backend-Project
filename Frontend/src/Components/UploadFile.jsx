@@ -1,28 +1,55 @@
 import { useContext } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
+import { FaCloudUploadAlt } from "react-icons/fa";
 
 function UploadFile() {
-  const { uploadFile, setNewFilename, newFilename, setIsGDBoxOpen, setShowInputBox, isDarkMode } =
-    useContext(BastaStorageContext);
+  const {
+    uploadFile,
+    setIsGDBoxOpen,
+    setShowInputBox,
+    isDarkMode,
+    isNavMinimized
+  } = useContext(BastaStorageContext);
 
   return (
-    <div className=" ">
-      <label
-        className={`flex items-center gap-2 px-3 py-2 cursor-pointer  transition ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}
+    <label
+      className={`
+        w-full flex items-center gap-3
+        px-4 py-3 rounded-lg
+        cursor-pointer
+        transition-all duration-200
+        ${isDarkMode
+          ? "text-gray-200 hover:bg-gray-700"
+          : "text-gray-700 hover:bg-gray-100"}
+      `}
+    >
+      {/* Icon */}
+      <div
+        className={`
+           rounded-md
+          ${isDarkMode ? "bg-gray-600" : "bg-green-100"}
+        `}
       >
-        <i className="ri-upload-cloud-line text-lg text-green-500"></i>
-        <input
-          type="file"
-          name="file"
-          onClick={() => {
-            setIsGDBoxOpen(false)
-            setShowInputBox(false)
-          }}
-          onChange={uploadFile}
-          className="hidden" />
-        <span>Upload File</span>
-      </label>
-    </div>
+        <FaCloudUploadAlt
+          className={`${isDarkMode ? "text-green-400 text-3xl" : "text-green-600 text-2xl"}`}
+        />
+      </div>
+
+      {/* Text */}
+      {!isNavMinimized && <span className="text-sm font-medium">Upload file</span>}
+
+      {/* Hidden Input */}
+      <input
+        type="file"
+        name="file"
+        onClick={() => {
+          setIsGDBoxOpen(false);
+          setShowInputBox(false);
+        }}
+        onChange={(e) => uploadFile(e)}
+        className="hidden"
+      />
+    </label>
   );
 }
 

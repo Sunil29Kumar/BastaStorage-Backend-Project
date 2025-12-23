@@ -21,9 +21,8 @@ function RemainingStorage() {
 
   return (
     <div
-      className={`shadow-lg rounded-md p-3 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-blue-50 text-black"
-      }`}
+      className={`shadow-lg rounded-md p-3 ${isDarkMode ? "bg-gray-900 text-white" : "bg-blue-50 text-black"
+        }`}
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
@@ -34,13 +33,12 @@ function RemainingStorage() {
       {/* Progress Bar */}
       <div className="w-full h-1.5 bg-gray-300 rounded-full mb-2 overflow-hidden">
         <div
-          className={`h-1.5 ${
-            percentUsed <= 50
-              ? "bg-green-500"
-              : percentUsed >= 75
+          className={`h-1.5 ${percentUsed <= 50
+            ? "bg-green-500"
+            : percentUsed >= 75
               ? "bg-red-500"
               : "bg-blue-500"
-          }`}
+            }`}
           style={{ width: `${percentUsed}%` }}
         ></div>
       </div>
@@ -50,20 +48,20 @@ function RemainingStorage() {
         {formatBytes(used)} of {formatBytes(total)} used
       </p>
 
-      {/* Links */}
-      <Link
-        to={"/storage-dashboard"}
-        className="text-blue-400 text-sm font-medium hover:underline"
-      >
-        Get more storage
-      </Link>
-
       <div>
         <Link
           to={"/plans"}
           className="text-blue-400 text-sm font-medium hover:underline"
         >
           View Plans
+        </Link>
+      </div>
+      <div>
+        <Link
+          to={"/manage-subscription"}
+          className="text-orange-400 text-sm font-medium hover:underline"
+        >
+          Manage Plans
         </Link>
       </div>
     </div>

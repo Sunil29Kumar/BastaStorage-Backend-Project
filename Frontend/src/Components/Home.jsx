@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
-import Folder from "./File Folder List/Folder";
-import File from "./File Folder List/File";
 import Breadcrumb from "./Breadcrumb";
+import StorageCards from "./File Folder List/StorageCards";
+import QuickAccess from "./File Folder List/QuickAccess";
+import MyFilesPreview from "./File Folder List/MyFilesPreview";
 
 function Home() {
   const { isDarkMode, filesList, directoriesList } = useContext(BastaStorageContext);
@@ -10,22 +11,15 @@ function Home() {
 
 
   return (
-    <div className=" h-[100%]  ">
-      <div className=" overflow-x-auto h-[100%]">
-        {/* file folder div  */}
+    <div
+      className={`w-full h-full px-6 py-5 space-y-6 rounded-t-xl rounded-b-4xl ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"
+        }`}
+    >
 
-        {(Array.isArray(directoriesList) && directoriesList.length > 0) ||
-          (Array.isArray(filesList) && filesList.length > 0) ? (
-          <>
-            <Folder />
-            <File />
-          </>
-        ) : (
-          <div className={` w-[100%] h-full flex justify-center items-center text-[2vw]`}>
-            <p className={`   rounded-md ${isDarkMode ? "bg-gray-700 text-white" : "text-gray-800 bg-blue-100"} px-5 py-4 `}>Click + to create Folder or upload Files</p>
-          </div>
-        )}
-      </div>
+      <StorageCards />
+      <QuickAccess />
+      <MyFilesPreview />
+
     </div>
   );
 }
