@@ -2,6 +2,12 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
+export const formatBytes = (bytes) => {
+  if (bytes >= 1024 ** 4) return (bytes / 1024 ** 4).toFixed(0) + " TB";
+  if (bytes >= 1024 ** 3) return (bytes / 1024 ** 3).toFixed(0) + " GB";
+  if (bytes >= 1024 ** 2) return (bytes / 1024 ** 2).toFixed(0) + " MB";
+  return (bytes / 1024).toFixed(0) + " KB";
+};
 function RemainingStorage() {
   const { storageData, isDarkMode } = useContext(BastaStorageContext);
 
@@ -12,12 +18,7 @@ function RemainingStorage() {
   const percentUsed = (used / total) * 100;
 
   // Function: Convert bytes to readable unit
-  const formatBytes = (bytes) => {
-    if (bytes >= 1024 ** 4) return (bytes / 1024 ** 4).toFixed(0) + " TB";
-    if (bytes >= 1024 ** 3) return (bytes / 1024 ** 3).toFixed(0) + " GB";
-    if (bytes >= 1024 ** 2) return (bytes / 1024 ** 2).toFixed(0) + " MB";
-    return (bytes / 1024).toFixed(0) + " KB";
-  };
+
 
   return (
     <div

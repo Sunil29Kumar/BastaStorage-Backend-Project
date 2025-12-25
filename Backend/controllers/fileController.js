@@ -40,7 +40,7 @@ export const createFile = async (req, res) => {
 
   // validate user subscription status is paused or not
   const subscription = await Subscription.findOne({ userId: req.user._id });
-  if (subscription.status === "paused") {
+  if (subscription?.status === "paused") {
     return res.status(403).json({ error: "Your Subscription is paused. File upload is not allowed." });
   }
 

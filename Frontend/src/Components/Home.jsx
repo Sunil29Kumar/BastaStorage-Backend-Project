@@ -4,6 +4,7 @@ import Breadcrumb from "./Breadcrumb";
 import StorageCards from "./File Folder List/StorageCards";
 import QuickAccess from "./File Folder List/QuickAccess";
 import MyFilesPreview from "./File Folder List/MyFilesPreview";
+import StorageOverview from "./Total Storage/StorageOverview ";
 
 function Home() {
   const { isDarkMode, filesList, directoriesList } = useContext(BastaStorageContext);

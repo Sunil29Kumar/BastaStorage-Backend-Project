@@ -62,13 +62,29 @@ function App() {
         }
       />
       <Route
-        path="/overview"
+        path="/storageOverview"
         element={
           <BastaStorageProvider>
             <BastaStoreDashboard />
           </BastaStorageProvider>
         }
       />
+      <Route
+        path="/storageAnalytics"
+        element={
+          <BastaStorageProvider>
+            <BastaStoreDashboard />
+          </BastaStorageProvider>
+        }
+      />
+      {/* <Route
+        path="/overview"
+        element={
+          <BastaStorageProvider>
+            <BastaStoreDashboard />
+          </BastaStorageProvider>
+        }
+      /> */}
 
       <Route
         path="/users"

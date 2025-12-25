@@ -22,6 +22,7 @@ import GoogleDriveLayout from "./Components/Google Drive/GoogleDriveLayout.jsx";
 import MyFiles from "./Components/MyFiles.jsx";
 import FileDeleteRenameMessage from "./Components/progress file folder/FileDeleteRenameMessage.jsx";
 import DirDeleteRenameMessage from "./Components/progress file folder/DirDeleteRenameMessage.jsx";
+import StorageOverview from "./Components/Total Storage/StorageOverview .jsx";
 
 
 function BastaStoreDashboard() {

@@ -713,10 +713,14 @@ function ContextAPI({ children }) {
     const formDataToSend = new FormData();
     formDataToSend.append("userPhoto", updateUserData.photo);
     formDataToSend.append("name", updateUserData.name);
+    console.log("udata =",updateUserData);
+    console.log("FormData =",formDataToSend.get("name"));
+    
 
     const response = await fetch(`${BASE_URL}/user`, {
       method: "POST",
       credentials: "include",
+      
       body: formDataToSend
     });
     const data = await response.json()

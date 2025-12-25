@@ -61,7 +61,7 @@ const fileSchema = await mongoose.Schema(
         type: String,
       },
     },
-    
+
     timeStamp: {
       fileCreatedAt: {
         type: Date,

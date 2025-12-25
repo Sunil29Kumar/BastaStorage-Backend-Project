@@ -2,7 +2,6 @@
 import { useContext, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
-import RemainingStorage from "./Total Storage/RemainingStorage";
 import UpgradePlanCard from "./Total Storage/UpgradePlan";
 
 
@@ -61,8 +60,8 @@ function SideBar() {
             </Link>
 
             <Link
-              to="/storage"
-              className={`${baseClass} ${location.pathname === "/storage" && activeClass
+              to="/storageOverview"
+              className={`${baseClass} ${location.pathname === "/storageOverview" && activeClass
                 }`}
             >
               <i className={`ri-cloud-line ${isNavMinimized ? "text-xl" : "text-xl"} `}></i> {!isNavMinimized && "Storage"}
@@ -74,7 +73,9 @@ function SideBar() {
         {/* REPORTS */}
         <div>
           <p className={`text-sm text-gray-400 mb-1 ${isNavMinimized ? "text-center" : ""} `}>Reports</p>
-          <Link to="/analytics" className={baseClass}>
+          <Link to="/storageAnalytics"
+            className={`${baseClass} ${location.pathname === "/storageAnalytics" && activeClass
+              }`}>
             <i className={`ri-bar-chart-line ${isNavMinimized ? "text-xl" : "text-xl"} `}></i> {!isNavMinimized && "Storage Analytics"}
           </Link>
 
