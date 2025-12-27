@@ -5,7 +5,7 @@ import { formatSize } from "../../Utils/formatSize.js";
 
 function File() {
   const {
-    isDarkMode, filesList, BASE_URL, renameFile, handleDeleteFile,fileRenameMessage,fileDeleteMessage,
+    isDarkMode, filesList, BASE_URL, renameFile, handleDeleteFile, fileRenameMessage, fileDeleteMessage,
     setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
     setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied
   } = useContext(BastaStorageContext);
@@ -14,6 +14,7 @@ function File() {
   const [isShareFileHover, setIsShareFileHover] = useState(false);
   const [viewMode, setViewMode] = useState("list");
   const menuRef = useRef(null);
+
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -84,13 +85,13 @@ function File() {
               </tr>
             </thead>
             <tbody>
-              {filesList.map((file) => <ListRow key={file.id} file={file} {...actionProps} />)}
+              {filesList.filter((file) => file.status !== "initiated" && file.status !== "uploading").map((file) => <ListRow key={file.id} file={file} {...actionProps} />)}
             </tbody>
           </table>
         </div>
       ) : (
         <div className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
-          {filesList.map((file) => <GridCard key={file.id} file={file} {...actionProps} />)}
+          {filesList.filter((file) => file.status !== "initiated" && file.status !== "uploading").map((file) => <GridCard key={file.id} file={file} {...actionProps} />)}
         </div>
       )}
     </div>
@@ -101,6 +102,8 @@ function File() {
 const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData, fileRenameMessage, fileDeleteMessage }) => {
 
   const format = getFileFormatData(file.name);
+  const [isClickedOnButton, setIsClickedOnButton] = useState(false);
+
 
   return (
     <div className="relative  ">
@@ -111,17 +114,17 @@ const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, re
       {openMenueId === file.id && (
         <div ref={menuRef} className={`absolute z-100 right-0 mt-2 w-56 rounded-2xl shadow-2xlorder py-2 animate-in fade-in zoom-in duration-150 ${isDarkMode ? "bg-gray-900 border-gray-700 shadow-black" : "bg-white border-gray-100 shadow-gray-200"}`}>
 
-          <MenuBtn icon="ri-download-2-line" label="Download" 
-          onClick={() => window.open(`${BASE_URL}/file/${file.id}?action=download`)} isDarkMode={isDarkMode} />
+          <MenuBtn icon="ri-download-2-line" label="Download"
+            onClick={() => window.open(`${BASE_URL}/file/${file.id}?action=download`)} isDarkMode={isDarkMode} />
 
           <MenuBtn icon="ri-edit-line" label="Rename"
-           onClick={() => { renameFile(file.id, file.name); setShowFileRenameInputBox(true); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
+            onClick={() => { renameFile(file.id, file.name); setShowFileRenameInputBox(true); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
 
-          <MenuBtn icon="ri-information-line" label="File Info" 
-          onClick={() => {
-            setFileInfo([{ fileId: file.id, icon: format.icon, fileName: file.name, fileSize: formatSize(file.size), fileCreationDate: file.timeStamp.fileCreatedAt, fileOpenDate: file.timeStamp.opened, fileModifiedDate: file.timeStamp.lastModified, fileDownloadDate: file.timeStamp.lastDownload }]);
-            setShowFileInfo(true); setOpenMenueId(null);
-          }} isDarkMode={isDarkMode} />
+          <MenuBtn icon="ri-information-line" label="File Info"
+            onClick={() => {
+              setFileInfo([{ fileId: file.id, icon: format.icon, fileName: file.name, fileSize: formatSize(file.size), fileCreationDate: file.timeStamp.fileCreatedAt, fileOpenDate: file.timeStamp.opened, fileModifiedDate: file.timeStamp.lastModified, fileDownloadDate: file.timeStamp.lastDownload }]);
+              setShowFileInfo(true); setOpenMenueId(null);
+            }} isDarkMode={isDarkMode} />
 
           <div className="relative group">
             <button onMouseEnter={() => setIsShareFileHover(true)} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${isDarkMode ? "hover:bg-gray-800" : "hover:bg-blue-50 text-blue-600"}`}>
@@ -131,17 +134,23 @@ const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, re
             {isShareFileHover && (
               <div onMouseLeave={() => setIsShareFileHover(false)} className={`absolute right-full top-0 mr-1 w-48 rounded-xl shadow-xl border p-1 animate-in slide-in-from-right-2 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"}`}>
 
-                <MenuBtn icon="ri-user-add-line" label="Share with user" 
-                onClick={() => { setShowShareFile(true); setShareFileId(file.id); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
+                <MenuBtn icon="ri-user-add-line" label="Share with user"
+                  onClick={() => { setShowShareFile(true); setShareFileId(file.id); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
 
                 <MenuBtn icon="ri-links-line" label="Copy Link"
-                 onClick={() => { shareLink(file.id); setIsShareLinkCopied(true); setOpenMenueId(null); setTimeout(() => setIsShareLinkCopied(false), 1500); }} isDarkMode={isDarkMode} />
+                  onClick={() => { shareLink(file.id); setIsShareLinkCopied(true); setOpenMenueId(null); setTimeout(() => setIsShareLinkCopied(false), 1500); }} isDarkMode={isDarkMode} />
               </div>
             )}
           </div>
           <div className="my-1 border-t border-gray-100 dark:border-gray-800" />
           <MenuBtn icon="ri-delete-bin-7-line" label="Delete" danger
-           onClick={() => { handleDeleteFile(file.id); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
+            onClick={() => {
+              handleDeleteFile(file.id); setOpenMenueId(null);
+              setIsClickedOnButton(true);
+              setTimeout(() => setIsClickedOnButton(false), 2000);
+            }}
+            isDarkMode={isDarkMode}
+            disabled={isClickedOnButton} />
         </div>
       )}
     </div>

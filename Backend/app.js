@@ -13,13 +13,15 @@ import subscriptionRoute from "./routes/subscriptionRoute.js";
 import webhookRoute from "./routes/webhookRoute.js";
 
 import { connectDB } from "./database/db.js";
-import path from "path";
+// import path from "path";
+// import { cleanupPendingUploadsJob } from "./cron/cleanupPendingUploads.js";
 
 import dotenv from "dotenv";
 dotenv.config();
 
 
 await connectDB();
+
 
 const app = express();
 
@@ -111,12 +113,6 @@ app.use(
 );
 
 
-// serving static files
-app.use(express.static("public"));
-app.use("/storage/user-photo", express.static(path.join(process.cwd(), "user-photo")));
-app.use("/storage/google-drive-files", express.static(path.join(process.cwd(), "google-drive-files")));
-app.use("/storage", express.static(path.join(process.cwd(), "storage")));
-
 // parsing data comming from frontend body
 app.use(express.json());
 
@@ -138,7 +134,7 @@ app.use("/google-drive", checkAuth, googleDriveRoute);
 
 // subscription and webhook routes
 app.use("/webhook", webhookRoute);
-app.use("/subscription",checkAuth, subscriptionRoute);
+app.use("/subscription", checkAuth, subscriptionRoute);
 
 
 // global error handler middleware

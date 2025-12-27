@@ -1,5 +1,5 @@
 import express from "express";
-import { githubCallback, googleCallback, googleDriveFilesFolder, loginWithGithub, loginWithGoogle, recoverAccount, requestRecovery, sendOTPUser, setGooglePassword, verifyOtp } from "../controllers/authController.js";
+import { getGoogleDriveFileBlob, githubCallback, googleCallback, googleDriveFilesFolder, loginWithGithub, loginWithGoogle, recoverAccount, requestRecovery, sendOTPUser, setGooglePassword, verifyOtp } from "../controllers/authController.js";
 import { githubCallbackLimiter } from "../middleware/githubCallbackLimiter.js";
 import { googleLimiter } from "../middleware/googleCallbackLimiter.js";
 import { otpLimiter } from "../middleware/otpLimiter.js";
@@ -16,11 +16,13 @@ route.get("/github/callback", githubCallbackLimiter, githubCallback);
 
 route.post("/google/login", loginWithGoogle);
 // set google password 
-route.post("/google/set-password",checkAuth, setGooglePassword);
+route.post("/google/set-password", checkAuth, setGooglePassword);
 
 route.get("/google/drive", googleDriveAuthUrl);
 route.get("/google/callback", checkAuth, googleCallback);
-route.get("/google/list-file", checkAuth, googleDriveFilesFolder);
+route.get("/google-drive/list-file", checkAuth, googleDriveFilesFolder);
+
+route.get("/google-drive/file/:fileId", checkAuth, getGoogleDriveFileBlob);
 
 // recovery account 
 route.post("/recover-request", requestRecovery)

@@ -74,7 +74,6 @@ function BastaStoreDashboard() {
         {isShareLinkCopied && <LinkCopiedMessage />}
         {((fileRenameMessage.message.length > 0 || fileRenameMessage.error.length > 0) || (fileDeleteMessage.message.length > 0 || fileDeleteMessage.error.length > 0)) && <FileDeleteRenameMessage />}
         {((dirRenameMessage.message.length > 0 || dirRenameMessage.error.length > 0) || (dirDeleteMessage.message.length > 0 || dirDeleteMessage.error.length > 0)) && <DirDeleteRenameMessage />}
-
       </div>
     </div>
   );

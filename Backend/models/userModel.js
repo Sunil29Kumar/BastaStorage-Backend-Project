@@ -28,10 +28,14 @@ const userSchema = new mongoose.Schema(
       description:
         "Password must have 6+ characters with uppercase, lowercase, number and special character",
     },
+    pictureKey: {
+      type: String,
+    },
     picture: {
       type: String,
       default: "https://static.vecteezy.com/system/resources/previews/037/336/395/non_2x/user-profile-flat-illustration-avatar-person-icon-gender-neutral-silhouette-profile-picture-free-vector.jpg"
     },
+
     totalSpace: {
       type: Number,
       default: 1024 * 1024 * 500  // 500mb

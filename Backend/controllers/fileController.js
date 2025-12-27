@@ -70,7 +70,7 @@ export const createFile = async (req, res) => {
 
     // check storage limit
     if (user.usedSpace + size > user.totalSpace) {
-      return res.status(400).json({ message: "You have exceeded your storage limit." });
+      return res.status(400).json({ error: "You have exceeded your storage limit." });
     }
 
     const fileData = await File.create({
@@ -80,6 +80,7 @@ export const createFile = async (req, res) => {
       extension,
       size: size,
       type: fileType,
+      // status: "initiated",
       uploadedFrom: {
         source: "Local Storage",
       },
@@ -101,18 +102,36 @@ export const createFile = async (req, res) => {
 
     //  Get signed URL from s3Controller
     const { uploadURL, fileUrl } = await generateSignedUrl({ fileName: `${fileData._id}${fileData.extension}`, fileType });
-    console.log("uurl =",uploadURL);
-    
+    console.log("uurl =", uploadURL);
 
-
-    return res.status(200).json({ message: "File Uploaded", uploadURL });
-
+    return res.status(200).json({ message: "File Uploaded", uploadURL, fileId: fileData._id });
 
   } catch (error) {
     return res.status(400).json({ message: "Failed to Upload" });
 
   }
 };
+
+// markFileUploaded  
+export const markFileUploaded = async (req, res) => {
+
+  const id = req.params.id;
+
+  try {
+    const file = await File.findOne({ _id: new ObjectId(id), userId: req.user._id });
+    if (!file) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    file.status = "uploaded";
+    await file.save();
+    
+    return res.status(200).json({ message: "File upload marked as completed." });
+
+  } catch (error) {
+    return res.status(500).json({ error: "Server error", details: error.message });
+  }
+
+}
 
 
 

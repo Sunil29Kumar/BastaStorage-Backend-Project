@@ -5,12 +5,15 @@ import crypto from "crypto";
 import OTP from "../models/otpModel.js";
 import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
+import { Upload } from "@aws-sdk/lib-storage";
 
 import rediclient from "../database/redis.js";
 
 // zod 
 import z from "zod/v4";
 import { loginSchema, registerSchema, updateUserRoleSchema } from "../validators/userSchema.js";
+import { createGetSignedUrl, deleteFileFromS3, generateSignedUrl, s3Client } from "../utils/s3.js";
+import path from "path";
 
 
 
@@ -215,12 +218,6 @@ export const logoutAllDevice = async (req, res) => {
   return res.status(200).json({ message: "user log out from all device" });
 };
 
-// user profile 
-export const userProfile = async (req, res) => {
-
-  const userData = { name: req.user.name, email: req.user.email, picture: req.user.picture, role: req.user.role, isPasswordSet: req.user.password ? true : false, };
-  return res.status(200).json(userData);
-}
 
 // update user profile 
 export const updateUserProfile = async (req, res) => {
@@ -228,15 +225,15 @@ export const updateUserProfile = async (req, res) => {
   const userId = req.user._id;
   const { sid } = req.signedCookies;
   const { name } = req.body;
-  console.log(req.body.name);
 
-
-  console.log(req.file);
-
+  let updateData = { name };
 
 
   if (name.length < 3) {
     return res.status(400).json({ error: "Name must be at least 3 characters long" });
+  }
+  if ( req.file && req.file.size > 5 * 1024 * 1024) {  // 5MB
+    return res.status(400).json({ error: "File size should be less than 5MB" });
   }
 
   try {
@@ -244,27 +241,66 @@ export const updateUserProfile = async (req, res) => {
     const session = await rediclient.json.get(`session:${sid}`)
     if (!session) return res.status(401).json({ error: "Unauthorized" });
 
-    // update fields
-    let updateData = { name };
-    if (req.file) {
-      updateData.picture = req.file.path;
+    // generate file key
+    const extenstion = req.file ? path.extname(req.file.originalname) : null;
+    const key = `user-profile-${userId}${extenstion}`
+
+    // delete old photo from s3 if exists
+    if (req.file && req.user.picture) {
+      deleteFileFromS3(req.user.pictureKey).catch((err) => {
+        console.log("Error deleting old profile photo from S3:", err);
+      })
     }
 
-    const updateUser = await User.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true }
-    );
 
-    return res.status(200).json({
-      message: "Profile updated successfully",
-      updateUser
-    });
+    if (req.file) {
+
+      // save user photo to s3 
+      const upload = new Upload({
+        client: s3Client,
+        params: {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: key,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype,
+        }
+      })
+      await upload.done();
+
+      // update fields
+      updateData.pictureKey = key;
+    }
+
+    const updateUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+    return res.status(200).json({ message: "Profile updated successfully", updateUser, });
+
   } catch (error) {
     console.log("Error updating profile:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
+
 };
+
+// get user profile 
+export const getUserProfile = async (req, res) => {
+
+  const userId = req.user._id;
+  try {
+    const user = await User.findById(userId).lean();
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    let signedUrl = null;
+    if (user.pictureKey) {
+      signedUrl = await createGetSignedUrl({ fileKey: user.pictureKey, fileName: user.pictureKey, download: false });
+    }
+    return res.status(200).json({ picture: signedUrl, name: user.name, email: user.email, role: user.role,isPasswordSet: req.user.password ? true : false, });
+  } catch (error) {
+    console.log("Error fetching user profile:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 
 //  ---admin user 

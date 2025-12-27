@@ -1,7 +1,8 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
+import { RiLockPasswordLine, RiCloseLine, RiShieldCheckLine, RiEyeLine, RiEyeOffLine, RiErrorWarningLine, RiCheckboxCircleLine, RiArrowLeftLine } from "react-icons/ri";
 
-function GoogleLoginSetPasswordMessage() {
+function GoogleLoginSetPasswordMessage({ onClose }) {
     const {
         setGooglePassword,
         googlePasswordSuccessMessage,
@@ -11,94 +12,122 @@ function GoogleLoginSetPasswordMessage() {
     const [showForm, setShowForm] = useState(false);
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPass, setShowPass] = useState(false);
 
+    const handleSubmit = () => {
+        setGooglePassword(password, confirmPassword);
+    };
 
     return (
-        <div className=" w-full h-full fixed top-0 left-0 bg-black/30  flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+            <div className="relative w-full max-w-[420px] bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                
+                {/* Top Decorative Element */}
+                <div className={`h-1.5 w-full ${showForm ? 'bg-emerald-500' : 'bg-blue-600'} transition-colors duration-500`} />
+                
+                {/* Close Button */}
+                <button 
+                    onClick={onClose}
+                    className="absolute right-5 top-5 p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
+                >
+                    <RiCloseLine size={24} />
+                </button>
 
-        <div className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 text-center animate-fadeIn">
-            {/* Close Icon */}
-            {/* <button
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition"
-            >
-                <i className="ri-close-line text-2xl"></i>
-            </button> */}
-
-            {!showForm ? (
-                <div>
-                    {/* Lock Icon */}
-                    <div className="flex items-center justify-center mb-4">
-                        <div className="bg-blue-100 text-blue-600 w-14 h-14 rounded-full flex items-center justify-center text-2xl">
-                            🔒
-                        </div>
-                    </div>
-
-                    <h3 className="font-bold text-2xl text-gray-900 mb-2">
-                        Set Your Password
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-                        You signed in with <span className="font-medium">Google</span>.
-                        Create a password so you can also log in using your email directly.
-                    </p>
-
-                    <button
-                        onClick={() => setShowForm(true)}
-                        className="w-full bg-blue-600 text-white font-medium px-4 py-3 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                    >
-                        Set Password
-                    </button>
-                </div>
-            ) : (
-                <div>
-                    <h3 className="font-bold text-xl text-gray-900 mb-5">
-                        Create a New Password
-                    </h3>
-
-                    {/* Password Input */}
-                    <input
-                        type="password"
-                        placeholder="New Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className=" text-black w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    />
-
-                    {/* Confirm Password Input */}
-                    <input
-                        type="password"
-                        placeholder="Confirm Password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className=" text-black w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    />
-
-                    {/* Save Button */}
-                    <button
-                        onClick={() => {
-                            setGooglePassword(password, confirmPassword);
-                        }
-                        }
-                        className="w-full bg-green-600 text-white font-medium px-4 py-3 rounded-lg hover:bg-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                    >
-                        Save Password
-                    </button>
-
-                    {/* Messages */}
-                    <div className="mt-3">
-                        {googlePasswordError && (
-                            <p className="text-red-500 text-sm">{googlePasswordError}</p>
-                        )}
-                        {googlePasswordSuccessMessage && (
-                            <p className="text-green-600 text-sm">
-                                {googlePasswordSuccessMessage}
+                <div className="p-8 md:p-10">
+                    {!showForm ? (
+                        <div className="text-center">
+                            {/* Icon Container */}
+                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-blue-50 text-blue-600 mb-6 rotate-3 hover:rotate-0 transition-transform duration-300">
+                                <RiLockPasswordLine size={40} />
+                            </div>
+                            
+                            <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+                                Account Security
+                            </h3>
+                            <p className="text-gray-500 text-[15px] leading-relaxed mb-8">
+                                You're currently using <span className="font-semibold text-gray-800">Google Login</span>. 
+                                Please set a password to access your files even without Google.
                             </p>
-                        )}
-                    </div>
-                </div>
-            )}
-        </div>
-        </div>
 
+                            <button
+                                onClick={() => setShowForm(true)}
+                                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 active:scale-[0.97] transition-all shadow-xl shadow-blue-100"
+                            >
+                                <RiShieldCheckLine size={20} />
+                                Set Your Password
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="animate-in slide-in-from-right-10 duration-300">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">New Password</h3>
+                            <p className="text-sm text-gray-500 mb-8">Create a secure password for your account.</p>
+
+                            <div className="space-y-5">
+                                {/* Password Field */}
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-gray-400 uppercase ml-1">Password</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showPass ? "text" : "password"}
+                                            placeholder="Min. 8 characters"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 text-gray-900 focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-300"
+                                        />
+                                        <button 
+                                            onClick={() => setShowPass(!showPass)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
+                                        >
+                                            {showPass ? <RiEyeOffLine size={20} /> : <RiEyeLine size={20} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Confirm Password Field */}
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-gray-400 uppercase ml-1">Confirm Password</label>
+                                    <input
+                                        type="password"
+                                        placeholder="Repeat password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 text-gray-900 focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-300"
+                                    />
+                                </div>
+
+                                {/* Messages */}
+                                {(googlePasswordError || googlePasswordSuccessMessage) && (
+                                    <div className={`flex items-center gap-3 p-4 rounded-2xl animate-pulse ${
+                                        googlePasswordError ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'
+                                    }`}>
+                                        {googlePasswordError ? <RiErrorWarningLine size={20} /> : <RiCheckboxCircleLine size={20} />}
+                                        <p className="text-sm font-medium">{googlePasswordError || googlePasswordSuccessMessage}</p>
+                                    </div>
+                                )}
+
+                                <div className="pt-2 flex flex-col gap-3">
+                                    <button
+                                        onClick={handleSubmit}
+                                        disabled={!password || password !== confirmPassword}
+                                        className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-black active:scale-[0.97] transition-all shadow-lg disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed"
+                                    >
+                                        Save & Update
+                                    </button>
+
+                                    <button 
+                                        onClick={() => setShowForm(false)}
+                                        className="flex items-center justify-center gap-2 text-gray-400 text-sm font-bold hover:text-gray-600 transition-colors py-2"
+                                    >
+                                        <RiArrowLeftLine size={18} />
+                                        Back
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
     );
 }
 

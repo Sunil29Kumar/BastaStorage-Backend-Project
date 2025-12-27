@@ -2,6 +2,7 @@ import express from "express";
 import checkAuth from "../middleware/authMiddleware.js";
 import {
   getAllUsers,
+  getUserProfile,
   hardDeleteUserById,
   loginUser,
   logoutAllDevice,
@@ -11,11 +12,11 @@ import {
   softDeleteUserById,
   updateUserProfile,
   updateUserRole,
-  userProfile,
 } from "../controllers/userController.js";
 import { registerLimiter } from "../middleware/registerLimiter.js";
 import { loginLimiter } from "../middleware/loginLimiter.js";
 import userMiddleware from "../middleware/userMiddleware.js";
+import upload from "../middleware/multerMiddleware.js";
 
 const router = express.Router();
 
@@ -32,11 +33,10 @@ router.get("/user/logout", checkAuth, logoutUser);
 // logout From all device
 router.get("/user/logoutAllDevice", checkAuth, logoutAllDevice);
 
-// sending user email, name to frontend
-router.get("/user", checkAuth, userProfile);
-
 //update user profile
-router.post("/user", checkAuth, updateUserProfile);
+router.post("/user", checkAuth, upload.single("userProfile"), updateUserProfile);
+
+router.get("/user/profile", checkAuth, getUserProfile);
 
 // Authorization List all users
 router.get("/users", checkAuth, userMiddleware, getAllUsers)

@@ -2,7 +2,7 @@ import { createContext } from "react";
 import { useRef } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import axios from "axios";
 
 
 
@@ -157,6 +157,8 @@ function ContextAPI({ children }) {
   const [googleDriveFilesData, setGoogleDriveFilesData] = useState([]);
   const [isGDBoxOpen, setIsGDBoxOpen] = useState(false);
   const [googleDriveFileLoading, setGoogleDriveFileLoading] = useState(false);
+  // google drive file blob with progress
+  const [transferProgress, setTransferProgress] = useState(0);
 
   // recovery request 
   const [recoveryRequestMessage, setRecoveryRequestMessage] = useState({
@@ -360,7 +362,7 @@ function ContextAPI({ children }) {
 
       const data = await res.json();
 
-      if (res.status === 403) {
+      if (res.status === 403 || res.status === 400) {
         setFileuploadMessage({ message: "", error: data.error })
         setIsFileInProgress(false);
         setCurrentFileName("");
@@ -396,8 +398,14 @@ function ContextAPI({ children }) {
         }
       });
 
-      xhr.addEventListener("load", () => {
+      xhr.addEventListener("load", async () => {
         if (xhr.status === 200) {
+
+          // Step 3: Notify backend that upload is complete
+          await fetch(`${BASE_URL}/file/complete/${data.fileId}`, {
+            method: "POST",
+            credentials: "include",
+          });
 
           // console.log("✅ Uploaded to S3 successfully");
           setIsFileInProgress(false);
@@ -685,42 +693,17 @@ function ContextAPI({ children }) {
     }
   }
 
-  // get / fetch user data after login
-  async function fetchUserData() {
-
-    const response = await fetch(`${BASE_URL}/user`, {
-      credentials: "include",
-    });
-
-    if (response.ok) {
-      const userData = await response.json();
-      setStoreUserData(userData);
-      setLoggedIn(true);
-      await getDirectoryItems();
-    } else {
-      setLoggedIn(false);
-
-
-    }
-  }
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
   // update user data  ( name and photo ) 
   async function updateUserData(updateUserData) {
 
     const formDataToSend = new FormData();
-    formDataToSend.append("userPhoto", updateUserData.photo);
+    formDataToSend.append("userProfile", updateUserData.photo);
     formDataToSend.append("name", updateUserData.name);
-    console.log("udata =",updateUserData);
-    console.log("FormData =",formDataToSend.get("name"));
-    
 
     const response = await fetch(`${BASE_URL}/user`, {
       method: "POST",
       credentials: "include",
-      
+
       body: formDataToSend
     });
     const data = await response.json()
@@ -743,6 +726,28 @@ function ContextAPI({ children }) {
     }
 
   }
+
+  // get user profile 
+  async function getUserProfile() {
+    const response = await fetch(`${BASE_URL}/user/profile`, {
+      credentials: "include",
+    });
+    const userData = await response.json();
+    console.log("userprofle = ", userData);
+
+    if (response.ok) {
+      setStoreUserData(userData);
+      setLoggedIn(true);
+      await getDirectoryItems();
+    } else {
+      setLoggedIn(false);
+    }
+  }
+
+  useEffect(() => {
+    getUserProfile();
+  }, []);
+
 
   // get Logout request
   async function handleLogout() {
@@ -852,8 +857,7 @@ function ContextAPI({ children }) {
       setLoginWithGoogleMessage(data);
 
       // fetch user data
-
-      const res = await fetch(`${BASE_URL}/user`, {
+      const res = await fetch(`${BASE_URL}/user/profile`, {
         credentials: "include",
       });
 
@@ -887,7 +891,7 @@ function ContextAPI({ children }) {
       setGooglePasswordError('');
 
       setTimeout(() => {
-        fetchUserData();
+        getUserProfile();
       }, 1500);
 
 
@@ -895,11 +899,8 @@ function ContextAPI({ children }) {
     else if (response.status === 400) {
       setGooglePasswordSuccessMessage("");
       setGooglePasswordError(data.error);
-
     }
-
   }
-
 
 
 
@@ -930,44 +931,79 @@ function ContextAPI({ children }) {
 
   // get Google Drive files
   async function getGoogleDriveFilesFolder() {
-    const response = await fetch(`${BASE_URL}/auth/google/list-file`, {
+    const response = await fetch(`${BASE_URL}/auth/google-drive/list-file`, {
       credentials: "include",
     });
     const data = await response.json();
-    // console.log("drivefile=>", data);
 
     if (response.ok) {
-      // console.log("Google Drive files:", data.files);
       setGoogleDriveFilesData(data.files);
     } else {
       console.error("Failed to fetch Google Drive files:", data.error);
     }
   }
 
+
+
   // send google drive files data to backend
   async function sendDriveFilesData(file) {
+    setTransferProgress(0);
     setGoogleDriveFileLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}/google-drive/file/${dirId || ""}`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
+
+      // step 1: get file blob from google drive for file progress
+      const response = await axios({
+        url: `${BASE_URL}/auth/google-drive/file/${file.id}`,
+        method: 'GET',
+        responseType: 'blob',
+        // YEH LINE SABSE ZARURI HAI COOKIES KE LIYE
+        withCredentials: true,
+
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setTransferProgress(percentage);
+            console.log("progress ", percentage);
+          }
         },
-        body: JSON.stringify({ file })
       });
-      const data = await response.json()
-      console.log(data);
-      if (response.ok) {
-        setGoogleDriveFileLoading(false);
-        getDirectoryItems();
-        setIsGDBoxOpen(false);
+
+
+      if (response.statusText === "OK" || response.status === 200) {
+
+        const response = await fetch(`${BASE_URL}/google-drive/file/${dirId || ""}`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ file })
+        });
+        const data = await response.json()
+        if (response.ok) {
+          setFileuploadMessage({ message: data.message, error: "" })
+          setTimeout(() => setTransferProgress(0), 2000);
+          setGoogleDriveFileLoading(false);
+          getDirectoryItems();
+          setTimeout(() => {
+            setFileuploadMessage({ message: "", error: "" })
+          }, 4000);
+        }
+        else {
+          setFileuploadMessage({ message: "", error: data.error })
+          setGoogleDriveFileLoading(false);
+          setTimeout(() => {
+            setFileuploadMessage({ message: "", error: "" })
+          }, 4000);
+        }
       }
-      else {
-        console.error("Failed to send Google Drive file:", data.error);
-      }
+
+
     } catch (error) {
-      console.error("Error sending Google Drive file:", error);
+      console.error("Error sending Google Drive file data:", error);
+      setTransferProgress(0);
+      setGoogleDriveFileLoading(false);
+
     }
 
   }
@@ -1436,10 +1472,8 @@ function ContextAPI({ children }) {
         //--- logout,    
         showLogOutBox, setShowLogOutBox, accountMenu, setAccountMenu, storeUserData, setStoreUserData,
 
-        // fetch user data 
-        fetchUserData,
         // update user data 
-        updateUserData, isUpdatedUserData, userUpdateMessage, setIsUpdatedUserData,
+        updateUserData, getUserProfile, isUpdatedUserData, userUpdateMessage, setIsUpdatedUserData,
 
         // all user 
         allUsers, getAllUsers,
@@ -1510,7 +1544,7 @@ function ContextAPI({ children }) {
         setIsManageProfileShowing,
 
         // googleDriveFiles 
-        googleDriveFiles, getGoogleDriveFilesFolder, googleDriveFilesData, isGDBoxOpen, setIsGDBoxOpen,
+        googleDriveFiles, getGoogleDriveFilesFolder, googleDriveFilesData, isGDBoxOpen, setIsGDBoxOpen, transferProgress,
 
         // sending google drive files data to backend 
         sendDriveFilesData,

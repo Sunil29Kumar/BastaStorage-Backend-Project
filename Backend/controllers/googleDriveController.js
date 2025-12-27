@@ -12,6 +12,7 @@ import { s3Client } from "../utils/s3.js";
 // import z from "zod/v4";
 import { sendGoogleDriveFileSchema } from "../validators/googleDriveSchema.js";
 import { generateSignedUrl } from "../utils/s3.js";
+import { z } from "zod/v4";
 
 // upload google drive file by downloading from Google
 export const sendGoogleDriveFile = async (req, res) => {
@@ -20,19 +21,19 @@ export const sendGoogleDriveFile = async (req, res) => {
     // schema 
     const { success, data, error } = sendGoogleDriveFileSchema.safeParse(req.body)
     if (!success) {
+      // return res.status(400).json({ error: z.flattenError(error).fieldErrors })
       return res.status(400).json({ error: z.flattenError(error).fieldErrors })
     }
 
     const { file } = data; // frontend se metadata aayega (id, name, mimeType, size)
     // console.log("req.file:", req.file);
 
-
     const parentDirId = req.params.parentDirId || req.user.rootDirId;
     const userId = req.user._id;
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
     // parent dir check
@@ -42,7 +43,7 @@ export const sendGoogleDriveFile = async (req, res) => {
     });
 
     if (!parentDirData) {
-      return res.status(400).json({ message: "Parent Directory not found" });
+      return res.status(400).json({ error: "Parent Directory not found" });
     }
 
     // extension
@@ -56,6 +57,7 @@ export const sendGoogleDriveFile = async (req, res) => {
       extension,
       size: file.size,
       type: file.mimeType,
+      status: "uploaded",
       uploadedFrom: {
         source: "Google Drive",
       },
@@ -98,11 +100,11 @@ export const sendGoogleDriveFile = async (req, res) => {
       { $inc: { usedSpace: file.size } }
     );
 
-    return res.status(200).json({ message: "Your file has been added to BastaStorage from Google Drive" });
+    return res.status(200).json({ message: `Your file ${file.name} has been added to BastaStorage from Google Drive` });
 
   } catch (error) {
 
     console.error(error);
-    res.status(500).json({ message: "Failed to upload file from Google Drive" });
+    res.status(500).json({ error: "Failed to upload file from Google Drive" });
   }
 };

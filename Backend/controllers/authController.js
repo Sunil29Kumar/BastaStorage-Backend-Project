@@ -20,7 +20,7 @@ import RecoveryEmail from "../models/recoveryEmailModel.js";
 import rediclient from "../database/redis.js";
 
 // zod 
-import z from "zod/v4";
+import z, { promise } from "zod/v4";
 import { otpSchema, sendOtpSchema, setGooglePasswordSchema } from "../validators/authSchema.js";
 
 
@@ -415,7 +415,7 @@ export const googleCallback = async (req, res) => {
 
 
     if (existingGoogleToken) {
-      if (existingGoogleToken.tokens.expiry_date <= Date.now()) {
+      if (existingGoogleToken?.tokens.expiry_date <= Date.now()) {
         const newAccessToken = await getNewAccessToken(existingGoogleToken.tokens.refresh_token)
         await GoogleTokens.updateOne(
           { userId },
@@ -424,9 +424,9 @@ export const googleCallback = async (req, res) => {
               "tokens.access_token": newAccessToken.access_token,
               "tokens.expiry_date": newAccessToken.expiry_date
             }
-          })
+          }
+        )
       }
-
     }
 
     return res.send(`
@@ -458,7 +458,7 @@ export const googleDriveFilesFolder = async (req, res) => {
     });
 
     // console.log("Files in folder:", result.data.files);
-    res.json({ files: result.data.files });
+    return res.status(200).json({ files: result.data.files });
 
   } catch (err) {
     console.error("Error in Google Drive Files Folder:", err);
@@ -466,6 +466,39 @@ export const googleDriveFilesFolder = async (req, res) => {
   }
 };
 
+
+// get google drive file blob by file id 
+export const getGoogleDriveFileBlob = async (req, res) => {
+  const userId = req.user._id;
+  const fileId = req.params.fileId;
+
+  try {
+    const googleToken = await GoogleTokens.findOne({ userId });
+    oauth2Client.setCredentials(googleToken.tokens);
+    const drive = google.drive({ version: "v3", auth: oauth2Client });
+
+    // 1. Pehle file ka metadata lein (taaki MimeType pata chale)
+    const metadata = await drive.files.get({ fileId: fileId, fields: "mimeType, name , size" });
+
+    // 2. Ab media fetch karein
+    const driveResponse = await drive.files.get(
+      { fileId: fileId, alt: "media" },
+      { responseType: "stream" }
+    );
+
+    // 3. Headers set karein (Zaroori Fix)
+    res.setHeader("Content-Type", metadata.data.mimeType);
+    res.setHeader("Content-Disposition", `attachment; filename="${metadata.data.name}"`);
+    res.setHeader("Content-Length", metadata.data.size);
+    // res.setHeader("token", "google-drive");
+
+    driveResponse.data.pipe(res);
+
+  } catch (err) {
+    console.error("Error in Google Drive File Blob:", err);
+    res.status(500).send("Google Drive API failed");
+  }
+};
 
 // request recovery  
 export const requestRecovery = async (req, res) => {

@@ -27,6 +27,11 @@ const fileSchema = await mongoose.Schema(
     URL: {
       type: String,
     },
+    status: {
+      type: String,
+      enum: ["initiated", "uploaded"],
+      default: "initiated",
+    },
 
     sharedWith: [
       {
@@ -78,6 +83,16 @@ const fileSchema = await mongoose.Schema(
     },
   },
   { timestamps: false, statics: "throw" }
+);
+
+fileSchema.index(
+  { "timeStamp.fileCreatedAt": 1 },
+  {
+    expireAfterSeconds: 30, // 0.5 min
+    partialFilterExpression: {
+      status: { $in: ["initiated", "uploading"] },
+    },
+  }
 );
 
 const File = mongoose.model("File", fileSchema);

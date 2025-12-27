@@ -8,7 +8,8 @@ function GoogleDrive() {
     googleDriveFiles,
     setIsGDBoxOpen,
     googleDriveFilesData,
-    isNavMinimized
+    isNavMinimized,
+    setIsNavMinimized
   } = useContext(BastaStorageContext);
 
   const handleClick = () => {
@@ -21,7 +22,10 @@ function GoogleDrive() {
 
   return (
     <button
-      onClick={handleClick}
+      onClick={() => {
+        handleClick()
+        setIsNavMinimized(true);
+      }}
       className={`
         w-full flex items-center gap-3
         ${isNavMinimized ? "px-2 py-2" : "px-4 py-2"} rounded-lg

@@ -43,6 +43,11 @@ function FileUploadCancleMessage() {
           ❌ {fileUploadMessage.error}
         </div>
       )}
+      {fileUploadMessage.message && (
+        <div className="px-4 py-3 rounded-xl bg-green-100 text-green-800 shadow-md animate-fade-in-out">
+          {fileUploadMessage.message}
+        </div>
+      )}
     </div>
   );
 }
