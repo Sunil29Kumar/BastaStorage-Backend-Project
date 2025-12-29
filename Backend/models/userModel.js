@@ -62,6 +62,15 @@ const userSchema = new mongoose.Schema(
       enum: ["email", "google", "github"],
       default: "email"
     },
+    userIs: {
+      type: String,
+      enum: ["free", "pro"],
+      default: "free"
+    },
+    subscriptionTier: {
+      type: String,
+      enum: ["starter", "pro", "ultimate"],
+    },
     userTimeStamp: {
       userCreatedAt: {
         type: Date,

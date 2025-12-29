@@ -45,15 +45,17 @@ function File() {
   };
 
   return (
-    <div className={`mt-1 p-5 rounded-2xl transition-all  ${isDarkMode ? "bg-gray-900/40 border border-gray-800 text-white" : "bg-white shadow-sm border border-gray-100 text-gray-800"}`}>
+    <div className={`mt-1 p-5 rounded-t-4xl rounded-b-xl transition-all  ${isDarkMode ? "bg-[#111315] border border-white/5" : "bg-white shadow-sm border border-gray-100 text-gray-800"}`}>
 
       {/* --- Header --- */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <i className="ri-file-3-line text-2xl "></i>
+       <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
+            <i className="ri-file-list-3-fill text-2xl text-blue-500"></i>
+          </div>
           <div>
-            <h4 className="text-xl font-bold tracking-tight">Files</h4>
-            <p className="text-xs opacity-50 font-medium">{filesList.length} items stored</p>
+            <h4 className="text-xl font-black tracking-tight">Files</h4>
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-30 mt-0.5">{filesList.length} items stored</p>
           </div>
         </div>
 
@@ -107,52 +109,51 @@ const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, re
 
   return (
     <div className="relative  ">
-      <button onClick={(e) => { e.preventDefault(); setOpenMenueId(openMenueId === file.id ? null : file.id); }} className={`p-2 rounded-full transition-all ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}>
+      <button onClick={(e) => { e.preventDefault(); setOpenMenueId(openMenueId === file.id ? null : file.id); }} className={`p-2 rounded-full transition-all cursor-pointer ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}>
         <i className="ri-more-2-fill text-lg"></i>
       </button>
 
-      {openMenueId === file.id && (
-        <div ref={menuRef} className={`absolute z-100 right-0 mt-2 w-56 rounded-2xl shadow-2xlorder py-2 animate-in fade-in zoom-in duration-150 ${isDarkMode ? "bg-gray-900 border-gray-700 shadow-black" : "bg-white border-gray-100 shadow-gray-200"}`}>
+     {openMenueId === file.id && (
+        <div ref={menuRef} className={`absolute z-[110] right-0 mt-3 w-56 rounded-xl shadow-2xl border py-2 animate-in fade-in zoom-in duration-200 backdrop-blur-xl ${isDarkMode ? "bg-gray-900/95 border-white/10 shadow-black" : "bg-gray-50 border-gray-100 shadow-blue-500/10"}`}>
+          
+          <div className={`px-5 py-2 text-[10px] font-black text-start uppercase tracking-[0.15em] opacity-30 border-b mb-1 ${isDarkMode ? 'border-white/5' : 'border-gray-50'}`}>
+            File Management
+          </div>
 
-          <MenuBtn icon="ri-download-2-line" label="Download"
+          <MenuBtn icon="ri-download-cloud-2-line" label="Download"
             onClick={() => window.open(`${BASE_URL}/file/${file.id}?action=download`)} isDarkMode={isDarkMode} />
 
-          <MenuBtn icon="ri-edit-line" label="Rename"
+          <MenuBtn icon="ri-edit-circle-line" label="Rename"
             onClick={() => { renameFile(file.id, file.name); setShowFileRenameInputBox(true); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
 
-          <MenuBtn icon="ri-information-line" label="File Info"
+          <MenuBtn icon="ri-information-fill" label="File Info"
             onClick={() => {
               setFileInfo([{ fileId: file.id, icon: format.icon, fileName: file.name, fileSize: formatSize(file.size), fileCreationDate: file.timeStamp.fileCreatedAt, fileOpenDate: file.timeStamp.opened, fileModifiedDate: file.timeStamp.lastModified, fileDownloadDate: file.timeStamp.lastDownload }]);
               setShowFileInfo(true); setOpenMenueId(null);
             }} isDarkMode={isDarkMode} />
 
           <div className="relative group">
-            <button onMouseEnter={() => setIsShareFileHover(true)} className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${isDarkMode ? "hover:bg-gray-800" : "hover:bg-blue-50 text-blue-600"}`}>
-              <span className="flex items-center gap-3"><i className="ri-share-line text-lg"></i> Share</span>
+            <button onMouseEnter={() => setIsShareFileHover(true)} 
+              className={`w-full flex items-center justify-between px-4 py-2.5 text-[12px] font-bold transition-all ${isDarkMode ? "text-gray-300 hover:bg-white/5 hover:text-blue-400" : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"}`}>
+              <span className="flex items-center gap-3"><i className="ri-share-forward-line text-lg"></i> Share</span>
               <i className="ri-arrow-right-s-line"></i>
             </button>
             {isShareFileHover && (
-              <div onMouseLeave={() => setIsShareFileHover(false)} className={`absolute right-full top-0 mr-1 w-48 rounded-xl shadow-xl border p-1 animate-in slide-in-from-right-2 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"}`}>
-
-                <MenuBtn icon="ri-user-add-line" label="Share with user"
+              <div onMouseLeave={() => setIsShareFileHover(false)} className={`absolute right-full top-0 mr-2 w-48 rounded-xl shadow-2xl border p-1 animate-in slide-in-from-right-2 backdrop-blur-xl ${isDarkMode ? "bg-gray-900/95 border-white/10 shadow-black" : "bg-white border-gray-100"}`}>
+                <MenuBtn icon="ri-user-add-line" label="Direct Share"
                   onClick={() => { setShowShareFile(true); setShareFileId(file.id); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
-
-                <MenuBtn icon="ri-links-line" label="Copy Link"
+                <MenuBtn icon="ri-links-line" label="Copy URL"
                   onClick={() => { shareLink(file.id); setIsShareLinkCopied(true); setOpenMenueId(null); setTimeout(() => setIsShareLinkCopied(false), 1500); }} isDarkMode={isDarkMode} />
               </div>
             )}
           </div>
-          <div className="my-1 border-t border-gray-100 dark:border-gray-800" />
-          <MenuBtn icon="ri-delete-bin-7-line" label="Delete" danger
-            onClick={() => {
-              handleDeleteFile(file.id); setOpenMenueId(null);
-              setIsClickedOnButton(true);
-              setTimeout(() => setIsClickedOnButton(false), 2000);
-            }}
-            isDarkMode={isDarkMode}
-            disabled={isClickedOnButton} />
+          <div className={`my-1 border-t ${isDarkMode ? 'border-white/5' : 'border-gray-50'}`} />
+          <MenuBtn icon="ri-delete-bin-line" label="Delete" danger
+            onClick={() => { handleDeleteFile(file.id); setOpenMenueId(null); }}
+            isDarkMode={isDarkMode} />
         </div>
       )}
+
     </div>
   );
 };

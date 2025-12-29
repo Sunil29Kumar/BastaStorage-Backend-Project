@@ -1,0 +1,202 @@
+🔐 SaaS Storage Platform – Industry Standard Plan Behavior
+
+(Zoho / Google Drive / Dropbox jaise platforms ka real flow)
+
+1️⃣ Plan States (MOST IMPORTANT)
+
+Har subscription sirf active / cancelled nahi hoti.
+Industry me states hoti hain:
+
+State	Meaning
+free	Free plan
+active	Paid & usable
+paused	Temporarily stopped
+cancelled	Will end at cycle_end
+expired	Billing period khatam
+past_due	Payment failed
+grace_period	Limited access
+
+👉 Tumhe bhi yahi states rakhni chahiye
+
+
+2️⃣ Free Plan (Default)
+
+✔ User ko signup pe free storage
+✔ Limited features
+Free plan permissions ( 500 MB storage )
+
+Upload	👍🏼
+Download	👍🏼
+Rename , delete , view 👍🏼
+20 Folder Only can create  👍🏼
+20 file only Share	👍🏼
+upload file from GD (only 20 Files less then 50mb)  👍🏼
+single file & folder delete option only  👍🏼
+login only in 1 device 👍🏼
+
+
+
+3️⃣ Paid Plan – ACTIVE
+
+Payment successful → webhook subscription.activated
+
+Increase storage	1TB✅
+
+Upload	👍🏼
+Download	👍🏼
+Rename , Delete, View 👍🏼
+100 Folder can create 👍🏼
+100 File  Share  👍🏼
+upload file from GD (only 100 Files less then 1gb) 👍🏼
+Multi file & folder delete option 
+Login in 2 device  👍🏼
+Invoice	👍🏼
+
+Increase storage	5TB✅
+
+Upload	
+Download	
+
+Rename , Delete, View 👍🏼
+500 Folder can create  👍🏼
+all File  Share  👍🏼
+upload file from GD (only 500 Files grater then 0mb)  👍🏼
+Multi file & folder delete option
+Login in 4 device  👍🏼
+Invoice	👍🏼
+
+Increase storage	10TB
+
+Upload	 👍🏼
+Download	 👍🏼
+Share	 👍🏼
+Rename , Delete, View 👍🏼
+unlimited Folder can create 👍🏼
+all File  Share  👍🏼
+upload file from GD (only unlimited Files grater then 0mb)  👍🏼
+Multi file & folder delete option 
+Login in 8 device  👍🏼
+Invoice	👍🏼
+
+
+4️⃣ Pause Subscription (Zoho style)
+Industry rule
+
+Pause ka matlab future billing stop,
+current paid cycle finish hone deta hai
+
+Download	✅
+View	✅
+Rename	✅
+Upload	❌
+Delete files	❌
+Share	❌
+no Files upload from GD	❌
+Storage increase	❌
+
+
+
+
+5️⃣ Resume Subscription
+Resume hone ke baad
+
+✔ Full access wapas
+✔ Same plan, same quota , same permission on the basis of plan
+
+Webhook: subscription.resumed
+
+
+
+6️⃣ Cancel Subscription (MOST CONFUSING PART)
+Zoho / Industry standard
+
+❌ Immediate cancel rarely hota hai
+
+Usually: cancel_at = cycle_end
+
+Cancellation ke baad states:
+Time	Status
+Cancel click	cancelled
+Billing end	expired
+After grace	free
+
+Permissions after CANCEL (before expiry)
+Feature	Allowed
+Upload	❌
+Download	✅
+Delete , rename	❌
+Share	❌
+no file upload from GD	❌
+
+👉 User ko data access milta hai, but modify nahi
+
+
+7️⃣ After Expiry (Cycle End ke baad)
+
+Zoho kya karta hai?
+
+✔ Data safe rakhta hai
+✔ Upload block
+✔ Storage freeze
+
+Two options (choose one)
+Option A – Strict (Zoho-like)
+
+Upload blocked
+
+Used > free quota → warning
+
+30 days grace
+
+Option B – Soft
+
+Files remain
+
+New uploads blocked
+
+Ask user to upgrade
+
+
+8️⃣ Invoice Handling (BEST PRACTICE)
+Industry rule
+
+❌ Invoice ko bar-bar fetch nahi karte
+✔ Webhook se hi store karte
+
+Best DB structure
+invoices: [{
+  invoiceId,
+  shortUrl,
+  amount,
+  periodStart,
+  periodEnd,
+  createdAt
+}]
+
+Webhook event to listen
+
+invoice.paid
+
+payment.captured
+
+
+🔐 10️⃣ Enterprise-level Features (OPTIONAL but PRO)
+
+Zoho jaisa banana ho to:
+
+✔ Grace Period (7–30 days)
+✔ Email reminders (payment fail)
+✔ Downgrade to free plan
+✔ Usage dashboard
+✔ Admin billing page
+✔ Proration (upgrade mid-cycle)
+
+🧠 FINAL SaaS RULEBOOK (BastaStorage)
+
+Golden Rules
+1️⃣ Payment logic webhook-driven ho
+2️⃣ Frontend kabhi subscription truth na bane
+3️⃣ Read-only mode use karo
+4️⃣ Never delete user data immediately
+5️⃣ Storage enforcement mandatory
+6️⃣ Subscription ≠ Invoice (1 → many)

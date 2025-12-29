@@ -15,7 +15,7 @@ export const razorpayWebhookHandler = async (req, res) => {
     const expected_signature = crypto.createHmac("sha256", key).update(message).digest("hex");
 
     console.log("webhook response");
-    
+
 
     if (received_signature !== expected_signature) {
         console.log("Invalid signature:", received_signature, expected_signature);
@@ -36,8 +36,8 @@ export const razorpayWebhookHandler = async (req, res) => {
             { razorpaySubscriptionId: subscription?.id },
             {
                 // MAIN subscription fields
-                status: subscription.status,
                 planId: subscription.plan_id,
+                status: subscription.status,
                 customerId: subscription.customer_id,
 
                 startAt: new Date(subscription.start_at * 1000),
@@ -46,20 +46,25 @@ export const razorpayWebhookHandler = async (req, res) => {
                 currentEnd: new Date(subscription.current_end * 1000),
                 chargeAt: new Date(subscription.charge_at * 1000),
 
-                totalCount: subscription.total_count,
-                paidCount: subscription.paid_count,
-                remainingCount: subscription.remaining_count,
-                quantity: subscription.quantity,
+                billing: {
+                    totalCount: subscription.total_count,
+                    paidCount: subscription.paid_count,
+                    remainingCount: subscription.remaining_count,
+                    // currentCycle: subscription.current_cycle,
+                    quantity: subscription.quantity,
+                },
 
                 notes: subscription.notes,
 
                 // PAYMENT DETAILS
-                paymentId: payment.id,
-                paymentStatus: payment.status,
-                paymentMethod: payment.method,
-                paymentAmount: payment.amount / 100,    // convert paisa → rupees
-                paymentFee: payment.fee,
-                paymentCurrency: payment.currency,
+                payment: {
+                    paymentId: payment.id,
+                    paymentStatus: payment.status,
+                    paymentMethod: payment.method,
+                    paymentAmount: payment.amount / 100,
+                    paymentFee: payment.fee,
+                    paymentCurrency: payment.currency,
+                },
 
                 orderId: payment.order_id,
                 invoiceIds: payment.invoice_id ? [payment.invoice_id] : [],
@@ -68,10 +73,9 @@ export const razorpayWebhookHandler = async (req, res) => {
             { new: true }
         );
 
-
         // update user's total space based on plan
         const storageQuotaBytes = plans[planId].storageQuotaBytes;
-        await User.findByIdAndUpdate(subscriptionUpdate?.userId, { totalSpace: storageQuotaBytes });
+        await User.findByIdAndUpdate(subscriptionUpdate?.userId, { totalSpace: storageQuotaBytes, userIs: "pro" ,subscriptionTier: plans[planId].tier });
 
         console.log("subscription activated");
 
@@ -107,12 +111,22 @@ export const razorpayWebhookHandler = async (req, res) => {
         console.log("webhook cancelled payload => ", req.body.payload);
 
         const subscription = req.body.payload.subscription.entity;
+
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
             { razorpaySubscriptionId: subscription.id },
-            { status: "cancelled" },
+            {
+                status: "cancelled", cancle: {
+                    cancelAt: new Date(),
+                    // cancelReason: subscription.cancel_reason,
+                    // cancelledBy: subscription.cancelled_by,
+                }
+            },
             { new: true }
         );
+
+        await User.findByIdAndUpdate(updatedSubscription?.userId, { userIs: "free" });
+
     }
 
 

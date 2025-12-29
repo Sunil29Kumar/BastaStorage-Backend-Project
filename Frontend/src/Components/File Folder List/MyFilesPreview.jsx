@@ -25,7 +25,7 @@ function MyFilesPreview() {
     }, [currentQuickAccessFile]);
 
     return (
-        <div className={`rounded-[2rem] h-[48vh] overflow-hidden  transition-all duration-500 ${isDarkMode ? "bg-[#111315] border border-white/5" : "bg-white shadow-sm border border-gray-100"}`}>
+        <div className={`rounded-[2rem] h-[44vh] py-1 overflow-hidden  transition-all duration-500 ${isDarkMode ? "bg-[#111315] border border-white/5" : "bg-white shadow-sm border border-gray-100"}`}>
 
             {/* HEADER */}
             <div className="flex justify-between items-center px-5 py-3">

@@ -2,6 +2,7 @@ import express from "express";
 import checkAuth from "../middleware/authMiddleware.js";
 import {
   getAllUsers,
+  getUserFileDirectories,
   getUserProfile,
   hardDeleteUserById,
   loginUser,
@@ -23,6 +24,9 @@ const router = express.Router();
 
 // authintication 
 router.post("/user/register", registerLimiter, registerUser);
+
+// list user all files and directories
+router.get("/user/files-directories/list", checkAuth, getUserFileDirectories);
 
 // login route
 router.post("/user/login", loginLimiter, loginUser);

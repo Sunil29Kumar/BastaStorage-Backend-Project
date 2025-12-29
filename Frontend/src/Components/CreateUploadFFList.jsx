@@ -26,14 +26,8 @@ function CreateUploadFFList() {
     <div
       ref={menuRef}
       className={`
-        absolute bottom-14 
-        ${isNavMinimized ? "w-[5vw] left-2" : "w-[15vw] left-3"}
-        rounded-xl shadow-xl
-        border
-        backdrop-blur-md
-        flex flex-col gap-1
-        p-2
-        z-50
+        absolute 
+        ${isNavMinimized ? "w-[5vw] left-20 bottom-5 " : "w-[15vw] left-3 bottom-20 "} rounded-xl shadow-xl border backdrop-blur-md flex flex-col gap-1 p-2 z-50
         ${isDarkMode
           ? "bg-gray-900/95 border-gray-700"
           : "bg-gray-200 border-gray-200"}

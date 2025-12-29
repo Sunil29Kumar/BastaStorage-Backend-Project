@@ -1,127 +1,91 @@
-import { FaDropbox, FaGoogleDrive, FaHdd } from "react-icons/fa";
+import { FaGoogleDrive, FaHdd } from "react-icons/fa";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 import { useContext } from "react";
-// import { SiMicrosoftonedrive } from "react-icons/si";
 
 function StorageCards() {
-  const { isDarkMode, filesList, BASE_URL, storageData } = useContext(BastaStorageContext);
+  const { isDarkMode, filesList, storageData } = useContext(BastaStorageContext);
+
+  const totalGB = (storageData?.totalSpace / (1024 ** 3)).toFixed(2);
+
+  // Storage Logic
+  const getUsedBySource = (source) => {
+    return (filesList
+      .filter((file) => file.uploadedFrom?.source === source)
+      .reduce((acc, file) => acc + (file.size || 0), 0) / (1024 ** 3)).toFixed(2);
+  };
 
   const cards = [
-
     {
       name: "Local Storage",
-      used: 83,
-      total: (storageData?.totalSpace / (1024 ** 3)).toFixed(2), // in GB
-      icon: <FaHdd className="text-white text-xl" />,
-      bg: "bg-blue-500",
+      used: getUsedBySource("Local Storage"),
+      total: totalGB,
+      icon: <FaHdd />,
+      // Create New Button jaisa gradient
+      bg: "bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600",
       text: "text-white",
+      isPremium: true
     },
     {
       name: "Google Drive",
-      used: 83,
-      total: (storageData?.totalSpace / (1024 ** 3)).toFixed(2), // in GB
-
-      icon: <FaGoogleDrive className="text-blue-500 text-xl" />,
-      bg: "bg-white",
-      text: "text-gray-800",
-    },
-    // {
-    //   name: "Dropbox",
-    //   used: 67,
-    // total: (storageData?.totalSpace / (1024 ** 3)).toFixed(2), // in GB
-
-    //   icon: <FaDropbox className="text-blue-500 text-xl" />,
-    //     bg: "bg-white",
-    //   text: "text-gray-800",
-    // },
-    // {
-    //   name: "One Drive",
-    //   used: 124,
-    //   total: (storageData?.totalSpace / (1024 ** 3)).toFixed(2), // in GB
-
-    //   //   icon: < className="text-blue-600 text-xl" />,
-    //   icon: <FaGoogleDrive className="text-blue-600 text-xl" />,
-    //   bg: "bg-white",
-    //   text: "text-gray-800",
-    // },
+      used: getUsedBySource("Google Drive"),
+      total: totalGB,
+      icon: <FaGoogleDrive className="text-blue-500" />,
+      bg: isDarkMode ? "bg-gray-800 border border-white/10" : "bg-white border border-gray-100",
+      text: isDarkMode ? "text-white" : "text-gray-800",
+      isPremium: false
+    }
   ];
 
-  const usedStorage = storageData?.usedSpace || 0;
-
-
-  // find total storage used by files provider 
-  const googleDriveUsed = filesList.filter((file) => {
-    return file.uploadedFrom?.source === "Google Drive";
-  }).reduce((acc, file) => acc + (file.size || 0), 0);
-
-
-  const localStorageUsed   = filesList.filter((file) => {
-    return file.uploadedFrom?.source === "Local Storage";
-  }).reduce((acc, file) => acc + (file.size || 0), 0);
-
-
-  // update used storage in cards
-
-  cards[0].used = (localStorageUsed / (1024 ** 3)).toFixed(2); // Local Storage in GB
-  cards[1].used = (googleDriveUsed / (1024 ** 3)).toFixed(2); // Google Drive in GB
-
-  console.log(cards);
-  
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {cards.map((item, i) => {
-        const percent = Math.round((item.used / item.total) * 100);
+        const percent = Math.min(Math.round((item.used / item.total) * 100), 100) || 0;
+        const radius = 20;
+        const circumference = 2 * Math.PI * radius;
 
         return (
           <div
             key={i}
-            className={`${item.bg} ${item.text} rounded-xl p-5 shadow-md flex items-center justify-between`}
+            className={`${item.bg} ${item.text} rounded-[2rem] p-5 shadow-xl shadow-blue-500/10 transition-transform hover:scale-[1.02] duration-300 flex items-center justify-between group`}
           >
-            {/* LEFT */}
             <div className="flex items-center gap-4">
-              <div
-                className={`w-10 h-10 flex items-center justify-center rounded-lg ${item.bg === "bg-white" ? "bg-blue-50" : "bg-blue-400"
-                  }`}
-              >
-                {item.icon}
+              {/* Icon Box */}
+              <div className={`w-12 h-12 flex items-center justify-center rounded-2xl shadow-inner transition-transform group-hover:rotate-12 ${
+                item.isPremium ? "bg-white/20" : "bg-blue-50 dark:bg-blue-500/10"
+              }`}>
+                <span className="text-2xl">{item.icon}</span>
               </div>
 
               <div>
-                <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm opacity-80">
-                  {item.used} Gb / {item.total} Gb
+                <h3 className="font-bold tracking-tight">{item.name}</h3>
+                <p className={`text-xs mt-1 font-medium ${item.isPremium ? "text-blue-100" : "opacity-50"}`}>
+                  {item.used} GB / {item.total} GB
                 </p>
               </div>
             </div>
 
-            {/* RIGHT – CIRCULAR PROGRESS */}
-            <div className="relative w-12 h-12">
+            {/* CIRCULAR PROGRESS */}
+            <div className="relative w-14 h-14 flex items-center justify-center">
               <svg className="w-full h-full -rotate-90">
                 <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
+                  cx="28" cy="28" r={radius}
                   strokeWidth="4"
-                  stroke={item.bg === "bg-white" ? "#E5E7EB" : "#93C5FD"}
+                  stroke="currentColor"
                   fill="none"
+                  className={`${item.isPremium ? "opacity-20" : "opacity-10"}`}
                 />
                 <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
+                  cx="28" cy="28" r={radius}
                   strokeWidth="4"
-                  stroke={item.bg === "bg-white" ? "#3B82F6" : "#FFFFFF"}
+                  stroke={item.isPremium ? "#FFFFFF" : "#3B82F6"}
                   fill="none"
-                  strokeDasharray={2 * Math.PI * 20}
-                  strokeDashoffset={
-                    2 * Math.PI * 20 -
-                    (percent / 100) * 2 * Math.PI * 20
-                  }
+                  strokeDasharray={circumference}
+                  strokeDashoffset={circumference - (percent / 100) * circumference}
                   strokeLinecap="round"
+                  className="transition-all duration-1000 ease-out"
                 />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold">
+              <span className="absolute text-[10px] font-black uppercase">
                 {percent}%
               </span>
             </div>

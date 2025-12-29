@@ -73,8 +73,7 @@ export default function PlanCard({ plan, onSelect, currentSubscription }) {
 
             {/* CTA Button */}
 
-
-            {currentSubscription?.planId === plan.id ?
+            {(currentSubscription?.planId === plan.id && currentSubscription.status == "active") ?
                 <div className=" bg-green-600 text-white text-md text-center px-4 py-3 font-semibold rounded-full shadow">
                     ✔ Current Plan
                 </div>

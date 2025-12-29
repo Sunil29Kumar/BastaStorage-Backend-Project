@@ -99,6 +99,23 @@ export const registerUser = async (req, res, next) => {
   }
 };
 
+// list user all files and directories
+export const getUserFileDirectories = async (req, res) => {
+  const userId = req.user._id;
+  try {
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
+    const directories = await Directorie.find({ userId: user.id }).lean();
+    const files = await File.find({ userId: user.id }).lean();
+    return res.status(200).json({ directories: directories, files: files });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 // ----------- ) login user
 export const loginUser = async (req, res) => {
 
@@ -117,11 +134,13 @@ export const loginUser = async (req, res) => {
     if (user.isDeleted) {
       return res.status(403).json({ error: "Your account has been deleted. Please contact support." });
     }
+
     // update login with 
     if (user) {
       user.loginWith = "email";
       await user.save();
     }
+
     // comparing password 
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) return res.status(404).json({ error: "Invalid credentials" });
@@ -131,7 +150,21 @@ export const loginUser = async (req, res) => {
       RETURN: [],
     })
 
-    if (activeSessions.total >= 2) await rediclient.del(activeSessions.documents[0].id);
+
+    // ---->> login device limit
+    const DEVICE_LIMITS = {
+      free: 1,
+      starter: 2,
+      pro: 4,
+      ultimate: 8
+    }
+
+    const deviceLimit = user.userIs === "free" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
+
+    if (activeSessions.total >= deviceLimit) {
+      await rediclient.del(activeSessions.documents[0].id);
+    }
+
 
     // create redis session and cookie
     const sessionId = crypto.randomUUID()
@@ -144,6 +177,7 @@ export const loginUser = async (req, res) => {
     pipeline.json.set(redisKey, "$", {
       userId: user._id,
     })
+    
     // user session tracker
     pipeline.sAdd(`userSession:${user._id}`, sessionId);
     pipeline.expire(redisKey, sessionExpiry / 1000)
@@ -232,7 +266,7 @@ export const updateUserProfile = async (req, res) => {
   if (name.length < 3) {
     return res.status(400).json({ error: "Name must be at least 3 characters long" });
   }
-  if ( req.file && req.file.size > 5 * 1024 * 1024) {  // 5MB
+  if (req.file && req.file.size > 5 * 1024 * 1024) {  // 5MB
     return res.status(400).json({ error: "File size should be less than 5MB" });
   }
 
@@ -295,7 +329,7 @@ export const getUserProfile = async (req, res) => {
     if (user.pictureKey) {
       signedUrl = await createGetSignedUrl({ fileKey: user.pictureKey, fileName: user.pictureKey, download: false });
     }
-    return res.status(200).json({ picture: signedUrl, name: user.name, email: user.email, role: user.role,isPasswordSet: req.user.password ? true : false, });
+    return res.status(200).json({ picture: signedUrl, name: user.name, email: user.email, role: user.role, isPasswordSet: req.user.password ? true : false, userIs: req.user.userIs });
   } catch (error) {
     console.log("Error fetching user profile:", error);
     return res.status(500).json({ error: "Internal server error" });

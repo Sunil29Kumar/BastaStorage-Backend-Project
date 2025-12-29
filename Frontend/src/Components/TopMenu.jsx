@@ -11,13 +11,15 @@ function TopMenu() {
     toggleDarkMode,
   } = useContext(BastaStorageContext);
 
+  const pathname = useLocation().pathname;
+
   return (
     <div
-      className={`w-full h-[10vh] px-5  py-1  rounded-xl flex items-center  justify-between  ${isDarkMode ? "bg-gray-900 text-white" : ""
+      className={`w-full h-[10vh] px-2  py-1  rounded-xl flex items-center  justify-between  
         }`}
     >
       {/* SEARCH */}
-      {useLocation().pathname != "/" ? <div className="relative w-[50%]   ">
+      {(pathname === "/my-files" || pathname.startsWith("/directory/")) && <div className="relative w-[50%]   ">
         <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400" />
         <input
           type="text"
@@ -27,10 +29,14 @@ function TopMenu() {
             : "bg-gray-100 text-gray-800 placeholder-blue-400"
             }`}
         />
-      </div> :
+      </div>
+      }
+
+      {pathname === "/" ?
         <div>
           <h1 className=" text-3xl font-bold ">Home</h1>
-        </div>
+        </div> :
+        <div></div>
       }
 
       {/* RIGHT ACTIONS */}

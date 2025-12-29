@@ -47,12 +47,13 @@ function BastaStoreDashboard() {
     storeUserData,
     showShareFile,
     isShareLinkCopied,
-    isGDBoxOpen
+    isGDBoxOpen,
+    dirUploadMessage
   } = useContext(BastaStorageContext);
 
 
   return (
-    <div className={` ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"} h-[100vh]`}>
+    <div className={` ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"} h-[100vh]`}>
       <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl  flex relative  ">
         <SideBar />
         <FilesFolderList />
@@ -73,7 +74,8 @@ function BastaStoreDashboard() {
         {showShareFile && <ShareFilesDashboard />}
         {isShareLinkCopied && <LinkCopiedMessage />}
         {((fileRenameMessage.message.length > 0 || fileRenameMessage.error.length > 0) || (fileDeleteMessage.message.length > 0 || fileDeleteMessage.error.length > 0)) && <FileDeleteRenameMessage />}
-        {((dirRenameMessage.message.length > 0 || dirRenameMessage.error.length > 0) || (dirDeleteMessage.message.length > 0 || dirDeleteMessage.error.length > 0)) && <DirDeleteRenameMessage />}
+        {((dirRenameMessage.message.length > 0 || dirRenameMessage.error.length > 0) || (dirDeleteMessage.message.length > 0 || dirDeleteMessage.error.length > 0) || (dirUploadMessage.message.length > 0 || dirUploadMessage.error.length > 0)) && <DirDeleteRenameMessage />}
+
       </div>
     </div>
   );

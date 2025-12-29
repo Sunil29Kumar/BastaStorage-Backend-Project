@@ -32,6 +32,11 @@ const directorySchema = new Schema(
       },
 
     ],
+    uploadedUnderPlan: {
+      type: String,
+      enum: ["free", "basic", "pro", "enterprise"],
+      default: "free"
+    },
     folderTimeStamp: {
       folderCreatedAt: {
         type: Date,

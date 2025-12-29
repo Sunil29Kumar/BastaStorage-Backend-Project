@@ -28,7 +28,6 @@ export const createFile = async (req, res) => {
     return res.status(400).json({ error: z.flattenError(error).fieldErrors });
   }
 
-
   const { fileName, fileType, fileSize } = req.body;
 
   if (!fileName || !fileType) {
@@ -56,7 +55,6 @@ export const createFile = async (req, res) => {
         .json({ message: "Parent Directory Data is undefined" });
     }
 
-
     const filename = fileName || "untitled";
     if (!filename) {
       return res.status(400).json({ error: "Filename is required." });
@@ -65,7 +63,6 @@ export const createFile = async (req, res) => {
     const extension = path.extname(filename);
 
 
-    // find user 
     const user = await User.findById(userId);
 
     // check storage limit
@@ -73,6 +70,14 @@ export const createFile = async (req, res) => {
       return res.status(400).json({ error: "You have exceeded your storage limit." });
     }
 
+    // ckeck user is pro or free for uploaded Under Plan
+    const subscription = await Subscription.findOne({ userId: req.user._id });
+    if (subscription?.status.includes("created", "paused", "cancelled", "expired", "pending", "failed")) {
+      return res.status(403).json({ error: `Your Subscription is ${subscription.status}. File upload is not allowed.` });
+    }
+
+
+    // create file in database
     const fileData = await File.create({
       parentDirId: parentDirData._id,
       userId: req.user._id,
@@ -84,6 +89,7 @@ export const createFile = async (req, res) => {
       uploadedFrom: {
         source: "Local Storage",
       },
+      uploadedUnderPlan: user.userIs === "pro" ? "pro" : "free",
       timeStamp: {
         fileCreatedAt: new Date(),
         opened: [],
@@ -91,14 +97,6 @@ export const createFile = async (req, res) => {
         lastDownload: [],
       },
     });
-
-    // update size in User 
-    user.usedSpace += size;
-    await user.save();
-
-    // update directory size
-    parentDirData.size += size;
-    await parentDirData.save();
 
     //  Get signed URL from s3Controller
     const { uploadURL, fileUrl } = await generateSignedUrl({ fileName: `${fileData._id}${fileData.extension}`, fileType });
@@ -111,20 +109,30 @@ export const createFile = async (req, res) => {
 
   }
 };
-
 // markFileUploaded  
 export const markFileUploaded = async (req, res) => {
 
   const id = req.params.id;
+  const userId = req.user._id;
 
   try {
-    const file = await File.findOne({ _id: new ObjectId(id), userId: req.user._id });
+    const file = await File.findOne({ _id: new ObjectId(id), userId: userId });
     if (!file) {
       return res.status(404).json({ error: "File not found" });
     }
     file.status = "uploaded";
     await file.save();
-    
+
+    // update size in User 
+    const user = await User.findById(userId);
+    user.usedSpace += file.size;
+    await user.save();
+
+    // update directory size
+    const parentDirData = await Directorie.findById(file.parentDirId);
+    parentDirData.size += file.size;
+    await parentDirData.save();
+
     return res.status(200).json({ message: "File upload marked as completed." });
 
   } catch (error) {
@@ -132,7 +140,6 @@ export const markFileUploaded = async (req, res) => {
   }
 
 }
-
 
 
 // ----- get file 
@@ -150,20 +157,13 @@ export const getFile = async (req, res) => {
 
   // agar user download karna chahta hai
   if (req.query.action === "download") {
-    // response me header set kar rahe hain ki file download ho
-    // res.setHeader("Content-Disposition", `attachment; filename="${fileData.name}"`);
     const signedUrl = await createGetSignedUrl({ fileKey: `${fileData._id}${fileData.extension}`, fileName: fileData.name, download: true });
-
     return res.redirect(signedUrl);
   }
 
   // file ko browser me send kar rahe hain
   const signedUrl = await createGetSignedUrl({ fileKey: `${fileData._id}${fileData.extension}`, fileName: fileData.name, download: false });
-  // res.sendFile(signedUrl, (err) => {
-  //   if (!res.headersSent && err) {
-  //     return res.status(404).json({ error: "File not found!" });
-  //   }
-  // });
+
 
   return res.redirect(signedUrl);
 
@@ -306,15 +306,35 @@ export const shareFileThroughEmail = async (req, res) => {
   const fileId = req.params.id
 
   try {
+    // check user
     const user = await User.findOne({ email });
-
     if (!user) return res.status(404).json({ error: "Enter valid email" });
 
+    // check file
     const file = await File.findOne({ _id: fileId, userId: req.user._id });
     if (!file) return res.status(404).json({ error: "File not found" });
 
+
+    // File Share limit based on user plan 
+    const FILE_SHARE_LIMITS = {
+      free: 20,
+      starter: 500,
+      pro: 100,
+      ultimate: Infinity
+    };
+
+    const userFilesSharedCount = file.sharedWith.length;
+    const fileShareLimit = req.user.userIs === "free" ? FILE_SHARE_LIMITS.free : FILE_SHARE_LIMITS[req.user.subscriptionTier];
+
+    if (userFilesSharedCount > fileShareLimit) {
+      return res.status(403).json({ error: `You have reached the maximum number of shared users allowed for your plan.` });
+    }
+
+
+    // check if already shared 
     const existingShare = file.sharedWith.find((shared) => shared.userId.toString() === user._id.toString())
 
+    // update permission if already shared
     if (existingShare) {
       existingShare.permission = permission
     }
@@ -323,6 +343,7 @@ export const shareFileThroughEmail = async (req, res) => {
       file.sharedWith.push({ userId: user._id, permission, token });
     }
     await file.save();
+
 
     // invite by email 
     await inviteUserByEmail(req.user.email,

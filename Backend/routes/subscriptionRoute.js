@@ -20,7 +20,6 @@ route.post("/resume/:subscriptionId", resumeSubscription)
 // cancel subscription
 route.post("/cancel/:subscriptionId", cancelSubscription)
 
-
 // invoice 
 route.get("/invoice/:subscriptionId", getInvoice)
 

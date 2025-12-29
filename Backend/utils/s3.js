@@ -77,7 +77,7 @@ export async function deleteFilesFromS3(fileKeys) {
         const deleteParams = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Delete: {
-                Objects: fileKeys.map((key) => ({ Key: key })),
+                Objects: fileKeys?.map((key) => ({ Key: key })),
                 Quiet: false,
             },
         };

@@ -107,7 +107,19 @@ export const githubCallback = async (req, res, next) => {
       RETURN: []
     })
 
-    if (activeSessions.total >= 2) await rediclient.del(activeSessions.documents[0].id)
+    // ---->> login device limit
+    const DEVICE_LIMITS = {
+      free: 1,
+      starter: 2,
+      pro: 4,
+      ultimate: 8
+    }
+
+    const deviceLimit = user.userIs === "free" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
+
+    if (activeSessions.total >= deviceLimit) {
+      await rediclient.del(activeSessions.documents[0].id);
+    }
 
     // redis session 
     await rediclient.json.set(redisKey, "$", { userId: user._id.toString() })
@@ -219,7 +231,19 @@ export const loginWithGoogle = async (req, res, next) => {
       RETURN: [],
     })
 
-    if (activeSessions.total >= 2) await rediclient.del(activeSessions.documents[0].id);
+    // ---->> login device limit
+    const DEVICE_LIMITS = {
+      free: 1,
+      starter: 2,
+      pro: 4,
+      ultimate: 8
+    }
+
+    const deviceLimit = user.userIs === "free" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
+
+    if (activeSessions.total >= deviceLimit) {
+      await rediclient.del(activeSessions.documents[0].id);
+    }
 
     // create redis session and cookie
     await rediclient.json.set(redisKey, "$", { userId: user._id })
@@ -241,7 +265,6 @@ export const loginWithGoogle = async (req, res, next) => {
     }
 
     await User.updateOne({ email }, { $set: { loginWith: "google" } });
-
     return res.status(200).json({ message: "User Logged In" });
   }
 
@@ -269,6 +292,7 @@ export const loginWithGoogle = async (req, res, next) => {
       },
     );
     await user.save({ session });
+
     const directory = new Directory(
       {
         _id: rootDirId,

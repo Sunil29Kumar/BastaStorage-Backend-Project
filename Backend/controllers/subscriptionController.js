@@ -26,12 +26,11 @@ export const createSubscription = async (req, res) => {
         });
 
 
-        // check existing user
+        // check existing user subscription for same plan
         const existingSubscription = await Subscription.findOne({ userId: req.user._id, planId: planId })
         if (existingSubscription) {
             return res.status(404).json({ error: "This Plan already On Boarding" })
         }
-
 
         // Save New subscription in DB
         const newSubscription = new Subscription({
@@ -43,7 +42,6 @@ export const createSubscription = async (req, res) => {
         await newSubscription.save();
 
         console.log("new Subscription =", newSubscription);
-
 
         return res.status(200).json({ subscriptionId: subscription.id, });
 
@@ -68,6 +66,21 @@ export const getSubscriptionStatus = async (req, res) => {
         return res.status(500).json({ error: "Failed to fetch subscription status" });
     }
 };
+
+// current subscription
+export const getCurrentSubscription = async (req, res) => {
+    try {
+        const subscription = await Subscription.findOne({ userId: req.user._id });
+        if (!subscription) {
+            return res.status(404).json({ error: "No subscription found for this user" });
+        }
+        return res.status(200).json({ subscription });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Failed to fetch current subscription" });
+    }
+};
+
 
 // invoice
 export const getInvoice = async (req, res) => {
@@ -98,20 +111,6 @@ export const getInvoice = async (req, res) => {
         return res.status(500).json({ error: "Failed to get invoice" });
     }
 }
-
-// current subscription
-export const getCurrentSubscription = async (req, res) => {
-    try {
-        const subscription = await Subscription.findOne({ userId: req.user._id });
-        if (!subscription) {
-            return res.status(404).json({ error: "No subscription found for this user" });
-        }
-        return res.status(200).json({ subscription });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Failed to fetch current subscription" });
-    }
-};
 
 
 // pause subscription

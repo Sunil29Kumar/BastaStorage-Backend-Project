@@ -10,7 +10,7 @@ function MyFiles() {
   const { isDarkMode, filesList, directoriesList } = useContext(BastaStorageContext);
 
   return (
-    <div className=" rounded-md h-[90vh] rounded-b-4xl overflow-x-hidden  ">
+    <div className=" rounded-md h-[90vh]  rounded-b-4xl overflow-x-hidden  ">
       {/* Breadcrumb */}
       <Breadcrumb currentComp="My Files" />
 

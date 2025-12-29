@@ -5,21 +5,24 @@ import { Link } from 'react-router-dom';
 import { formatBytes } from './RemainingStorage';
 
 const StorageOverview = () => {
-    const { isDarkMode, storageData, filesList,BASE_URL } = useContext(BastaStorageContext);
+    const { isDarkMode, storageData, allFileDirectoriesList, BASE_URL } = useContext(BastaStorageContext);
+
 
     // --- REAL DATA CALCULATIONS ---
     const totalSpace = storageData.totalSpace || 1; // Avoid division by zero
     const usedSpace = storageData.usedSpace || 0;
     const usagePercent = (usedSpace / totalSpace) * 100;
 
+
+
     // Categorizing real file sizes
     const getStats = (typePrefix) => {
-        return filesList
-            .filter(file => typePrefix === 'others' 
-                ? !['image/', 'video/', 'application/pdf'].some(p => file.type.startsWith(p))
-                : file.type.startsWith(typePrefix))
+        return allFileDirectoriesList.files?.filter(file => typePrefix === 'others'
+            ? !['image/', 'video/', 'application/'].some((p) => file.type.startsWith(p))
+            : file.type.startsWith(typePrefix))
             .reduce((acc, file) => acc + (file.size || 0), 0);
     };
+
 
     const stats = [
         { type: "Images", size: getStats('image/'), color: "bg-blue-500", icon: <FiImage /> },
@@ -29,12 +32,11 @@ const StorageOverview = () => {
     ];
 
     // Get last 3 uploaded files for "Recent Activity"
-    const recentUploads = [...filesList].reverse().slice(0, 3);
+    const recentUploads = [...allFileDirectoriesList.files].reverse().slice(0, 3);
 
     return (
-        <div className={`w-full overflow-auto  mx-auto rounded-xl px-10 py-5  shadow-2xl transition-all duration-500 border ${
-            isDarkMode ? "bg-[#1c1f23] border-white/5 text-white shadow-black/50" : "bg-white border-gray-100 text-gray-800 shadow-gray-200/50"
-        }`}>
+        <div className={`w-full overflow-auto  mx-auto rounded-xl px-2 pt-5 pb-1  shadow-2xl transition-all duration-500  ${isDarkMode ? " border-white/5 text-white shadow-black/50" : "bg-gray-200  text-gray-800 shadow-gray-200/50"
+            }`}>
 
             {/* --- HEADER --- */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
@@ -43,7 +45,7 @@ const StorageOverview = () => {
                         <FiHardDrive />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black tracking-tighter">Storage Analysis</h2>
+                        <h2 className="text-3xl font-black tracking-tighter">Storage Overview</h2>
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-40">Live cloud infrastructure</p>
                     </div>
                 </div>
@@ -69,10 +71,10 @@ const StorageOverview = () => {
                     {stats.map((file, i) => (
                         <div
                             key={i}
-                            className={`${file.color} h-full rounded-full transition-all duration-1000 ease-in-out`}
-                            style={{ 
+                            className={`${file.color} h-full rounded-sm transition-all duration-1000 ease-in-out`}
+                            style={{
                                 width: `${(file.size / totalSpace) * 100}%`,
-                                minWidth: file.size > 0 ? '8px' : '0px' 
+                                minWidth: file.size > 0 ? '8px' : '0px'
                             }}
                         />
                     ))}
@@ -82,15 +84,14 @@ const StorageOverview = () => {
             {/* --- FILE TYPE CARDS --- */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
                 {stats.map((item, i) => (
-                    <div key={i} className={`group p-5 rounded-[2.5rem] border transition-all hover:-translate-y-2 cursor-pointer ${
-                        isDarkMode ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-gray-50 border-transparent hover:bg-white hover:shadow-2xl hover:shadow-gray-200"
-                    }`}>
+                    <div key={i} className={`group p-5 rounded-[2.5rem] border transition-all hover:-translate-y-2 cursor-pointer ${isDarkMode ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-gray-50 border-transparent hover:bg-white hover:shadow-2xl hover:shadow-gray-200"
+                        }`}>
                         <div className={`w-12 h-12 rounded-2xl mb-5 flex items-center justify-center text-white shadow-lg ${item.color}`}>
                             {item.icon}
                         </div>
                         <h4 className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">{item.type}</h4>
                         <p className="text-xl font-black mb-4">{formatBytes(item.size)}</p>
-                        
+
                         {/* Mini Bar Chart per item */}
                         <div className="w-full h-1.5 bg-black/5 dark:bg-white/10 rounded-full overflow-hidden">
                             <div className={`h-full ${item.color}`} style={{ width: `${(item.size / usedSpace) * 100 || 0}%` }}></div>
@@ -100,7 +101,7 @@ const StorageOverview = () => {
             </div>
 
             {/* --- RECENT UPLOADS --- */}
-            <div className="space-y-6">
+            <div className={`space-y-6 rounded-b-4xl p-5  ${isDarkMode ?  " bg-[#1c1f23] border-white/5 text-white shadow-black/50" : "bg-gray-200  text-gray-800 shadow-gray-200/50"}`}>
                 <div className="flex justify-between items-center">
                     <h3 className="text-[11px] font-black uppercase tracking-[0.3em] opacity-40">Recent Transactions</h3>
                     <Link to="/my-files" className="group flex items-center gap-2 text-blue-500 text-[10px] font-black uppercase tracking-widest">
@@ -110,13 +111,11 @@ const StorageOverview = () => {
 
                 <div className="grid gap-4">
                     {recentUploads.length > 0 ? recentUploads.map((file, i) => (
-                        <a href={`${BASE_URL}/file/${file.id}`} key={i} className={`flex items-center justify-between p-5 rounded-[2rem] border transition-all ${
-                            isDarkMode ? "bg-white/[0.02] border-white/5 hover:bg-white/5" : "bg-white border-gray-100 hover:shadow-lg shadow-gray-100"
-                        }`}>
+                        <a href={`${BASE_URL}/file/${file.id}`} key={i} className={`flex items-center justify-between p-5 rounded-[2rem] border transition-all ${isDarkMode ? "bg-white/[0.02] border-white/5 hover:bg-white/5" : "bg-white border-gray-100 hover:shadow-lg shadow-gray-100"
+                            }`}>
                             <div className="flex items-center gap-5">
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
-                                    isDarkMode ? "bg-white/5 text-blue-400" : "bg-blue-50 text-blue-500"
-                                }`}>
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${isDarkMode ? "bg-white/5 text-blue-400" : "bg-blue-50 text-blue-500"
+                                    }`}>
                                     <FiFileText />
                                 </div>
                                 <div>

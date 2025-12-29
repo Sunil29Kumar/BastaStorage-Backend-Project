@@ -3,7 +3,7 @@ import { BastaStorageContext } from '../../hooks/Context/ContextAPI';
 import { RiCheckboxCircleLine, RiCloseCircleLine, RiInformationLine, RiRefreshLine } from 'react-icons/ri';
 
 function DirDeleteRenameMessage() {
-    const { isDarkMode, dirRenameMessage, dirDeleteMessage } = useContext(BastaStorageContext);
+    const { isDarkMode, dirRenameMessage, dirDeleteMessage, dirUploadMessage } = useContext(BastaStorageContext);
 
     const Toast = ({ message, error, type }) => {
         if (!message && !error) return null;
@@ -58,6 +58,12 @@ function DirDeleteRenameMessage() {
                 error={dirDeleteMessage.error}
                 type="delete"
             />
+            <Toast
+                message={dirUploadMessage.message}
+                error={dirUploadMessage.error}
+                type="upload"
+            />
+
         </>
     );
 }

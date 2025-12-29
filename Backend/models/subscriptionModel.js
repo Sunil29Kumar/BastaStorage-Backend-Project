@@ -4,15 +4,12 @@ const subscriptionSchema = new Schema(
     {
         razorpaySubscriptionId: { type: String, required: true },
         planId: { type: String, required: true },
-
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Users",
             required: true,
         },
-
         customerId: { type: String },
-
         status: {
             type: String,
             enum: [
@@ -24,7 +21,7 @@ const subscriptionSchema = new Schema(
                 "expired",
                 "pending",
                 "completed",
-                "failed",
+                "failed"
             ],
             default: "created",
         },
@@ -39,11 +36,31 @@ const subscriptionSchema = new Schema(
         chargeAt: { type: Date },
 
         // Billing
-        totalCount: { type: Number },
-        paidCount: { type: Number },
-        remainingCount: { type: Number },
-        currentCycle: { type: Number },
-        quantity: { type: Number },
+        billing: {
+            type: Object,
+            totalCount: { type: Number },
+            paidCount: { type: Number },
+            remainingCount: { type: Number },
+            currentCycle: { type: Number },
+            quantity: { type: Number },
+        },
+
+        // Notes
+        notes: { type: Object },
+
+        // Payment fields
+        payment: {
+            type: Object,
+            paymentId: { type: String },
+            paymentStatus: { type: String },
+            paymentMethod: { type: String },
+            paymentAmount: { type: Number },
+            paymentFee: { type: Number },
+            paymentCurrency: { type: String },
+        },
+
+        orderId: { type: String },
+        invoiceIds: [{ type: String }],
 
         // Pause
         pauseAt: [{ type: Date }],
@@ -52,25 +69,13 @@ const subscriptionSchema = new Schema(
         resumeAt: [{ type: Date }],
 
         // Cancel
-        cancelAt: { type: Date },
-        cancelReason: { type: String },
-        cancelledBy: { type: String },
+        cancle: {
+            type: Object,
+            cancelAt: { type: Date },
+            cancelReason: { type: String },
+            cancelledBy: { type: String },
+        },
 
-        // Notes
-        notes: { type: Object },
-
-
-        // Payment fields
-        paymentId: { type: String },
-        paymentStatus: { type: String },
-        paymentMethod: { type: String },
-        paymentAmount: { type: Number },
-        paymentFee: { type: Number },
-        paymentCurrency: { type: String },
-
-        orderId: { type: String },
-
-        invoiceIds: [{ type: String }],
     },
     {
         timestamps: true,

@@ -29,13 +29,9 @@ export default function Plans() {
     }, []);
 
 
-
     useEffect(() => {
         fetchCurrentSubscription();
     }, []);
-
-
-
 
 
     return (

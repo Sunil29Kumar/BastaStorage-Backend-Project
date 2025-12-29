@@ -77,14 +77,22 @@ function App() {
           </BastaStorageProvider>
         }
       />
-      {/* <Route
-        path="/overview"
+      <Route
+        path="/help-support"
         element={
           <BastaStorageProvider>
             <BastaStoreDashboard />
           </BastaStorageProvider>
         }
-      /> */}
+      />
+      <Route
+        path="/settings"
+        element={
+          <BastaStorageProvider>
+            <BastaStoreDashboard />
+          </BastaStorageProvider>
+        }
+      />
 
       <Route
         path="/users"

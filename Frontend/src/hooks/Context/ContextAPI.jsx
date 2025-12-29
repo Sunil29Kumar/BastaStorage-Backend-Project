@@ -19,6 +19,7 @@ function ContextAPI({ children }) {
   const [currentDirPath, setCurrentDirPath] = useState([])
 
   const [filesList, setFilesList] = useState([]);
+  const [allFileDirectoriesList, setAllFileDirectoriesList] = useState({ directories: [], files: [] });
   const [storageData, setStorageData] = useState({})
   const [storageFullMessage, setStorageFullMessage] = useState("");
   const [isStorageFull, setIsStorageFull] = useState(false);
@@ -158,7 +159,7 @@ function ContextAPI({ children }) {
   const [isGDBoxOpen, setIsGDBoxOpen] = useState(false);
   const [googleDriveFileLoading, setGoogleDriveFileLoading] = useState(false);
   // google drive file blob with progress
-  const [transferProgress, setTransferProgress] = useState(0);
+  const [transferProgress, setTransferProgress] = useState({ progress: 0, fileName: "", fileSize: 0 });
 
   // recovery request 
   const [recoveryRequestMessage, setRecoveryRequestMessage] = useState({
@@ -326,16 +327,41 @@ function ContextAPI({ children }) {
     }
 
     setDirectoriesList(data.directories);
-
     setCurrentDirPath(data.path)
-
     setFilesList(data.files);
     setStorageData(data.storageData);
 
   }
+
+  // get all file list for search 
+  async function getAllFilesDirectoriesList() {
+
+    const response = await fetch(`${BASE_URL}/user/files-directories/list`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log("all File", data);
+
+    if (response.ok) {
+      setAllFileDirectoriesList({ directories: data.directories, files: data.files });
+    }
+
+    if (response.status == 401) {
+      if (location.pathname !== "/recover-account" && location.pathname !== "/recover-request") {
+        navigate("/Register");
+      }
+      return;
+    }
+  }
+
+
+
   useEffect(() => {
+    getAllFilesDirectoriesList();
     getDirectoryItems();
   }, [dirId]);
+
+
 
 
 
@@ -462,6 +488,7 @@ function ContextAPI({ children }) {
     });
     const data = await response.json();
     console.log(data);
+    console.log(data.error);
     if (response.status === 200) {
       setDirUploadMessage({ message: data.message, error: "" })
       setNewDirname("");
@@ -471,7 +498,7 @@ function ContextAPI({ children }) {
         setDirUploadMessage({ message: "", error: "" })
       }, 4000);
     }
-    else {
+    else if (response.status === 400 || response.status === 403) {
       setDirUploadMessage({ message: "", error: data.error })
       setNewDirname("");
       setShowInputBox(false);
@@ -480,6 +507,8 @@ function ContextAPI({ children }) {
         setDirUploadMessage({ message: "", error: "" })
       }, 4000);
     }
+
+
   }
 
   // ----- delete file
@@ -671,7 +700,7 @@ function ContextAPI({ children }) {
       }
 
       if (response.ok) {
-        const res = await fetch(`${BASE_URL}/user`, {
+        const res = await fetch(`${BASE_URL}/user/profile`, {
           credentials: "include",
         });
 
@@ -947,7 +976,7 @@ function ContextAPI({ children }) {
 
   // send google drive files data to backend
   async function sendDriveFilesData(file) {
-    setTransferProgress(0);
+    setTransferProgress({ progress: 0, fileName: file.name, fileSize: file.size });
     setGoogleDriveFileLoading(true);
     try {
 
@@ -956,19 +985,22 @@ function ContextAPI({ children }) {
         url: `${BASE_URL}/auth/google-drive/file/${file.id}`,
         method: 'GET',
         responseType: 'blob',
-        // YEH LINE SABSE ZARURI HAI COOKIES KE LIYE
         withCredentials: true,
 
         onDownloadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setTransferProgress(percentage);
+            setTransferProgress(prev => ({ ...prev, progress: percentage }));
             console.log("progress ", percentage);
           }
+          setTimeout(() => setTransferProgress({ progress: 0, fileName: "", fileSize: 0 }), 2000);
         },
+
+
       });
 
 
+      // step 2 : send file to backend
       if (response.statusText === "OK" || response.status === 200) {
 
         const response = await fetch(`${BASE_URL}/google-drive/file/${dirId || ""}`, {
@@ -982,15 +1014,16 @@ function ContextAPI({ children }) {
         const data = await response.json()
         if (response.ok) {
           setFileuploadMessage({ message: data.message, error: "" })
-          setTimeout(() => setTransferProgress(0), 2000);
+          setTimeout(() => setTransferProgress({ progress: 0, fileName: "", fileSize: 0 }), 2000);
           setGoogleDriveFileLoading(false);
           getDirectoryItems();
           setTimeout(() => {
             setFileuploadMessage({ message: "", error: "" })
           }, 4000);
         }
-        else {
+        else if (response.status === 400 || response.status === 403) {
           setFileuploadMessage({ message: "", error: data.error })
+          setTimeout(() => setTransferProgress({ progress: 0, fileName: "", fileSize: 0 }), 2000);
           setGoogleDriveFileLoading(false);
           setTimeout(() => {
             setFileuploadMessage({ message: "", error: "" })
@@ -1001,12 +1034,13 @@ function ContextAPI({ children }) {
 
     } catch (error) {
       console.error("Error sending Google Drive file data:", error);
-      setTransferProgress(0);
+      setTransferProgress({ progress: 0, fileName: "", fileSize: 0 });
       setGoogleDriveFileLoading(false);
 
     }
 
   }
+
 
 
 
@@ -1214,19 +1248,19 @@ function ContextAPI({ children }) {
         setInviteLoading(false);
         setTimeout(() => {
           setInviteUserMessage({ message: "", error: "" });
-        }, 2000);
+        }, 4000);
       }
-      if (response.status === 404) {
+      if (response.status === 404 || response.status === 400 || response.status === 409 || response.status === 403) {
         setInviteUserMessage({ message: "", error: data.error });
         setTimeout(() => {
           setInviteUserMessage({ message: "", error: "" });
-        }, 2000);
+        }, 5000);
       }
     } catch (error) {
       setInviteUserMessage({ message: "", error: `Something went wrong. Please try again. ${error.message}` });
       setTimeout(() => {
         setInviteUserMessage({ message: "", error: "" });
-      }, 2500);
+      }, 500);
     }
     finally {
       setInviteLoading(false);
@@ -1313,7 +1347,7 @@ function ContextAPI({ children }) {
   // create subscription
   async function createSubscription(planId) {
     // step 1: create subscription on backend
-    const respone = await fetch("http://localhost:2000/subscription", {
+    const respone = await fetch(`${BASE_URL}/subscription`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1345,11 +1379,12 @@ function ContextAPI({ children }) {
     rzp.open();
   }
 
+
   // Polling function to check subscription status
   function startPolling(subId) {
     const interval = setInterval(async () => {
       const res = await fetch(
-        `http://localhost:2000/subscription/status/${subId}`,
+        `${BASE_URL}/subscription/status/${subId}`,
         { credentials: "include" }
       );
 
@@ -1367,7 +1402,7 @@ function ContextAPI({ children }) {
 
   // get current subscription
   async function fetchCurrentSubscription() {
-    const res = await fetch("http://localhost:2000/subscription/current", {
+    const res = await fetch(`${BASE_URL}/subscription/current`, {
       credentials: "include",
     });
     const data = await res.json();
@@ -1379,7 +1414,7 @@ function ContextAPI({ children }) {
 
   // pause subscription
   async function handlePauseSubscription(subscriptionId) {
-    const response = await fetch(`http://localhost:2000/subscription/pause/${subscriptionId}`, {
+    const response = await fetch(`${BASE_URL}/subscription/pause/${subscriptionId}`, {
       method: "POST",
       credentials: "include",
     });
@@ -1396,7 +1431,7 @@ function ContextAPI({ children }) {
 
   // Resume subscripition
   async function handleResumeSubscription(subscriptionId) {
-    const response = await fetch(`http://localhost:2000/subscription/resume/${subscriptionId}`, {
+    const response = await fetch(`${BASE_URL}/subscription/resume/${subscriptionId}`, {
       method: "POST",
       credentials: "include",
     });
@@ -1413,7 +1448,7 @@ function ContextAPI({ children }) {
 
   // cancle subscription
   async function handleCancelSubscription(subscriptionId) {
-    const response = await fetch(`http://localhost:2000/subscription/cancel/${subscriptionId}`, {
+    const response = await fetch(`${BASE_URL}/subscription/cancel/${subscriptionId}`, {
       method: "POST",
       credentials: "include",
     });
@@ -1437,7 +1472,7 @@ function ContextAPI({ children }) {
         toggleDarkMode, isDarkMode,
         // setIsDarkMode,
 
-        directoriesList, setDirectoriesList, filesList, setFilesList,
+        directoriesList, setDirectoriesList, filesList, setFilesList, allFileDirectoriesList,
 
         // nav bar minimize buttion
         isNavMinimized, setIsNavMinimized,

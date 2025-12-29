@@ -14,28 +14,51 @@ export const createDirectory = async (req, res) => {
   const dirname = req.headers.dirname || "folder";
 
   try {
+    // get parent directory
     const parentDir = await Directorie.findOne({
       _id: new ObjectId(parentDirId),
     });
-
     if (!parentDir) {
       return res.status(404).json({ error: "parentdir is undefinde" });
     }
 
+    // create path array
     const path = [
       ...(parentDir.path || []), // existing ancestors
       { dirName: dirname, dirPathId: parentDir._id }, // parent itself
     ];
 
+    // check storage limit
+    if (user.usedSpace > user.totalSpace) {
+      return res.status(400).json({ error: "You have exceeded your storage limit." });
+    }
+
+    // ------>> directory restrictions based on user plan
+    const DIRECTORY_LIMITS = {
+      free: 20,
+      starter: 100,
+      pro: 500,
+      ultimate: Infinity
+    };
+
+    const userDirectoriesCount = await Directorie.countDocuments({ userId: user._id });
+    const directoryLimit = user.userIs === "free" ? DIRECTORY_LIMITS.free : DIRECTORY_LIMITS[user.subscriptionTier] || Infinity;
+    if (userDirectoriesCount > directoryLimit) {
+      return res.status(403).json({ error: `You have reached the maximum number of Folders allowed for your plan.` });
+    }
+
+
+    // db entry create
     await Directorie.insertOne({
       parentDirId: parentDir._id,
       userId: user._id,
       name: dirname,
       size: 0,
       path,
+      uploadedUnderPlan: user.userIs === "pro" ? "pro" : "free",
       folderTimeStamp: {
         folderCreatedAt: new Date(),
-        opened: [],
+        opened: [], 
         lastModified: [],
         lastDownload: [],
       },
@@ -171,7 +194,7 @@ export const deleteDirectoryById = async (req, res) => {
 
     // Delete from S3
     const fileKeys = files.map(({ _id, extension }) => `${_id}${extension}`);
-    await deleteFilesFromS3(fileKeys);
+    if (fileKeys.length > 0) await deleteFilesFromS3(fileKeys);
 
     // delete from data base
     await File.deleteMany({ _id: { $in: files.map(({ _id }) => _id) } });

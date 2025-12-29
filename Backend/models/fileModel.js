@@ -67,6 +67,12 @@ const fileSchema = await mongoose.Schema(
       },
     },
 
+    uploadedUnderPlan: {
+      type: String,
+      enum: ["free", "basic", "pro", "enterprise"],
+      default: "free"
+    },
+
     timeStamp: {
       fileCreatedAt: {
         type: Date,

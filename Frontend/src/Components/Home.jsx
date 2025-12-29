@@ -13,7 +13,7 @@ function Home() {
 
   return (
     <div
-      className={`w-full h-full px-6 py-5 space-y-6 rounded-t-xl rounded-b-4xl ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"
+      className={`w-full h-full px-2 py-5 space-y-5 rounded-t-xl rounded-b-4xl ${isDarkMode ? "bg-gray-800 text-white" : " text-gray-900"
         }`}
     >
 

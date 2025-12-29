@@ -26,12 +26,13 @@ router.param("parentDirId", checkAuth, validatinoIdMiddleware);
 // Create 
 router.post("/:parentDirId?", checkAuth, createFile);
 
+
 // Read
 // route to read/download a file
 router.get("/:id?", checkAuth, getFile);
 
 // complete file
-router.post("/complete/:id",checkAuth, markFileUploaded )
+router.post("/complete/:id", checkAuth, markFileUploaded)
 
 // route to rename a file
 router.patch("/:id", checkAuth, renameFile);
