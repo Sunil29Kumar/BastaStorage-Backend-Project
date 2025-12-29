@@ -1,9 +1,10 @@
 import express from "express";
 import { cancelSubscription, createSubscription, getCurrentSubscription, getInvoice, getSubscriptionStatus, pauseSubscription, resumeSubscription } from "../controllers/subscriptionController.js";
+import { blockIfPaused } from "../middleware/subscriptionMiddleware.js";
 
 const route = express.Router();
 
-route.post("/", createSubscription)
+route.post("/", blockIfPaused, createSubscription)
 
 route.get("/status/:subscriptionId", getSubscriptionStatus)
 
@@ -18,7 +19,7 @@ route.post("/resume/:subscriptionId", resumeSubscription)
 
 
 // cancel subscription
-route.post("/cancel/:subscriptionId", cancelSubscription)
+route.post("/cancel/:subscriptionId", blockIfPaused, cancelSubscription)
 
 // invoice 
 route.get("/invoice/:subscriptionId", getInvoice)

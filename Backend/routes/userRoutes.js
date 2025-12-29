@@ -18,6 +18,7 @@ import { registerLimiter } from "../middleware/registerLimiter.js";
 import { loginLimiter } from "../middleware/loginLimiter.js";
 import userMiddleware from "../middleware/userMiddleware.js";
 import upload from "../middleware/multerMiddleware.js";
+import { blockIfPaused } from "../middleware/subscriptionMiddleware.js";
 
 const router = express.Router();
 
@@ -38,7 +39,7 @@ router.get("/user/logout", checkAuth, logoutUser);
 router.get("/user/logoutAllDevice", checkAuth, logoutAllDevice);
 
 //update user profile
-router.post("/user", checkAuth, upload.single("userProfile"), updateUserProfile);
+router.post("/user", checkAuth, blockIfPaused, upload.single("userProfile"), updateUserProfile);
 
 router.get("/user/profile", checkAuth, getUserProfile);
 

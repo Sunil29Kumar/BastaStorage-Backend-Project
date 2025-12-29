@@ -230,6 +230,16 @@ export default function SubscriptionController() {
                     </div>
                 </div>
 
+
+                {/* message  */}
+                <div>
+                    {subscriptionMessage && (
+                        <div className="rounded-2xl absolute top-2 left-1/2 translate-x-[-50%] bg-blue-100/80 backdrop-blur-xl p-4 border border-blue-300 text-blue-800 font-medium text-center shadow-md">
+                            {subscriptionMessage}
+                        </div>
+                    )}
+                </div>
+
             </div>
         </div >
     );

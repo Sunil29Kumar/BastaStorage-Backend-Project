@@ -87,12 +87,17 @@ current paid cycle finish hone deta hai
 
 Download	✅
 View	✅
-Rename	✅
+invoice ✅
+login multi devie on basis of plan limit ✅
+Rename	❌
 Upload	❌
 Delete files	❌
 Share	❌
 no Files upload from GD	❌
 Storage increase	❌
+cannot upgrade plan ❌
+no File Share ❌
+
 
 
 

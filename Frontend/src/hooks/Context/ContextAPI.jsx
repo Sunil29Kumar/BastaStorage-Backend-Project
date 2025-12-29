@@ -1453,13 +1453,24 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log("Subscription cancelled:", data);
-    setSubscriptionMessage(data.message || "");
-    fetchCurrentSubscription();
-    setTimeout(() => {
-      setSubscriptionMessage("")
-      navigate("/");
-    }, 3000);
+    if (response.ok) {
+      setSubscriptionMessage(data.message);
+      fetchCurrentSubscription();
+      setTimeout(() => {
+        setSubscriptionMessage("")
+        // navigate("/");
+      }, 3000);
+    }
+    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422) {
+      setSubscriptionMessage(data.error);
+      console.log("Subscription cancelled:", data);
+
+      fetchCurrentSubscription();
+      setTimeout(() => {
+        setSubscriptionMessage("")
+        // navigate("/");
+      }, 3000);
+    }
   }
 
 
