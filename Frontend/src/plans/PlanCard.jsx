@@ -1,5 +1,6 @@
 export default function PlanCard({ plan, onSelect, currentSubscription }) {
 
+console.log("cc",currentSubscription);
 
     return (
         <div
@@ -73,14 +74,14 @@ export default function PlanCard({ plan, onSelect, currentSubscription }) {
 
             {/* CTA Button */}
 
-            {(currentSubscription?.planId === plan.id && currentSubscription.status == "active") ?
+            {(currentSubscription?.planId === plan.id ) ?
                 <div className=" bg-green-600 text-white text-md text-center px-4 py-3 font-semibold rounded-full shadow">
                     ✔ Current Plan
                 </div>
                 :
                 <button
                     onClick={() => onSelect(plan)}
-                    className={`mt-auto w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all
+                    className={`mt-auto w-full cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold transition-all
                     ${plan.popular
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : "bg-slate-900 text-white hover:bg-slate-800"

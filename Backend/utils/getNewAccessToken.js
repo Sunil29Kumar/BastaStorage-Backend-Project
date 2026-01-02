@@ -6,7 +6,7 @@ export const getNewAccessToken = async (refreshToken) => {
 
   oauth2Client.setCredentials({ refresh_token: refreshToken })
 
-  const { credentials } = await oauth2Client.refreshAccessToken();
+  const { credentials } = await oauth2Client?.refreshAccessToken();
 
   return {
     access_token: credentials.access_token,

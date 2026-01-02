@@ -41,7 +41,6 @@ export const razorpayWebhookHandler = async (req, res) => {
                 customerId: subscription.customer_id,
 
                 startAt: new Date(subscription.start_at * 1000),
-                endAt: new Date(subscription.end_at * 1000),
                 currentStart: new Date(subscription.current_start * 1000),
                 currentEnd: new Date(subscription.current_end * 1000),
                 chargeAt: new Date(subscription.charge_at * 1000),
@@ -69,31 +68,53 @@ export const razorpayWebhookHandler = async (req, res) => {
                 orderId: payment.order_id,
                 invoiceIds: payment.invoice_id ? [payment.invoice_id] : [],
 
+                $push: {
+                    logs: {
+                        action: "activated",
+                        by: "webhook",
+                        at: new Date(),
+                        note: "Payment successful, subscription active"
+                    }
+                },
             },
             { new: true }
         );
 
         // update user's total space based on plan
         const storageQuotaBytes = plans[planId].storageQuotaBytes;
-        await User.findByIdAndUpdate(subscriptionUpdate?.userId, { totalSpace: storageQuotaBytes, userIs: "pro" ,subscriptionTier: plans[planId].tier });
+        await User.findByIdAndUpdate(subscriptionUpdate?.userId, { totalSpace: storageQuotaBytes, userIs: "pro", subscriptionTier: plans[planId].tier });
 
         console.log("subscription activated");
 
     }
+
     else if (req.body.event === "subscription.paused") {   // paused
 
         console.log("webhook paused payload => ", req.body.payload);
-
         const subscription = req.body.payload.subscription.entity;
 
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
             { razorpaySubscriptionId: subscription.id },
-            { status: "paused", $push: { pauseAt: new Date() } },
+            {
+                status: "paused",
+                $push: {
+                    pauseAt: new Date(),
+                    logs: {
+                        action: "paused",
+                        by: "webhook",
+                        at: new Date(),
+                        note: "Subscription paused"
+                    }
+                },
+                // $push: {
 
+                // }
+            },
             { new: true }
         );
     }
+
     else if (req.body.event === "subscription.resumed") {   // resumed
 
         console.log("webhook resumed payload => ", req.body.payload);
@@ -102,30 +123,57 @@ export const razorpayWebhookHandler = async (req, res) => {
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
             { razorpaySubscriptionId: subscription.id },
-            { status: "active", $push: { resumeAt: new Date() } },
+            {
+                status: "active",
+                $push: {
+                    resumeAt: new Date(),
+                    logs: {
+                        action: "resumed",
+                        by: "webhook",
+                        at: new Date(),
+                        note: "Subscription resumed"
+                    }
+                },
+
+            },
             { new: true }
         );
     }
-    else if (req.body.event === "subscription.cancelled") {
+
+    else if (req.body.event === "subscription.completed" || req.body.event === "subscription.cancelled") {   // completed
 
         console.log("webhook cancelled payload => ", req.body.payload);
-
         const subscription = req.body.payload.subscription.entity;
 
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
             { razorpaySubscriptionId: subscription.id },
             {
-                status: "cancelled", cancle: {
-                    cancelAt: new Date(),
-                    // cancelReason: subscription.cancel_reason,
-                    // cancelledBy: subscription.cancelled_by,
+                status: "expired",
+                cancel: {
+                    endedAt: new Date(),
+                },
+                grace: {
+                    enabled: true,
+                     until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),  // 7 days grace period
+                },
+                $push: {
+                    logs: {
+                        action: "grace_started",
+                        by: "webhook",
+                        at: new Date(),
+                        note: "7 days grace period started on subscription expiry/cancellation"
+                    }
                 }
             },
             { new: true }
         );
 
-        await User.findByIdAndUpdate(updatedSubscription?.userId, { userIs: "free" });
+        if (updatedSubscription) {
+            await User.findByIdAndUpdate(updatedSubscription?.userId, { userIs: "free", subscriptionTier: "free", totalSpace: plans["free"].storageQuotaBytes });
+        }
+
+        console.log("Subscription expired & user downgraded");
 
     }
 

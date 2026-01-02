@@ -115,7 +115,7 @@ export const githubCallback = async (req, res, next) => {
       ultimate: 8
     }
 
-    const deviceLimit = user.userIs === "free" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
+    const deviceLimit = user.userIs === "free" || user.subscriptionTier === "expired" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
 
     if (activeSessions.total >= deviceLimit) {
       await rediclient.del(activeSessions.documents[0].id);
@@ -239,7 +239,7 @@ export const loginWithGoogle = async (req, res, next) => {
       ultimate: 8
     }
 
-    const deviceLimit = user.userIs === "free" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
+    const deviceLimit = user.userIs === "free" || user.subscriptionTier === "expired" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
 
     if (activeSessions.total >= deviceLimit) {
       await rediclient.del(activeSessions.documents[0].id);
@@ -440,7 +440,7 @@ export const googleCallback = async (req, res) => {
 
     if (existingGoogleToken) {
       if (existingGoogleToken?.tokens.expiry_date <= Date.now()) {
-        const newAccessToken = await getNewAccessToken(existingGoogleToken.tokens.refresh_token)
+        const newAccessToken = await getNewAccessToken(existingGoogleToken?.tokens?.refresh_token)
         await GoogleTokens.updateOne(
           { userId },
           {

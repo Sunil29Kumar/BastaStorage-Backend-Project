@@ -89,7 +89,7 @@ export const sendGoogleDriveFile = async (req, res) => {
     // count existing Google Drive files
     const googleDriveFilesCount = await File.countDocuments({ userId: req.user._id, uploadedFrom: { source: "Google Drive" } });
 
-    const planKey = user.userIs === "free" ? "free" : user.subscriptionTier || "ultimate";
+    const planKey = user.userIs === "free" || req.subscription.subscriptionTier === "expired" ? "free" : user.subscriptionTier || "ultimate";
     const { maxFiles, maxSize } = GD_FILE_AND_SIZE_LIMITS[planKey];
 
     // max files limit

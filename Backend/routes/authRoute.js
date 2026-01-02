@@ -5,6 +5,7 @@ import { googleLimiter } from "../middleware/googleCallbackLimiter.js";
 import { otpLimiter } from "../middleware/otpLimiter.js";
 import { googleDriveAuthUrl } from "../utils/googleDriveAuthService.js";
 import checkAuth from "../middleware/authMiddleware.js";
+import { blockIfExpired, blockIfPaused } from "../middleware/subscriptionMiddleware.js";
 
 const route = express.Router();
 
@@ -22,7 +23,7 @@ route.get("/google/drive", googleDriveAuthUrl);
 route.get("/google/callback", checkAuth, googleCallback);
 route.get("/google-drive/list-file", checkAuth, googleDriveFilesFolder);
 
-route.get("/google-drive/file/:fileId", checkAuth, getGoogleDriveFileBlob);
+route.get("/google-drive/file/:fileId", checkAuth, blockIfPaused,blockIfExpired, getGoogleDriveFileBlob);
 
 // recovery account 
 route.post("/recover-request", requestRecovery)

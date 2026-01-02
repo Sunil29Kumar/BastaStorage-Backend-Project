@@ -159,7 +159,7 @@ export const loginUser = async (req, res) => {
       ultimate: 8
     }
 
-    const deviceLimit = user.userIs === "free" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
+    const deviceLimit = user.userIs === "free" || req.subscription?.status === "expired" ? DEVICE_LIMITS.free : DEVICE_LIMITS[user.subscriptionTier] || DEVICE_LIMITS.free;
 
     if (activeSessions.total >= deviceLimit) {
       await rediclient.del(activeSessions.documents[0].id);

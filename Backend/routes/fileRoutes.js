@@ -15,7 +15,7 @@ import {
   updateSharedFilePermission,
 } from "../controllers/fileController.js";
 import checkAuth from "../middleware/authMiddleware.js";
-import { blockIfPaused } from "../middleware/subscriptionMiddleware.js";
+import { blockIfExpired, blockIfPaused } from "../middleware/subscriptionMiddleware.js";
 
 
 
@@ -25,7 +25,7 @@ router.param("id", checkAuth, validatinoIdMiddleware);
 router.param("parentDirId", checkAuth, validatinoIdMiddleware);
 
 // Create 
-router.post("/:parentDirId?", checkAuth, blockIfPaused, createFile);
+router.post("/:parentDirId?", checkAuth, blockIfExpired, blockIfPaused, createFile);
 
 
 // Read
@@ -36,32 +36,30 @@ router.get("/:id?", checkAuth, getFile);
 router.post("/complete/:id", checkAuth, markFileUploaded)
 
 // route to rename a file
-router.patch("/:id", checkAuth, blockIfPaused, renameFile);
+router.patch("/:id", checkAuth, blockIfExpired, blockIfPaused, renameFile);
 
 // ---------------------- Delete -------------------------
-router.delete("/:id", checkAuth, blockIfPaused, deleteFile);
+router.delete("/:id", checkAuth, blockIfExpired, blockIfPaused, deleteFile);
 
 // share file link
-router.post("/:id/share-link", checkAuth, blockIfPaused, shareFile);
+router.post("/:id/share-link", checkAuth, blockIfExpired, blockIfPaused, shareFile);
 
 // share file viewer
 router.get("/share/:token", sharefileViewer)
 
 // share file thwough email with permission
-router.post("/:id/share", checkAuth, blockIfPaused, shareFileThroughEmail);
+router.post("/:id/share", checkAuth, blockIfExpired, blockIfPaused, shareFileThroughEmail);
 
 // fetch shared users
 router.get("/:id/shared-users", checkAuth, getSharedUsers);
 
 // private share 
-router.get("/:id/share/private/:token", checkAuth, blockIfPaused, privateShare)
+router.get("/:id/share/private/:token", checkAuth, blockIfExpired, blockIfPaused, privateShare)
 
 // update shared file permission
-router.patch("/:fileId/share", checkAuth, blockIfPaused, updateSharedFilePermission)
+router.patch("/:fileId/share", checkAuth, blockIfExpired, blockIfPaused, updateSharedFilePermission)
 
 // remove shared user
-router.delete("/:fileId/share/:userId", checkAuth, blockIfPaused, removeSharedUser)
-
-
+router.delete("/:fileId/share/:userId", checkAuth, blockIfExpired, blockIfPaused, removeSharedUser)
 
 export default router;

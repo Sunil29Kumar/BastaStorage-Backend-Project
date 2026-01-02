@@ -36,7 +36,8 @@ export const createSubscription = async (req, res) => {
         const newSubscription = new Subscription({
             razorpaySubscriptionId: subscription.id,
             planId: planId,
-            userId: req.user._id
+            userId: req.user._id,
+            logs: [{ action: "created", at: new Date(), by: "system", note: "Subscription created" }]
         });
 
         await newSubscription.save();
@@ -187,26 +188,31 @@ export const cancelSubscription = async (req, res) => {
         const userId = req.user._id;
 
         // Verify subscription belongs to user
-        const subscriptionRecord = await Subscription.findOne({ razorpaySubscriptionId: subscriptionId, userId });
+        const subscriptionRecord = await Subscription.findOne({ razorpaySubscriptionId: subscriptionId, userId, status: "active" });
         if (!subscriptionRecord) {
             return res.status(404).json({ error: "Subscription not found for this user" });
         }
-        // Cancel subscription on Razorpay
-        const cancelledSubscription = await razor.subscriptions.cancel(subscriptionId, {
-            cancel_at: "immediate",
-            reason: "User requested cancellation"
-        });
-        if (!cancelledSubscription) {
-            return res.status(404).json({ error: "Subscription not found or could not be cancelled" });
-        }
 
-        const updatedSubscription = await Subscription.findOneAndUpdate(
+        await Subscription.findOneAndUpdate(
             { userId, razorpaySubscriptionId: subscriptionId },
-            { status: "cancelled" },
+            {
+                status: "cancelled",
+                cancel: { cancelledAt: new Date(), cancelAtPeriodEnd: true },
+                $push: {
+                    logs: {
+                        action: "cancelled",
+                        by: "user",
+                        at: new Date(),
+                        note: "User requested cancellation (will end at period end)"
+                    }
+                }
+            },
             { new: true }
         );
 
-        return res.status(200).json({ message: "Subscription cancelled successfully" });
+        return res.status(200).json({
+            message: "Subscription will be cancelled at end of billing cycle"
+        });
 
     } catch (error) {
         console.error(error);

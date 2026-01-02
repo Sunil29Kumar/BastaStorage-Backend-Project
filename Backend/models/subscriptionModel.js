@@ -28,16 +28,43 @@ const subscriptionSchema = new Schema(
 
         // Dates
         startAt: { type: Date },
-        endAt: { type: Date },
-        expireAt: { type: Date },
-        expireBy: { type: Date },
         currentStart: { type: Date },
         currentEnd: { type: Date },
         chargeAt: { type: Date },
 
+        // Grace period
+        grace: {
+            enabled: { type: Boolean, default: false },
+            until: { type: Date }
+        },
+
+        // Logs
+        logs: [
+            {
+                action: {
+                    type: String,
+                    enum: [
+                        "created",
+                        "activated",
+                        "paused",
+                        "resumed",
+                        "cancelled",
+                        "expired",
+                        "grace_started",
+                        "downgraded"
+                    ]
+                },
+                at: { type: Date, default: Date.now },
+                by: {
+                    type: String,
+                    enum: ["user", "system", "webhook"],
+                    default: "system"
+                },
+                note: { type: String }
+            }
+        ],
         // Billing
         billing: {
-            type: Object,
             totalCount: { type: Number },
             paidCount: { type: Number },
             remainingCount: { type: Number },
@@ -50,7 +77,6 @@ const subscriptionSchema = new Schema(
 
         // Payment fields
         payment: {
-            type: Object,
             paymentId: { type: String },
             paymentStatus: { type: String },
             paymentMethod: { type: String },
@@ -69,11 +95,10 @@ const subscriptionSchema = new Schema(
         resumeAt: [{ type: Date }],
 
         // Cancel
-        cancle: {
-            type: Object,
-            cancelAt: { type: Date },
-            cancelReason: { type: String },
-            cancelledBy: { type: String },
+        cancel: {
+            cancelledAt: { type: Date },
+            cancelAtPeriodEnd: { type: Boolean },
+            endedAt: { type: Date },
         },
 
     },

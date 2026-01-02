@@ -37,12 +37,6 @@ export const createFile = async (req, res) => {
   const parentDirId = data.params.parentDirId || req.user.rootDirId;
   const userId = req.user._id;
 
-  // validate user subscription status is paused or not
-  const subscription = await Subscription.findOne({ userId: req.user._id });
-  if (subscription?.status === "paused") {
-    return res.status(403).json({ error: "Your Subscription is paused. File upload is not allowed." });
-  }
-
   try {
     const parentDirData = await Directorie.findOne({
       _id: new ObjectId(parentDirId),
@@ -71,10 +65,10 @@ export const createFile = async (req, res) => {
     }
 
     // ckeck user is pro or free for uploaded Under Plan
-    const subscription = await Subscription.findOne({ userId: req.user._id });
-    if (subscription?.status.includes("created", "paused", "cancelled", "expired", "pending", "failed")) {
-      return res.status(403).json({ error: `Your Subscription is ${subscription.status}. File upload is not allowed.` });
-    }
+    // const subscription = await Subscription.findOne({ userId: req.user._id });
+    // if (subscription?.status.includes("created", "paused", "cancelled", "expired", "pending", "failed")) {
+    //   return res.status(403).json({ error: `Your Subscription is ${subscription.status}. File upload is not allowed.` });
+    // }
 
 
     // create file in database

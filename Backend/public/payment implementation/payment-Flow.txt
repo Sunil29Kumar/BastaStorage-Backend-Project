@@ -79,7 +79,7 @@ Login in 8 device  👍🏼
 Invoice	👍🏼
 
 
-4️⃣ Pause Subscription (Zoho style)
+4️⃣ Pause Subscription (Zoho style) 👍🏼
 Industry rule
 
 Pause ka matlab future billing stop,
@@ -101,8 +101,7 @@ no File Share ❌
 
 
 
-
-5️⃣ Resume Subscription
+5️⃣ Resume Subscription 👍🏼
 Resume hone ke baad
 
 ✔ Full access wapas
@@ -116,7 +115,7 @@ Webhook: subscription.resumed
 Zoho / Industry standard
 
 ❌ Immediate cancel rarely hota hai
-
+- user can use that plan after cancle until next billing date
 Usually: cancel_at = cycle_end
 
 Cancellation ke baad states:
@@ -127,13 +126,10 @@ After grace	free
 
 Permissions after CANCEL (before expiry)
 Feature	Allowed
-Upload	❌
-Download	✅
-Delete , rename	❌
-Share	❌
-no file upload from GD	❌
 
-👉 User ko data access milta hai, but modify nahi
+Every thing in plan
+not plan upgrade ❌
+
 
 
 7️⃣ After Expiry (Cycle End ke baad)
@@ -141,7 +137,7 @@ no file upload from GD	❌
 Zoho kya karta hai?
 
 ✔ Data safe rakhta hai
-✔ Upload block
+✔ Upload block 
 ✔ Storage freeze
 
 Two options (choose one)

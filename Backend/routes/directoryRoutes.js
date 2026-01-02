@@ -6,7 +6,7 @@ import {
   updateDirectoryById,
   deleteDirectoryById,
 } from "../controllers/directoryController.js";
-import { blockIfPaused } from "../middleware/subscriptionMiddleware.js";
+import { blockIfExpired, blockIfPaused } from "../middleware/subscriptionMiddleware.js";
 
 const router = express.Router();
 
@@ -14,15 +14,15 @@ router.param("id", validatinoIdMiddleware);
 router.param("parentDirId", validatinoIdMiddleware);
 
 // create dir
-router.post("/:parentDirId?", blockIfPaused, createDirectory);
+router.post("/:parentDirId?", blockIfPaused,blockIfExpired, createDirectory);
 
 // Read
 router.get("/:id?", getDirectoryById);
 
 // update : rename directory
-router.patch("/:id", blockIfPaused, updateDirectoryById);
+router.patch("/:id", blockIfPaused,blockIfExpired, updateDirectoryById);
 
 // delete directory
-router.delete("/:id", blockIfPaused, deleteDirectoryById);
+router.delete("/:id", blockIfPaused, blockIfExpired, deleteDirectoryById);
 
 export default router;

@@ -161,6 +161,8 @@ const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, re
 /* --- Row & Card Displays --- */
 const ListRow = (props) => {
   const format = props.getFileFormatData(props.file.name);
+  console.log("ppp , ",props);
+  
 
   return (
     <tr className={`group transition-all ${props.isDarkMode ? "bg-gray-800/20 hover:bg-gray-800/50" : "bg-white hover:bg-blue-50 shadow-sm"} border rounded-xl`}>

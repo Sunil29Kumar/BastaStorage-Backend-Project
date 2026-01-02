@@ -102,12 +102,7 @@ export default function Plans() {
             )}
 
 
-            {/* Subscription Message */}
-            {subscriptionMessage && (
-                <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg">
-                    {subscriptionMessage}
-                </div>
-            )}
+           
 
         </div>
     );

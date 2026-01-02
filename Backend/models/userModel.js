@@ -69,7 +69,7 @@ const userSchema = new mongoose.Schema(
     },
     subscriptionTier: {
       type: String,
-      enum: ["starter", "pro", "ultimate"],
+      enum: ["starter", "pro", "ultimate","free"],
     },
     userTimeStamp: {
       userCreatedAt: {

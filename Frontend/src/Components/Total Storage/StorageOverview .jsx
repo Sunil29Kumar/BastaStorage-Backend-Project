@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { formatBytes } from './RemainingStorage';
 
 const StorageOverview = () => {
-    const { isDarkMode, storageData, allFileDirectoriesList, BASE_URL } = useContext(BastaStorageContext);
+    const { isDarkMode, storageData, allFileDirectoriesList, BASE_URL, currentSubscription, storeUserData } = useContext(BastaStorageContext);
 
 
     // --- REAL DATA CALCULATIONS ---
@@ -49,8 +49,8 @@ const StorageOverview = () => {
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-40">Live cloud infrastructure</p>
                     </div>
                 </div>
-                <Link to="/plans" className="px-8 py-4 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-500/20 active:scale-95">
-                    Upgrade Storage
+                <Link to={storeUserData?.subscriptionTier === "free" ? `/plans` : `/manage-subscription`} className="px-8 py-4 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-500/20 active:scale-95">
+                    {storeUserData?.subscriptionTier === "free" ? 'Upgrade Storage' : 'Manage Plan '}
                 </Link>
             </div>
 
@@ -101,7 +101,7 @@ const StorageOverview = () => {
             </div>
 
             {/* --- RECENT UPLOADS --- */}
-            <div className={`space-y-6 rounded-b-4xl p-5  ${isDarkMode ?  " bg-[#1c1f23] border-white/5 text-white shadow-black/50" : "bg-gray-200  text-gray-800 shadow-gray-200/50"}`}>
+            <div className={`space-y-6 rounded-b-4xl p-5  ${isDarkMode ? " bg-[#1c1f23] border-white/5 text-white shadow-black/50" : "bg-gray-200  text-gray-800 shadow-gray-200/50"}`}>
                 <div className="flex justify-between items-center">
                     <h3 className="text-[11px] font-black uppercase tracking-[0.3em] opacity-40">Recent Transactions</h3>
                     <Link to="/my-files" className="group flex items-center gap-2 text-blue-500 text-[10px] font-black uppercase tracking-widest">
@@ -111,7 +111,9 @@ const StorageOverview = () => {
 
                 <div className="grid gap-4">
                     {recentUploads.length > 0 ? recentUploads.map((file, i) => (
-                        <a href={`${BASE_URL}/file/${file.id}`} key={i} className={`flex items-center justify-between p-5 rounded-[2rem] border transition-all ${isDarkMode ? "bg-white/[0.02] border-white/5 hover:bg-white/5" : "bg-white border-gray-100 hover:shadow-lg shadow-gray-100"
+                        console.log("ovv file", file),
+                        
+                        <a href={`${BASE_URL}/file/${file._id}`} key={i} className={`flex items-center justify-between p-5 rounded-[2rem] border transition-all ${isDarkMode ? "bg-white/[0.02] border-white/5 hover:bg-white/5" : "bg-white border-gray-100 hover:shadow-lg shadow-gray-100"
                             }`}>
                             <div className="flex items-center gap-5">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${isDarkMode ? "bg-white/5 text-blue-400" : "bg-blue-50 text-blue-500"

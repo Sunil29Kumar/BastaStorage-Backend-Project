@@ -991,14 +991,11 @@ function ContextAPI({ children }) {
           if (progressEvent.total) {
             const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             setTransferProgress(prev => ({ ...prev, progress: percentage }));
-            console.log("progress ", percentage);
           }
           setTimeout(() => setTransferProgress({ progress: 0, fileName: "", fileSize: 0 }), 2000);
         },
 
-
       });
-
 
       // step 2 : send file to backend
       if (response.statusText === "OK" || response.status === 200) {
@@ -1034,12 +1031,26 @@ function ContextAPI({ children }) {
 
     } catch (error) {
       console.error("Error sending Google Drive file data:", error);
-      setTransferProgress({ progress: 0, fileName: "", fileSize: 0 });
-      setGoogleDriveFileLoading(false);
+
+      // Agar Axios ya Fetch se error response aaya hai
+      if (error.response) {
+        const data = error.response.data;
+        const text = await data.text();
+        const jsonData = JSON.parse(text);
+        console.log("Google Drive Blob Error JSON:", jsonData);
+
+        setFileuploadMessage({ message: "", error: jsonData.error });
+        setTransferProgress({ progress: 0, fileName: "", fileSize: 0 })
+        setGoogleDriveFileLoading(false);
+        setTimeout(() => {
+          setFileuploadMessage({ message: "", error: "" })
+        }, 4000);
+      }
 
     }
-
   }
+
+
 
 
 
@@ -1420,12 +1431,22 @@ function ContextAPI({ children }) {
     });
     const data = await response.json();
     console.log("Subscription paused:", data);
-    setSubscriptionMessage(data.message || "");
-    fetchCurrentSubscription();
-    setTimeout(() => {
-      setSubscriptionMessage("")
-      navigate("/");
-    }, 3000);
+    if (response.ok) {
+      setSubscriptionMessage(data.message || "");
+      fetchCurrentSubscription();
+      setTimeout(() => {
+        setSubscriptionMessage("")
+      }, 3000);
+    }
+    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422) {
+      setSubscriptionMessage(data.error);
+      console.log("Subscription cancelled:", data);
+
+      fetchCurrentSubscription();
+      setTimeout(() => {
+        setSubscriptionMessage("")
+      }, 3000);
+    }
   }
 
 
@@ -1437,12 +1458,22 @@ function ContextAPI({ children }) {
     });
     const data = await response.json();
     console.log("Subscription resumed:", data);
-    setSubscriptionMessage(data.message || "");
-    fetchCurrentSubscription();
-    setTimeout(() => {
-      setSubscriptionMessage("")
-      navigate("/");
-    }, 3000);
+    if (response.ok) {
+      setSubscriptionMessage(data.message || "");
+      fetchCurrentSubscription();
+      setTimeout(() => {
+        setSubscriptionMessage("")
+      }, 3000);
+    }
+    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422) {
+      setSubscriptionMessage(data.error);
+      console.log("Subscription cancelled:", data);
+
+      fetchCurrentSubscription();
+      setTimeout(() => {
+        setSubscriptionMessage("")
+      }, 3000);
+    }
   }
 
 
@@ -1458,7 +1489,6 @@ function ContextAPI({ children }) {
       fetchCurrentSubscription();
       setTimeout(() => {
         setSubscriptionMessage("")
-        // navigate("/");
       }, 3000);
     }
     if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422) {
@@ -1468,7 +1498,6 @@ function ContextAPI({ children }) {
       fetchCurrentSubscription();
       setTimeout(() => {
         setSubscriptionMessage("")
-        // navigate("/");
       }, 3000);
     }
   }
