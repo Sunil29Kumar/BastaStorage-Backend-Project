@@ -1,3 +1,6 @@
+
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -13,15 +16,12 @@ import subscriptionRoute from "./routes/subscriptionRoute.js";
 import webhookRoute from "./routes/webhookRoute.js";
 
 import { connectDB } from "./database/db.js";
-// import path from "path";
-
-
-import dotenv from "dotenv";
-dotenv.config();
+import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
 
 
 await connectDB();
 
+cleanupPendingUploads();
 
 const app = express();
 

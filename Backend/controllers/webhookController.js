@@ -155,7 +155,7 @@ export const razorpayWebhookHandler = async (req, res) => {
                 },
                 grace: {
                     enabled: true,
-                     until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),  // 7 days grace period
+                    until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),  // 7 days grace period
                 },
                 $push: {
                     logs: {
@@ -170,7 +170,11 @@ export const razorpayWebhookHandler = async (req, res) => {
         );
 
         if (updatedSubscription) {
-            await User.findByIdAndUpdate(updatedSubscription?.userId, { userIs: "free", subscriptionTier: "free", totalSpace: plans["free"].storageQuotaBytes });
+            await User.findByIdAndUpdate(updatedSubscription?.userId,
+                {
+                    userIs: "free", subscriptionTier: "free", totalSpace: plans["free"].storageQuotaBytes
+                }
+            )
         }
 
         console.log("Subscription expired & user downgraded");

@@ -51,7 +51,10 @@ const subscriptionSchema = new Schema(
                         "cancelled",
                         "expired",
                         "grace_started",
-                        "downgraded"
+                        "downgraded",
+                        "upgraded",
+                        "grace_ended_cleanup_done",
+                        "payment_failed",
                     ]
                 },
                 at: { type: Date, default: Date.now },

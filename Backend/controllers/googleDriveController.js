@@ -54,9 +54,9 @@ export const sendGoogleDriveFile = async (req, res) => {
     const size = file.size || 0;
 
     // check storage limit
-    if (user.usedSpace + size > user.totalSpace) {
-      return res.status(400).json({ error: "You have exceeded your storage limit." });
-    }
+    // if (user.usedSpace + size > user.totalSpace) {
+    //   return res.status(400).json({ error: "You have exceeded your storage limit." });
+    // }
 
     // ----- File upload From Google Drive restrictions based on user plan
     // check subscription status
