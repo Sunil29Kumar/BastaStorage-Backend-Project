@@ -21,7 +21,7 @@ export async function sendOTP(email) {
   );
 
   const info = await transporter.sendMail({
-    from: '"BastaStorage" <sunil.kksdk@gmail.com>',
+    from: `"BastaStorage" <${process.env.USER_EMAIL}>`,
     to: email,
     subject: "Your One-Time Password (OTP) - BastaStorage",
     html: `

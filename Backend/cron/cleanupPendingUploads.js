@@ -3,13 +3,14 @@ import Subscription from "../models/subscriptionModel.js";
 import File from "../models/fileModel.js";
 import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
+import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
 
 export const cleanupPendingUploads = () => {
 
     const DAY = 24 * 60 * 60 * 1000;
 
     new CronJob(
-        "*/3 * * * * *",   // every 6 hours (REALISTIC)
+        "*/10 * * * * *",   // every 6 hours (REALISTIC)
         async () => {
             console.log(" Grace expiry cron started");
 
@@ -24,10 +25,12 @@ export const cleanupPendingUploads = () => {
 
                 const remainingMs = new Date(sub.grace.until).getTime() - now;
                 const remainingDays = Math.ceil(remainingMs / DAY);
+                const userCache = new Map();
                 console.log(remainingDays);
 
 
-                //  DAILY NOTIFICATION (ONCE PER DAY)
+
+                // DAILY GRACE REMINDER (ONCE PER DAY)
                 if (remainingDays > 0 && remainingDays <= 7) {
 
                     const alreadyNotified = sub.logs?.some(
@@ -35,7 +38,6 @@ export const cleanupPendingUploads = () => {
                     );
 
                     if (!alreadyNotified) {
-                        console.log(` Notify user ${sub.userId}: ${remainingDays} days left`);
 
                         await Subscription.findByIdAndUpdate(sub._id, {
                             $push: {
@@ -47,8 +49,26 @@ export const cleanupPendingUploads = () => {
                                 }
                             }
                         });
+
+                        let user = userCache.get(sub.userId.toString());
+                        if (!user) {
+                            user = await User.findById(sub.userId);
+                            if (!user) continue;
+                            userCache.set(sub.userId.toString(), user);
+                        }
+
+                        try {
+                            await sendSubscriptionMail({
+                                type: "GRACE_REMINDER",
+                                user,
+                                meta: { days: remainingDays }
+                            });
+                        } catch (err) {
+                            console.error("Grace reminder mail failed:", err.message);
+                        }
                     }
                 }
+
 
                 //  GRACE EXPIRED
                 if (remainingMs <= 0) {
@@ -71,12 +91,6 @@ export const cleanupPendingUploads = () => {
 
 
                     // update user usedSpace
-                    // const user = await User.findById(sub.userId);
-                    // if (user) {
-                    //     user.usedSpace -= totalProFilesSize; 
-                    //     await user.save();
-                    // }
-
                     await User.findByIdAndUpdate(
                         sub.userId,
                         { $inc: { usedSpace: -totalProFilesSize } }
@@ -102,6 +116,14 @@ export const cleanupPendingUploads = () => {
                         message: "Your subscription grace period has ended. All paid files have been deleted and your account has been downgraded to free tier.",
                         type: "warning",
                     });
+
+                    // gravce ended mail
+                    await sendSubscriptionMail({
+                        type: "GRACE_ENDED",
+                        user: userCache.get(sub.userId.toString()) || await User.findById(sub.userId),
+                        meta: { graceDays: 0 }
+                    });
+
                 }
             }
         },

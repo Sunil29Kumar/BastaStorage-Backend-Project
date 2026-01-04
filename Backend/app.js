@@ -21,7 +21,7 @@ import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
 
 await connectDB();
 
-// cleanupPendingUploads();
+cleanupPendingUploads();
 
 const app = express();
 

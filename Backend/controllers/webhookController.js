@@ -4,6 +4,7 @@ import plans from "./../utils/plans.js";
 import crypto from "crypto";
 import Subscription from "../models/subscriptionModel.js";
 import User from "../models/userModel.js";
+import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
 
 
 export const razorpayWebhookHandler = async (req, res) => {
@@ -82,7 +83,14 @@ export const razorpayWebhookHandler = async (req, res) => {
 
         // update user's total space based on plan
         const storageQuotaBytes = plans[planId].storageQuotaBytes;
-        await User.findByIdAndUpdate(subscriptionUpdate?.userId, { totalSpace: storageQuotaBytes, userIs: "pro", subscriptionTier: plans[planId].tier });
+        const user = await User.findByIdAndUpdate(subscriptionUpdate?.userId, { totalSpace: storageQuotaBytes, userIs: "pro", subscriptionTier: plans[planId].tier });
+
+        // send subscription activated mail
+        await sendSubscriptionMail({
+            type: "ACTIVATED",
+            user: user,
+            meta: { plan: plans[planId].tier },
+        });
 
         console.log("subscription activated");
 
@@ -107,12 +115,17 @@ export const razorpayWebhookHandler = async (req, res) => {
                         note: "Subscription paused"
                     }
                 },
-                // $push: {
 
-                // }
             },
             { new: true }
         );
+
+        // send subscription paused mailsendSubscriptionMail
+        sendSubscriptionMail({
+            type: "PAUSED",
+            user: await User.findById(updatedSubscription?.userId),
+            meta: { plan: plans[updatedSubscription?.planId].tier },
+        })
     }
 
     else if (req.body.event === "subscription.resumed") {   // resumed
@@ -138,6 +151,14 @@ export const razorpayWebhookHandler = async (req, res) => {
             },
             { new: true }
         );
+
+        // send subscription resumed mail
+        await sendSubscriptionMail({
+            type: "RESUMED",
+            user: await User.findById(updatedSubscription?.userId),
+            meta: { plan: plans[updatedSubscription?.planId].tier },
+        });
+
     }
 
     else if (req.body.event === "subscription.completed" || req.body.event === "subscription.cancelled") {   // completed
@@ -176,6 +197,14 @@ export const razorpayWebhookHandler = async (req, res) => {
                 }
             )
         }
+
+        // send subscription expired mail
+        await sendSubscriptionMail({
+            type: "EXPIRED",
+            user: userCache.get(sub.userId.toString()) || await User.findById(sub.userId),
+            meta: { graceDays: 7 }
+        });
+
 
         console.log("Subscription expired & user downgraded");
 

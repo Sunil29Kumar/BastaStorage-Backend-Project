@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 dotenv.config();
 import Subscription from "../models/subscriptionModel.js";
 import razor from "../utils/razorpay.js";
+import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
+import User from "../models/userModel.js";
 
 
 export const createSubscription = async (req, res) => {
@@ -209,6 +211,16 @@ export const cancelSubscription = async (req, res) => {
             },
             { new: true }
         );
+
+        // send cancellation mail to user
+        await sendSubscriptionMail({
+            type: "CANCELLED",
+            user: await User.findById(subscriptionRecord.userId),
+            meta: {
+                endDate: new Date(subscriptionRecord.currentEnd).toDateString()
+            }
+        });
+
 
         return res.status(200).json({
             message: "Subscription will be cancelled at end of billing cycle"
