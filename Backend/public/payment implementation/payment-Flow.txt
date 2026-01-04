@@ -111,7 +111,7 @@ Webhook: subscription.resumed
 
 
 
-6️⃣ Cancel Subscription (MOST CONFUSING PART)
+6️⃣ Cancel Subscription (MOST CONFUSING PART) 👍🏼
 Zoho / Industry standard
 
 ❌ Immediate cancel rarely hota hai
@@ -132,7 +132,7 @@ not plan upgrade ❌
 
 
 
-7️⃣ After Expiry (Cycle End ke baad)
+7️⃣ After Expiry (Cycle End ke baad) 👍🏼
 
 Zoho kya karta hai?
 
@@ -149,19 +149,12 @@ Used > free quota → warning
 
 30 days grace
 
-Option B – Soft
-
-Files remain
-
-New uploads blocked
-
-Ask user to upgrade
 
 
 8️⃣ Invoice Handling (BEST PRACTICE)
 Industry rule
 
-❌ Invoice ko bar-bar fetch nahi karte
+❌ Invoice ko bar-bar fetch nahi karte  👍🏼
 ✔ Webhook se hi store karte
 
 Best DB structure
@@ -183,7 +176,7 @@ payment.captured
 
 🔐 10️⃣ Enterprise-level Features (OPTIONAL but PRO)
 
-Zoho jaisa banana ho to:
+Zoho jaisa banana ho to:  👍🏼
 
 ✔ Grace Period (7–30 days)
 ✔ Email reminders (payment fail)
