@@ -161,7 +161,47 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     }
 
-    else if (req.body.event === "subscription.completed" || req.body.event === "subscription.cancelled") {   // completed
+    // else if (req.body.event === "subscription.completed" || req.body.event === "subscription.cancelled") {   // completed
+
+    //     console.log("webhook cancelled payload => ", req.body.payload);
+    //     const subscription = req.body.payload.subscription.entity;
+
+    //     // Update subscription status in the database
+    //     const updatedSubscription = await Subscription.findOneAndUpdate(
+    //         { razorpaySubscriptionId: subscription.id },
+    //         {
+    //             status: "expired",
+    //             cancel: {
+    //                 endedAt: new Date(),
+    //             },
+    //             grace: {
+    //                 enabled: true,
+    //                 until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),  // 7 days grace period
+    //             },
+    //             $push: {
+    //                 logs: {
+    //                     action: "grace_started",
+    //                     by: "webhook",
+    //                     at: new Date(),
+    //                     note: "7 days grace period started on subscription expiry/cancellation"
+    //                 }
+    //             }
+    //         },
+    //         { new: true }
+    //     );
+
+    //     // send subscription expired mail
+    //     await sendSubscriptionMail({
+    //         type: "EXPIRED",
+    //         user: userCache.get(sub.userId.toString()) || await User.findById(sub.userId),
+    //         meta: { graceDays: 7 }
+    //     });
+
+    //     console.log("Subscription expired & user downgraded");
+
+    // }
+
+    else if (req.body.event === "subscription.completed") {   // completed
 
         console.log("webhook cancelled payload => ", req.body.payload);
         const subscription = req.body.payload.subscription.entity;
@@ -171,42 +211,59 @@ export const razorpayWebhookHandler = async (req, res) => {
             { razorpaySubscriptionId: subscription.id },
             {
                 status: "expired",
-                cancel: {
-                    endedAt: new Date(),
-                },
                 grace: {
                     enabled: true,
                     until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),  // 7 days grace period
                 },
                 $push: {
                     logs: {
-                        action: "grace_started",
+                        action: "billing_cycle_completed",
                         by: "webhook",
                         at: new Date(),
-                        note: "7 days grace period started on subscription expiry/cancellation"
+                        note: "Your subscription billing cycle has completed."
                     }
                 }
             },
             { new: true }
         );
 
-        if (updatedSubscription) {
-            await User.findByIdAndUpdate(updatedSubscription?.userId,
-                {
-                    userIs: "free", subscriptionTier: "free", totalSpace: plans["free"].storageQuotaBytes
-                }
-            )
-        }
-
         // send subscription expired mail
         await sendSubscriptionMail({
             type: "EXPIRED",
-            user: userCache.get(sub.userId.toString()) || await User.findById(sub.userId),
-            meta: { graceDays: 7 }
+            user: await User.findById(updatedSubscription?.userId),
+            meta: { graceDays: 7 }  
         });
 
+        console.log("Subscription expired ");
 
-        console.log("Subscription expired & user downgraded");
+    }
+
+    else if (req.body.event === "subscription.cancelled") {   // cancelled
+
+        console.log("webhook cancelled payload => ", req.body.payload);
+        const subscription = req.body.payload.subscription.entity;
+
+        // Update subscription status in the database
+        const updatedSubscription = await Subscription.findOneAndUpdate(
+            { razorpaySubscriptionId: subscription.id },
+            {
+                status: "cancelled",
+                cancel: { endedAt: new Date(), },
+                $push: {
+                    logs: {
+                        action: "user_cancelled",
+                        by: "webhook",
+                        at: new Date(),
+                        note: "User cancelled the subscription."
+                    }
+                }
+            },
+            { new: true }
+        );
+
+        // send subscription cancel mail
+
+        console.log("Subscription cancelled ");
 
     }
 

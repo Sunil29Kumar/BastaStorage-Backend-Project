@@ -14,15 +14,19 @@ export const blockIfPaused = async (req, res, next) => {
 export const blockIfExpired = async (req, res, next) => {
     const userId = req.user._id;
     const subscription = req.subscription;
+
+    // no subscription or not expired  -> allowed
     if (subscription?.status !== "expired") return next();
 
-    if (subscription?.grace?.enabled) return next();
-
-    if (subscription?.status === "expired") {
+    // expired BUT grace still active → block upload
+    if (subscription.grace?.enabled && new Date() < new Date(subscription.grace.until)) {
         return res.status(403).json({
-            error: "Your subscription has expired. Please renew to access this feature.",
+            error: "Your subscription has expired. Please renew to upload files.",
         });
     }
-    next();
+
+    return next();
+
+
 }
 

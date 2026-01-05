@@ -73,15 +73,15 @@ export const getSubscriptionStatus = async (req, res) => {
 // current subscription
 export const getCurrentSubscription = async (req, res) => {
     try {
-        const subscription = await Subscription.findOne({ userId: req.user._id });
-        if (!subscription) {
-            return res.status(404).json({ error: "No subscription found for this user" });
-        }
-        return res.status(200).json({ subscription });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Failed to fetch current subscription" });
+        const subscription = await Subscription.findOne({ userId: req.user._id, status: { $ne: "expired" } });
+    if (!subscription) {
+        return res.status(404).json({ error: "No subscription found for this user" });
     }
+    return res.status(200).json({ subscription });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to fetch current subscription" });
+}
 };
 
 

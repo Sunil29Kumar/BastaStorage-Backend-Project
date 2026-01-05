@@ -4,6 +4,8 @@ import File from "../models/fileModel.js";
 import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
 import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
+import { deleteFilesFromS3 } from "../utils/s3.js";
+import plans from "../utils/plans.js";
 
 export const cleanupPendingUploads = () => {
 
@@ -21,13 +23,13 @@ export const cleanupPendingUploads = () => {
                 "grace.enabled": true,
             });
 
+
             for (const sub of subscriptions) {
 
                 const remainingMs = new Date(sub.grace.until).getTime() - now;
                 const remainingDays = Math.ceil(remainingMs / DAY);
-                const userCache = new Map();
                 console.log(remainingDays);
-
+                const userCache = new Map();
 
 
                 // DAILY GRACE REMINDER (ONCE PER DAY)
@@ -89,11 +91,19 @@ export const cleanupPendingUploads = () => {
                         uploadedUnderPlan: { $ne: "free" }
                     });
 
+                    // delete multi fle from S3
+                    const keys = proFiles.map(f => `${f._id}${f.extension}`);
+                    if (keys.length > 0) await deleteFilesFromS3(keys);
+
 
                     // update user usedSpace
+                    // downgrade user to free plan
                     await User.findByIdAndUpdate(
                         sub.userId,
-                        { $inc: { usedSpace: -totalProFilesSize } }
+                        {
+                            $inc: { usedSpace: -totalProFilesSize },
+                            userIs: "free", subscriptionTier: "free", totalSpace: plans["plan_free"].storageQuotaBytes
+                        }
                     );
 
                     // update subscription to disable grace
@@ -109,6 +119,7 @@ export const cleanupPendingUploads = () => {
                         }
                     });
 
+
                     // update notification 
                     await Notification.create({
                         userId: sub.userId,
@@ -117,7 +128,7 @@ export const cleanupPendingUploads = () => {
                         type: "warning",
                     });
 
-                    // gravce ended mail
+                    // grace ended mail
                     await sendSubscriptionMail({
                         type: "GRACE_ENDED",
                         user: userCache.get(sub.userId.toString()) || await User.findById(sub.userId),

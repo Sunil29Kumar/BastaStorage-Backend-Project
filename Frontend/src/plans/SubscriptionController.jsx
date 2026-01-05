@@ -152,7 +152,7 @@ export default function SubscriptionController() {
                                     onClick={() => navigate('/plans')}
                                     disabled={isPaused}
                                     className={`w-full py-4 rounded-2xl  ${isPaused ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 cursor-pointer"} text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all`}>
-                                    {isCancelled ? "Change My Plan" : "Upgrade / Change Plan"}
+                                    {isCancelled ? "Change My Plan" : currentSubscription?.status === "expired" ? "Renew My Plan" : "Upgrade / Change My Plan"}
                                 </button>
                             )}
 
@@ -160,20 +160,28 @@ export default function SubscriptionController() {
                             {/* {currentSubscription && (
                                     <> */}
 
-                            {(!isExpired && !isCancelled && !isExpired) && (
-                                <button onClick={() => isPaused ? handleResumeSubscription(currentSubscription.razorpaySubscriptionId) : handlePauseSubscription(currentSubscription.razorpaySubscriptionId)}
-                                    className={`w-full py-4 rounded-2xl cursor-pointer font-black text-xs uppercase tracking-widest transition-all border-2 ${isPaused ? "bg-yellow-500 border-yellow-500 text-white" : "border-yellow-500/50 text-yellow-500 hover:bg-yellow-500 hover:text-white"
-                                        }`}>
-                                    {isPaused ? "Resume Now" : "Pause Billing"}
-                                </button>
+                            {currentSubscription?.status && (
+
+                                <>
+                                    {(!isExpired && !isCancelled && !isExpired) && (
+                                        <button onClick={() => isPaused ? handleResumeSubscription(currentSubscription.razorpaySubscriptionId) : handlePauseSubscription(currentSubscription.razorpaySubscriptionId)}
+                                            className={`w-full py-4 rounded-2xl cursor-pointer font-black text-xs uppercase tracking-widest transition-all border-2 ${isPaused ? "bg-yellow-500 border-yellow-500 text-white" : "border-yellow-500/50 text-yellow-500 hover:bg-yellow-500 hover:text-white"
+                                                }`}>
+                                            {isPaused ? "Resume Now" : "Pause Billing"}
+                                        </button>
+
+                                    )}
+                                    {(!isPaused && !isCancelled && !isExpired && (
+                                        <button onClick={() => handleCancelSubscription(currentSubscription.razorpaySubscriptionId)}
+                                            className="w-full py-4 rounded-2xl border-2 cursor-pointer border-red-500/50 text-red-500 font-black text-xs uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">
+                                            End Subscription
+                                        </button>)
+                                    )}
+                                </>
+
 
                             )}
-                            {(!isPaused && !isCancelled && !isExpired) && (
-                                <button onClick={() => handleCancelSubscription(currentSubscription.razorpaySubscriptionId)}
-                                    className="w-full py-4 rounded-2xl border-2 cursor-pointer border-red-500/50 text-red-500 font-black text-xs uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">
-                                    End Subscription
-                                </button>
-                            )}
+
 
                             {/* </>
                                 )} */}

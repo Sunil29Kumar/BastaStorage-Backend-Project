@@ -25,6 +25,10 @@ const plans = {
         storageQuotaBytes: 10 * 1024 ** 4, // 10 TB year
         tier: "ultimate"
     },
+    plan_free: {
+        storageQuotaBytes: 500 * 1024 ** 2, // 500 mb free plan
+        tier: "free"
+    },
 
 
 };
