@@ -12,7 +12,7 @@ import rediclient from "../database/redis.js";
 // zod 
 import z from "zod/v4";
 import { loginSchema, registerSchema, updateUserRoleSchema } from "../validators/userSchema.js";
-import { createGetSignedUrl, deleteFileFromS3, generateSignedUrl, s3Client } from "../utils/s3.js";
+import { createGetSignedUrl, deleteFileFromS3, generateSignedUrl, s3Client } from "../services/s3.js";
 import path from "path";
 
 
@@ -281,7 +281,7 @@ export const updateUserProfile = async (req, res) => {
 
     // delete old photo from s3 if exists
     if (req.file && req.user.picture) {
-      deleteFileFromS3(req.user.pictureKey).catch((err) => {
+      deleteFileFromS3(req.user?.pictureKey).catch((err) => {
         console.log("Error deleting old profile photo from S3:", err);
       })
     }

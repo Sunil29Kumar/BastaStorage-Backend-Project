@@ -16,12 +16,12 @@ import subscriptionRoute from "./routes/subscriptionRoute.js";
 import webhookRoute from "./routes/webhookRoute.js";
 
 import { connectDB } from "./database/db.js";
-// import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
+import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
 
 
 await connectDB();
 
-// cleanupPendingUploads();
+cleanupPendingUploads();
 
 const app = express();
 

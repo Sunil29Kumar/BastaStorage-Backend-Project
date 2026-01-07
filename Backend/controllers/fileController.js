@@ -11,10 +11,9 @@ import crypto from "crypto";
 import inviteUserByEmail from "../utils/inviteUserByEmail.js";
 import { createFileSchema, renameFileSchema } from "../validators/fileSchema.js";
 import z from "zod/v4";
-import { createGetSignedUrl, deleteFileFromS3, generateSignedUrl } from "../utils/s3.js";
+import { deleteFileFromS3, generateSignedUrl, createGetSignedUrl } from "../services/s3.js";
 import Subscription from '../models/subscriptionModel.js';
 import { createCloudFrontSignedUrl } from '../services/cloudFront.js';
-import mongoose from 'mongoose';
 
 
 

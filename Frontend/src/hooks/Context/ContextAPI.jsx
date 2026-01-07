@@ -287,6 +287,7 @@ function ContextAPI({ children }) {
   const [checking, setChecking] = useState(false);
   const [currentSubscription, setCurrentSubscription] = useState(null);
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
+  const [isClickOnSubscribe, setIsClickOnSubscribe] = useState(false);
 
 
 
@@ -1357,6 +1358,7 @@ function ContextAPI({ children }) {
 
   // create subscription
   async function createSubscription(planId) {
+    setIsClickOnSubscribe(true);
     // step 1: create subscription on backend
     const respone = await fetch(`${BASE_URL}/subscription`, {
       method: "POST",
@@ -1380,6 +1382,7 @@ function ContextAPI({ children }) {
       handler: function (response) {
         if (response.razorpay_payment_id) {
           setChecking(true);
+          setIsClickOnSubscribe(false);
           startPolling(data.subscriptionId);
         }
       },
@@ -1404,6 +1407,7 @@ function ContextAPI({ children }) {
       if (data.status === "active" || data.status === "completed") {
         clearInterval(interval);
         setChecking(false);
+        setIsClickOnSubscribe(false);
         navigate("/");
         getDirectoryItems();
       }
@@ -1636,7 +1640,7 @@ function ContextAPI({ children }) {
         updateRoleMessage,
 
         // subscription plans and payment integration
-        PLAN_CATALOG, createSubscription, setChecking, checking, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, handleCancelSubscription, currentSubscription, subscriptionMessage
+        PLAN_CATALOG, createSubscription, setChecking, checking, setIsClickOnSubscribe,isClickOnSubscribe,fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, handleCancelSubscription, currentSubscription, subscriptionMessage
 
       }}
     >

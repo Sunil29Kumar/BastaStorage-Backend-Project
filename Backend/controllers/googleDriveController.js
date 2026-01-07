@@ -7,11 +7,10 @@ import { oauth2Client } from "../utils/googleDriveAuthService.js";
 import User from "../models/userModel.js";
 import { ObjectId } from "mongodb";
 import { Upload } from "@aws-sdk/lib-storage";
-import { s3Client } from "../utils/s3.js";
+import { s3Client } from "../services/s3.js";
 
 // import z from "zod/v4";
 import { sendGoogleDriveFileSchema } from "../validators/googleDriveSchema.js";
-import { generateSignedUrl } from "../utils/s3.js";
 import { z } from "zod/v4";
 import Subscription from "../models/subscriptionModel.js";
 

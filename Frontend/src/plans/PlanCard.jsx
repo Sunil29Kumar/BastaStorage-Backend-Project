@@ -1,10 +1,10 @@
-export default function PlanCard({ plan, onSelect, currentSubscription }) {
+export default function PlanCard({ plan, onSelect, currentSubscription, isClickOnSubscribe }) {
 
     console.log("cc", currentSubscription);
     const isCurrentPlan = currentSubscription && currentSubscription.planId === plan.id && ["active", "paused"].includes(currentSubscription.status);
 
     console.log(isCurrentPlan);
-    
+
 
     return (
         <div
@@ -77,12 +77,18 @@ export default function PlanCard({ plan, onSelect, currentSubscription }) {
                 </div>
                 :
                 <button
-                    onClick={() => onSelect(plan)}
-                    className={`mt-auto w-full cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold transition-all
+                    disabled={isClickOnSubscribe}
+                    onClick={() => {
+                        console.log("clcked");
+
+                        onSelect(plan)
+                    }}
+                    className={`mt-auto w-full  rounded-xl px-4 py-3 text-sm font-semibold transition-all
+                    ${isClickOnSubscribe ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
                     ${plan.popular
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : "bg-slate-900 text-white hover:bg-slate-800"
-                        } `}
+                        }  `}
                 >
                     {plan.cta}
                 </button>

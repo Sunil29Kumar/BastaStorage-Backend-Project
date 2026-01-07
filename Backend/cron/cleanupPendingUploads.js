@@ -4,7 +4,7 @@ import File from "../models/fileModel.js";
 import User from "../models/userModel.js";
 import Notification from "../models/notificationModel.js";
 import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
-import { deleteFilesFromS3 } from "../utils/s3.js";
+import { deleteFilesFromS3 } from "../services/s3.js";
 import plans from "../utils/plans.js";
 
 export const cleanupPendingUploads = () => {

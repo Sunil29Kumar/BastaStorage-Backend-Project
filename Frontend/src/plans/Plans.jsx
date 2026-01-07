@@ -12,13 +12,10 @@ export default function Plans() {
     const [mode, setMode] = useState("monthly");
 
 
-    const {PLAN_CATALOG, getDirectoryItems, setChecking, checking, createSubscription, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, subscriptionMessage, currentSubscription } = useContext(BastaStorageContext)
+    const {PLAN_CATALOG, getDirectoryItems, setChecking, checking, isClickOnSubscribe,createSubscription, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, subscriptionMessage, currentSubscription } = useContext(BastaStorageContext)
 
     const plans = PLAN_CATALOG[mode];
-
-    console.log(currentSubscription);
     
-
 
     // Load Razorpay script
     useEffect(() => {
@@ -81,6 +78,7 @@ export default function Plans() {
                         currentSubscription={currentSubscription}
                         handlePauseSubscription={handlePauseSubscription}
                         handleResumeSubscription={handleResumeSubscription}
+                        isClickOnSubscribe={isClickOnSubscribe}
                     />
                 ))}
             </div>

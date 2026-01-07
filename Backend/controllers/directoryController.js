@@ -4,7 +4,7 @@ import { rm } from "fs/promises";
 import Directorie from "../models/directoryModel.js";
 import File from "../models/fileModel.js";
 import User from "../models/userModel.js";
-import { deleteFilesFromS3 } from "../utils/s3.js";
+import { deleteFilesFromS3 } from "../services/s3.js";
 
 
 // create directory
