@@ -49,7 +49,7 @@ export const sendSubscriptionMail = async ({
     if (!event) return;
 
     await sendMail({
-        to: user.email,
+        to: user?.email,
         subject: event.subject,
         html: event.template({ name: user.name, ...meta }),
     });

@@ -13,6 +13,8 @@ import { createFileSchema, renameFileSchema } from "../validators/fileSchema.js"
 import z from "zod/v4";
 import { createGetSignedUrl, deleteFileFromS3, generateSignedUrl } from "../utils/s3.js";
 import Subscription from '../models/subscriptionModel.js';
+import { createCloudFrontSignedUrl } from '../services/cloudFront.js';
+import mongoose from 'mongoose';
 
 
 
@@ -151,13 +153,12 @@ export const getFile = async (req, res) => {
 
   // agar user download karna chahta hai
   if (req.query.action === "download") {
-    const signedUrl = await createGetSignedUrl({ fileKey: `${fileData._id}${fileData.extension}`, fileName: fileData.name, download: true });
+    const signedUrl = createCloudFrontSignedUrl({ fileKey: `${fileData._id}${fileData.extension}`, fileName: fileData.name, download: true });
     return res.redirect(signedUrl);
   }
 
   // file ko browser me send kar rahe hain
-  const signedUrl = await createGetSignedUrl({ fileKey: `${fileData._id}${fileData.extension}`, fileName: fileData.name, download: false });
-
+  const signedUrl = createCloudFrontSignedUrl({ fileKey: `${fileData._id}${fileData.extension}`, fileName: fileData.name, download: false });
 
   return res.redirect(signedUrl);
 

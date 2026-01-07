@@ -32,6 +32,29 @@ export const razorpayWebhookHandler = async (req, res) => {
         const payment = req.body.payload.payment?.entity;
         const planId = subscription.plan_id;
 
+        // check if already acive plan 
+        //  if already active plan exists, make this plan expired
+        const existingActivePlan = await Subscription.findOneAndUpdate(
+            { userId: subscription.notes.userId, status: { $in: ["active", "paused"] } },
+            {
+                status: "expired",
+                grace: {
+                    enabled: false,
+                    until: null,
+                },
+
+                $push: {
+                    logs: {
+                        action: "expired_due_to_new_activation",
+                        by: "webhook",
+                        at: new Date(),
+                        note: "Subscription expired due to new subscription activation"
+                    }
+                }
+
+            },
+        )
+
         // update subscription status in DB
         const subscriptionUpdate = await Subscription.findOneAndUpdate(
             { razorpaySubscriptionId: subscription?.id },
@@ -161,46 +184,6 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     }
 
-    // else if (req.body.event === "subscription.completed" || req.body.event === "subscription.cancelled") {   // completed
-
-    //     console.log("webhook cancelled payload => ", req.body.payload);
-    //     const subscription = req.body.payload.subscription.entity;
-
-    //     // Update subscription status in the database
-    //     const updatedSubscription = await Subscription.findOneAndUpdate(
-    //         { razorpaySubscriptionId: subscription.id },
-    //         {
-    //             status: "expired",
-    //             cancel: {
-    //                 endedAt: new Date(),
-    //             },
-    //             grace: {
-    //                 enabled: true,
-    //                 until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),  // 7 days grace period
-    //             },
-    //             $push: {
-    //                 logs: {
-    //                     action: "grace_started",
-    //                     by: "webhook",
-    //                     at: new Date(),
-    //                     note: "7 days grace period started on subscription expiry/cancellation"
-    //                 }
-    //             }
-    //         },
-    //         { new: true }
-    //     );
-
-    //     // send subscription expired mail
-    //     await sendSubscriptionMail({
-    //         type: "EXPIRED",
-    //         user: userCache.get(sub.userId.toString()) || await User.findById(sub.userId),
-    //         meta: { graceDays: 7 }
-    //     });
-
-    //     console.log("Subscription expired & user downgraded");
-
-    // }
-
     else if (req.body.event === "subscription.completed") {   // completed
 
         console.log("webhook cancelled payload => ", req.body.payload);
@@ -231,7 +214,7 @@ export const razorpayWebhookHandler = async (req, res) => {
         await sendSubscriptionMail({
             type: "EXPIRED",
             user: await User.findById(updatedSubscription?.userId),
-            meta: { graceDays: 7 }  
+            meta: { graceDays: 7 }
         });
 
         console.log("Subscription expired ");

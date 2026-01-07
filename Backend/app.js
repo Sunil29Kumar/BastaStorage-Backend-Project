@@ -16,12 +16,12 @@ import subscriptionRoute from "./routes/subscriptionRoute.js";
 import webhookRoute from "./routes/webhookRoute.js";
 
 import { connectDB } from "./database/db.js";
-import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
+// import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
 
 
 await connectDB();
 
-cleanupPendingUploads();
+// cleanupPendingUploads();
 
 const app = express();
 
@@ -135,7 +135,7 @@ app.use("/google-drive", checkAuth, googleDriveRoute);
 // subscription and webhook routes
 app.use("/webhook", webhookRoute);
 app.use("/subscription", checkAuth, subscriptionRoute);
-``
+
 
 // global error handler middleware
 app.use((err, req, res, next) => {

@@ -1,6 +1,10 @@
 export default function PlanCard({ plan, onSelect, currentSubscription }) {
 
-console.log("cc",currentSubscription);
+    console.log("cc", currentSubscription);
+    const isCurrentPlan = currentSubscription && currentSubscription.planId === plan.id && ["active", "paused"].includes(currentSubscription.status);
+
+    console.log(isCurrentPlan);
+    
 
     return (
         <div
@@ -19,13 +23,6 @@ console.log("cc",currentSubscription);
                     ⭐ Best Value
                 </div>
             )}
-
-            {/* Current Plan Badge */}
-            {/* {currentSubscription?.planId === plan.id && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white text-md px-4 py-1 font-semibold rounded-full shadow">
-                    ✔ Current Plan
-                </div>
-            )} */}
 
             {/* Header */}
             <div className="mb-4 flex items-center justify-between">
@@ -74,7 +71,7 @@ console.log("cc",currentSubscription);
 
             {/* CTA Button */}
 
-            {(currentSubscription?.planId === plan.id ) ?
+            {isCurrentPlan ?
                 <div className=" bg-green-600 text-white text-md text-center px-4 py-3 font-semibold rounded-full shadow">
                     ✔ Current Plan
                 </div>

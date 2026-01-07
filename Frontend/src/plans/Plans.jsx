@@ -16,6 +16,9 @@ export default function Plans() {
 
     const plans = PLAN_CATALOG[mode];
 
+    console.log(currentSubscription);
+    
+
 
     // Load Razorpay script
     useEffect(() => {

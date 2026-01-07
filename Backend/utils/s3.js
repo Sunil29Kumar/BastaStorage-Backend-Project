@@ -6,6 +6,7 @@ import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectC
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 
+
 export const s3Client = new S3Client({
     region: process.env.AWS_REGION,
     credentials: {
@@ -52,7 +53,10 @@ export async function createGetSignedUrl({ fileKey, fileName, download = false }
     } catch (error) {
         return null;
     }
+
 }
+
+
 
 
 export async function deleteFileFromS3(fileKey) {
