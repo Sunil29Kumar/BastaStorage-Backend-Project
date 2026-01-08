@@ -6,6 +6,7 @@ import Notification from "../models/notificationModel.js";
 import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
 import { deleteFilesFromS3 } from "../services/s3.js";
 import plans from "../utils/plans.js";
+import { createNotification } from "../utils/createNotification.js";
 
 export const cleanupPendingUploads = () => {
 
@@ -60,11 +61,23 @@ export const cleanupPendingUploads = () => {
                         }
 
                         try {
+                            // send grace reminder mail
                             await sendSubscriptionMail({
                                 type: "GRACE_REMINDER",
                                 user,
                                 meta: { days: remainingDays }
                             });
+
+                            // create notification
+                            await createNotification({
+                                userId: sub.userId,
+                                type: "warning",
+                                title: "Grace period ending",
+                                message: `Your grace period will end in ${remainingDays} day(s). Upgrade now to avoid file deletion.`,
+                                meta: { remainingDays }
+                            });
+
+
                         } catch (err) {
                             console.error("Grace reminder mail failed:", err.message);
                         }
@@ -119,21 +132,22 @@ export const cleanupPendingUploads = () => {
                         }
                     });
 
-
-                    // update notification 
-                    await Notification.create({
-                        userId: sub.userId,
-                        title: "subscription",
-                        message: "Your subscription grace period has ended. All paid files have been deleted and your account has been downgraded to free tier.",
-                        type: "warning",
-                    });
-
                     // grace ended mail
                     await sendSubscriptionMail({
                         type: "GRACE_ENDED",
                         user: userCache.get(sub.userId.toString()) || await User.findById(sub.userId),
                         meta: { graceDays: 0 }
                     });
+
+
+                    // update notification 
+                    await createNotification({
+                        userId: sub.userId,
+                        type: "warning",
+                        title: "Grace period ended",
+                        message: "Your grace period has ended. Paid files were deleted and your account is now on the free plan."
+                    });
+
 
                 }
             }

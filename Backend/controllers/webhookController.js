@@ -5,6 +5,7 @@ import crypto from "crypto";
 import Subscription from "../models/subscriptionModel.js";
 import User from "../models/userModel.js";
 import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
+import { createNotification } from "../utils/createNotification.js";
 
 
 export const razorpayWebhookHandler = async (req, res) => {
@@ -115,6 +116,14 @@ export const razorpayWebhookHandler = async (req, res) => {
             meta: { plan: plans[planId].tier },
         });
 
+        // create notification about activation
+        await createNotification({
+            userId: subscriptionUpdate.userId,
+            type: "subscription",
+            title: "Subscription activated",
+            message: `Your subscription to the ${plans[planId].tier} plan has been activated successfully.`,
+        });
+
         console.log("subscription activated");
 
     }
@@ -149,6 +158,14 @@ export const razorpayWebhookHandler = async (req, res) => {
             user: await User.findById(updatedSubscription?.userId),
             meta: { plan: plans[updatedSubscription?.planId].tier },
         })
+
+        // notification about pausing
+        await createNotification({
+            userId: updatedSubscription.userId,
+            type: "subscription",
+            title: "Subscription paused",
+            message: "Your subscription has been paused successfully."
+        });
     }
 
     else if (req.body.event === "subscription.resumed") {   // resumed
@@ -180,6 +197,14 @@ export const razorpayWebhookHandler = async (req, res) => {
             type: "RESUMED",
             user: await User.findById(updatedSubscription?.userId),
             meta: { plan: plans[updatedSubscription?.planId].tier },
+        });
+
+        // notification about resumption
+        await createNotification({
+            userId: updatedSubscription.userId,
+            type: "subscription",
+            title: "Subscription resumed",
+            message: "Your subscription has been resumed successfully."
         });
 
     }
@@ -217,6 +242,15 @@ export const razorpayWebhookHandler = async (req, res) => {
             meta: { graceDays: 7 }
         });
 
+
+        // notify user about subscription expiry and grace period
+        await createNotification({
+            userId: updatedSubscription.userId,
+            type: "subscription",
+            title: "Subscription expired",
+            message: "Your subscription has expired. You are in a 7-day grace period. Upgrade to keep your files."
+        });
+
         console.log("Subscription expired ");
 
     }
@@ -245,6 +279,20 @@ export const razorpayWebhookHandler = async (req, res) => {
         );
 
         // send subscription cancel mail
+        await sendSubscriptionMail({
+            type: "CANCELLED",
+            user: await User.findById(updatedSubscription?.userId),
+            meta: { plan: plans[updatedSubscription?.planId].tier }
+        });
+
+
+        // notification about cancellation
+        await createNotification({
+            userId: sub.userId,
+            type: "subscription",
+            title: "Subscription cancelled",
+            message: "Your subscription has been cancelled. You will continue to have access until the end of the current billing cycle."
+        });
 
         console.log("Subscription cancelled ");
 

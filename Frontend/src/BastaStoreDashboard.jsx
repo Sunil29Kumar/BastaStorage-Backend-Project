@@ -23,6 +23,7 @@ import MyFiles from "./Components/MyFiles.jsx";
 import FileDeleteRenameMessage from "./Components/progress file folder/FileDeleteRenameMessage.jsx";
 import DirDeleteRenameMessage from "./Components/progress file folder/DirDeleteRenameMessage.jsx";
 import StorageOverview from "./Components/Total Storage/StorageOverview .jsx";
+import Notification from "./Components/Notification/Notification.jsx";
 
 
 function BastaStoreDashboard() {
@@ -48,7 +49,7 @@ function BastaStoreDashboard() {
     showShareFile,
     isShareLinkCopied,
     isGDBoxOpen,
-    dirUploadMessage
+    dirUploadMessage, isClickOnNotificationBell
   } = useContext(BastaStorageContext);
 
 
@@ -75,6 +76,7 @@ function BastaStoreDashboard() {
         {isShareLinkCopied && <LinkCopiedMessage />}
         {((fileRenameMessage.message.length > 0 || fileRenameMessage.error.length > 0) || (fileDeleteMessage.message.length > 0 || fileDeleteMessage.error.length > 0)) && <FileDeleteRenameMessage />}
         {((dirRenameMessage.message.length > 0 || dirRenameMessage.error.length > 0) || (dirDeleteMessage.message.length > 0 || dirDeleteMessage.error.length > 0) || (dirUploadMessage.message.length > 0 || dirUploadMessage.error.length > 0)) && <DirDeleteRenameMessage />}
+        {isClickOnNotificationBell && <Notification />}
 
       </div>
     </div>

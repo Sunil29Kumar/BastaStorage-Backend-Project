@@ -9,7 +9,11 @@ function TopMenu() {
     setAccountMenu,
     storeUserData,
     toggleDarkMode,
+    notificationsData,
+    setIsClickOnNotificationBell,
+    isClickOnNotificationBell
   } = useContext(BastaStorageContext);
+
 
   const pathname = useLocation().pathname;
 
@@ -43,12 +47,19 @@ function TopMenu() {
       <div className="flex items-center gap-4">
         {/* Notification */}
         <button
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition cursor-pointer ${isDarkMode
-            ? "bg-gray-800 hover:bg-gray-700"
-            : " hover:bg-gray-200"
+          className={`w-10 h-10 relative rounded-full flex items-center justify-center transition cursor-pointer ${isDarkMode
+            ? "bg-gray-800 hover:bg-gray-700 "
+            : "   hover:bg-gray-200"
             }`}
         >
-          <FaBell />
+          <FaBell
+            onClick={() => setIsClickOnNotificationBell(!isClickOnNotificationBell)}
+            className={`${(!isDarkMode && notificationsData?.length > 0) ? "text-red-600 hover:text-red-700" : ""}`} />
+
+          <span className=" absolute top-0 right-0 font-bold ">{notificationsData?.length > 0 && !notificationsData?.read && (
+            notificationsData.filter((notify) => !notify.read)?.length
+          )}</span>
+
         </button>
 
         {/* Dark Mode */}

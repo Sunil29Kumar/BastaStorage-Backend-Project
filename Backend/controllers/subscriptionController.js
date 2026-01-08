@@ -4,6 +4,7 @@ import Subscription from "../models/subscriptionModel.js";
 import razor from "../utils/razorpay.js";
 import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
 import User from "../models/userModel.js";
+import { createNotification } from "../utils/createNotification.js";
 
 
 export const createSubscription = async (req, res) => {
@@ -29,7 +30,7 @@ export const createSubscription = async (req, res) => {
 
 
         // check existing user subscription for same plan
-        const existingSubscription = await Subscription.findOne({ userId: req.user._id, planId: planId , status: { $in: ["active", "paused"] } });
+        const existingSubscription = await Subscription.findOne({ userId: req.user._id, planId: planId, status: { $in: ["active", "paused"] } });
         if (existingSubscription) {
             return res.status(404).json({ error: "This Plan already On Boarding" })
         }
@@ -219,6 +220,16 @@ export const cancelSubscription = async (req, res) => {
             meta: {
                 endDate: new Date(subscriptionRecord.currentEnd).toDateString()
             }
+        });
+
+
+        // notification 
+        await createNotification({
+            userId: subscriptionRecord.userId,
+            type: "subscription",
+            title: "Subscription cancelled",
+            message: "Your subscription has been cancelled and will remain active until the end of the current billing cycle.",
+            meta: { subscriptionId }
         });
 
 

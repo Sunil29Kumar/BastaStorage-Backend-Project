@@ -290,6 +290,13 @@ function ContextAPI({ children }) {
   const [isClickOnSubscribe, setIsClickOnSubscribe] = useState(false);
 
 
+  // notificarion
+  const [notificationsData, setNotificationsData] = useState();
+  const [isClickOnNotificationBell, setIsClickOnNotificationBell] = useState(false);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const [isNotificationsLoading, setIsNotificationsLoading] = useState(false);
+
+
 
 
 
@@ -1508,6 +1515,60 @@ function ContextAPI({ children }) {
 
 
 
+  // ------------------  Notification ------------------
+
+  async function fetchNotifications() {
+    const response = await fetch(`${BASE_URL}/notification`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (response.ok) {
+
+      console.log("notification data", data);
+      setNotificationsData(data.notifications);
+      console.log(notificationsData);
+    }
+
+  }
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [])
+
+
+
+  //  markNotificationAsRead
+  async function markNotificationAsRead(notificationId) {
+    const response = await fetch(`${BASE_URL}/notification/mark-read/${notificationId}`, {
+      method: "POST",
+      credentials: "include",
+
+    });
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      fetchNotifications();
+    }
+  }
+
+
+  //  make all notification as readf
+  async function markAllNotificationsAsRead() {
+    const response = await fetch(`${BASE_URL}/notification/mark-read-all`, {
+      method: "POST",
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    if (response.ok) {
+      fetchNotifications();
+    }
+  }
+
+
+
+
   return (
     <BastaStorageContext.Provider
       value={{
@@ -1640,7 +1701,10 @@ function ContextAPI({ children }) {
         updateRoleMessage,
 
         // subscription plans and payment integration
-        PLAN_CATALOG, createSubscription, setChecking, checking, setIsClickOnSubscribe,isClickOnSubscribe,fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, handleCancelSubscription, currentSubscription, subscriptionMessage
+        PLAN_CATALOG, createSubscription, setChecking, checking, setIsClickOnSubscribe, isClickOnSubscribe, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, handleCancelSubscription, currentSubscription, subscriptionMessage,
+
+        // Notification 
+        notificationsData, fetchNotifications, isClickOnNotificationBell, setIsClickOnNotificationBell, markNotificationAsRead, markAllNotificationsAsRead
 
       }}
     >

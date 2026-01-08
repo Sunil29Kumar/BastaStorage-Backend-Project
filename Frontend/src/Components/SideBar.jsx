@@ -40,10 +40,10 @@ function SideBar() {
       {/* TOP SECTION */}
       <div className="flex flex-col gap-3">
         {/* LOGO */}
-        <div className="h-[10vh] flex items-center  ">
+        <div className="h-[10vh] flex items-center   ">
           <img
-            src="../../public/bst logo.png"
-            className="w-[4vw] cursor-pointer"
+            src="/bst logo.png"
+            className="w-[4vw] cursor-pointer bg-black "
             alt="logo"
           />
         </div>
