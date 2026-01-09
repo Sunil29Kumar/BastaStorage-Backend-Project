@@ -1,12 +1,14 @@
-import { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { Link } from "react-router-dom";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import LoginWithGoogle from "./LoginWithGoogle";
 import LoginWithGithub from "./LoginWithGithub";
+
+import TermsPrivacyFooter from "../Components/legal/TermsPrivacyFooter";
 // import OTP from "./OTP";
 
 function Login() {
-  const { loginData, setLoginData, handleLogin, loginError, loginLimiter } =
+  const { loginData, setLoginData, handleLogin, loginError, loginLimiter, isDarkMode } =
     useContext(BastaStorageContext);
 
   const handleChange = (e) => {
@@ -70,6 +72,11 @@ function Login() {
             <LoginWithGoogle />
             <LoginWithGithub />
           </div>
+
+
+          {/* FOOTER - Policy links */}
+          <TermsPrivacyFooter />
+
         </div>
       }
 

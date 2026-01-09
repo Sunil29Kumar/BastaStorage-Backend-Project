@@ -5,6 +5,8 @@ import { Link, redirect, useNavigate } from "react-router-dom";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import PlanCard from "./PlanCard.jsx";
 
+import TermsPrivacyFooter from "../Components/legal/TermsPrivacyFooter.jsx";
+
 
 
 
@@ -12,10 +14,10 @@ export default function Plans() {
     const [mode, setMode] = useState("monthly");
 
 
-    const {PLAN_CATALOG, getDirectoryItems, setChecking, checking, isClickOnSubscribe,createSubscription, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, subscriptionMessage, currentSubscription } = useContext(BastaStorageContext)
+    const { PLAN_CATALOG, checking, isClickOnSubscribe, createSubscription, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, currentSubscription } = useContext(BastaStorageContext)
 
     const plans = PLAN_CATALOG[mode];
-    
+
 
     // Load Razorpay script
     useEffect(() => {
@@ -87,6 +89,9 @@ export default function Plans() {
                 This is a demo. Integrate with Razorpay Subscriptions to enable billing.
             </p>
 
+            {/* <PolicyFooter /> */}
+            <TermsPrivacyFooter />
+
 
             {/* payment verification */}
             {checking && (
@@ -103,7 +108,7 @@ export default function Plans() {
             )}
 
 
-           
+
 
         </div>
     );

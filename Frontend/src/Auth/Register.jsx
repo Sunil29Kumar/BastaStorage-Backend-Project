@@ -5,6 +5,8 @@ import OTP from "./OTP.jsx";
 import LoginWithGoogle from "./LoginWithGoogle.jsx";
 import LoginWithGithub from "./LoginWithGithub.jsx";
 
+import TermsPrivacyFooter from "../Components/legal/TermsPrivacyFooter.jsx";
+
 function Register() {
   const {
     registerData,
@@ -14,7 +16,8 @@ function Register() {
     setErrorRegister,
     otpError,
     isVerifyOtpWrong,
-    registerLimiterError
+    registerLimiterError,
+    isDarkMode,
   } = useContext(BastaStorageContext);
 
   const handleChange = (e) => {
@@ -116,8 +119,15 @@ function Register() {
             <LoginWithGoogle />
             <LoginWithGithub />
           </div>
+
+
+          {/* FOOTER - Policy links */}
+          <TermsPrivacyFooter />
+
         </div>
       }
+
+
 
     </div>
   );

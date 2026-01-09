@@ -42,7 +42,7 @@ function SideBar() {
         {/* LOGO */}
         <div className="h-[10vh] flex items-center   ">
           <img
-            src="/bst logo.png"
+            src={`${isDarkMode ?"/basta logo.png" : "/bst logo.png"}`}
             className="w-[4vw] cursor-pointer bg-black "
             alt="logo"
           />

@@ -13,6 +13,8 @@ import PrivateShareFileViewer from "./Components/Share files/PrivateShareFileVie
 import Plans from "./plans/plans";
 import ManageSubscription from "./plans/ManageSubscription";
 import MyFiles from "./Components/MyFiles";
+import Terms from "./Components/legal/Terms";
+import PrivacyPolicy from "./Components/legal/PrivacyPolicy";
 
 function App() {
   return (
@@ -148,6 +150,7 @@ function App() {
         }
       />
 
+
       <Route
         path="/manage-subscription"
         element={
@@ -157,6 +160,22 @@ function App() {
         }
       />
 
+      <Route
+        path="/terms"
+        element={
+          <BastaStorageProvider>
+            <Terms />
+          </BastaStorageProvider>
+        }
+      />
+      <Route
+        path="/privacy-policy"
+        element={
+          <BastaStorageProvider>
+            <PrivacyPolicy />
+          </BastaStorageProvider>
+        }
+      />
 
     </Routes>
   );
