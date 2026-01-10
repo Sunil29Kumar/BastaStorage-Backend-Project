@@ -1,71 +1,68 @@
-# BastaStorage
+# 📦 BastaStorage
+### Secure, Scalable & Smart Cloud Storage Solution
 
-BastaStorage is a cloud storage web application. It allows users to upload, manage, and share files and folders in a simple way. This project is built as a real-world SaaS application.
+![BastaStorage Banner](https://placehold.co/1200x400/0f172a/white?text=BastaStorage+Cloud+Management)
 
----
-
-## Features
-
-### File Features
-- Upload files
-- Rename and delete files
-- View file information
-- Share files using email or public link
-- Files are stored securely in AWS S3
-
-### Folder Features
-- Create folders
-- Rename and delete folders
-- Hierarchical folder structure
-- Recursive folder delete (delete folder with all files inside)
-
-### User Features
-- User can update profile details
-- Secure user-based file access
-
-### Authentication
-- Register using email, password, and OTP
-- Login with email and password
-- Google login
-- GitHub login
-- Session-based authentication using cookies
-- Redis used for session storage
-- Logout from current device or all devices
-- Free plan allows maximum 2 active devices
-
-### Subscription & Payment
-- Storage plans: 1 TB, 5 TB, 10 TB
-- Monthly and yearly plans available
-- User can upgrade, pause, resume, or cancel plan
-- Razorpay integrated for payments
-- Razorpay webhooks used for payment verification
-
-### Security
-- Protection against SQL Injection
-- XSS and CSRF protection
-- Rate limiting to prevent DoS attacks
-- Secure HTTP-only cookies
+BastaStorage ek modern **SaaS-based cloud storage application** hai jo users ko unka data manage karne ke liye ek secure aur fast environment provide karta hai. Is project ko scalability aur enterprise-grade security ko dhyan mein rakh kar banaya gaya hai.
 
 ---
 
-## Tech Stack
+## 🚀 Key Features
 
-- Frontend: React.js, Tailwind CSS
-- Backend: Node.js, Express.js
-- Database: MongoDB (Mongoose)
-- Storage: AWS S3
-- Authentication: Session-based (Cookies + Redis)
-- Payment: Razorpay
-- Other: REST APIs
+### 📂 File & Folder Ecosystem
+- **Advanced Management:** Files ko upload, rename, aur delete karne ka smooth interface.
+- **Hierarchical Structure:** Folders ke andar sub-folders ka support.
+- **Recursive Cleanup:** Folder delete karne par uske andar ka saara content automatically delete ho jata hai.
+- **Secure Sharing:** Files ko email ya public links ke zariye share karne ki suvidha.
+- **AWS S3 Powered:** Saara data world-class AWS S3 storage par store hota hai.
+
+### 🔐 Auth & Session (Powered by Redis)
+- **Hybrid Login:** Email/Password, **Google OAuth**, aur **GitHub OAuth** ka support.
+- **OTP Security:** Registration ke waqt Email OTP verification.
+- **Device Management:** Ek waqt mein kitne devices logged-in hain unhe manage karein. 
+- **Universal Logout:** Ek click mein saare logged-in devices se logout karne ka option.
+- **Free Tier Policy:** Free users ke liye maximum 2 active devices ki limit.
+
+### 💳 SaaS Subscription (Razorpay)
+- **Storage Plans:** 1 TB, 5 TB, aur 10 TB ke dedicated plans.
+- **Flexible Billing:** Monthly aur Yearly subscription options.
+- **Smart Management:** Plan ko kabhi bhi upgrade, pause, resume ya cancel karne ki aazadi.
+- **Webhook Integration:** Real-time payment verification aur subscription status update.
+
+### 🛡️ Security Architecture
+- **Data Protection:** SQL Injection, XSS, aur CSRF se mukammal hifazat.
+- **Session Security:** Redis-backed sessions aur Secure HTTP-only cookies.
+- **Rate Limiting:** DoS attacks aur brute-force attempts ko rokne ke liye smart rate limiters.
 
 ---
 
-## Project Status
+## 🛠️ Tech Stack
 
-This project is actively being developed and improved.
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | React.js, Tailwind CSS, Lucide Icons |
+| **Backend** | Node.js, Express.js |
+| **Database** | MongoDB (Mongoose) |
+| **Caching/Session** | Redis |
+| **Cloud Storage** | AWS S3 |
+| **Payments** | Razorpay |
 
 ---
 
-## Author
+## 📸 Screenshots
 
-Sunil Kumar
+### User Dashboard
+![Dashboard Preview](https://placehold.co/800x450/f8fafc/64748b?text=File+Management+UI)
+*Clean aur minimal interface jahan user apni files manage kar sakta hai.*
+
+### Subscription Plans
+![Pricing Preview](https://placehold.co/800x450/f8fafc/64748b?text=SaaS+Subscription+Plans)
+*Razorpay integrated pricing section.*
+
+---
+
+## ⚙️ Installation & Setup
+
+1. **Clone the project**
+   ```bash
+   git clone [https://github.com/your-username/basta-storage.git](https://github.com/your-username/basta-storage.git)
