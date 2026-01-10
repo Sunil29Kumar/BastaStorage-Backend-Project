@@ -68,4 +68,4 @@ This project is actively being developed and improved.
 
 ## Author
 
-Sunil
+Sunil Kumar
