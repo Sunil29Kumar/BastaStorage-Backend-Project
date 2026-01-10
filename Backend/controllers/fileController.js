@@ -273,24 +273,37 @@ export const shareFile = async (req, res) => {
 
 // view share file 
 export const sharefileViewer = async (req, res) => {
-  const token = req.params.token
-  const shared = await SharedLink.findOne({ token })
-  if (!shared) return res.status(404).json({ message: "Share link not found" });
+  try {
 
-  const file = await File.findById(shared.fileId)
+    const token = req.params.token
+    const shared = await SharedLink.findOne({ token })
+    if (!shared) return res.status(404).json({ message: "Share link not found" });
 
-  if (!file) return res.status(404).json({ error: "File not found" });
+    const file = await File.findById(shared.fileId)
 
-  const localFileFullPath = `/storage/local-files/${file._id}${file.extension}`;
-  const googleDriveFileFullPath = `/storage/google-drive-files/${file._id}${file.extension}`;
+    if (!file) return res.status(404).json({ error: "File not found" });
 
-  const fullPath = file.fileFrom === "local" ? localFileFullPath : googleDriveFileFullPath
 
-  res.json({
-    name: file.name,
-    type: file.type,
-    viewUrl: `http://localhost:2000${fullPath}`,
-  });
+    // agar user download karna chahta hai
+    if (req.query.action === "download") {
+      const signedUrl = createCloudFrontSignedUrl({ fileKey: `${file._id}${file.extension}`, fileName: file.name, download: true });
+      return res.redirect(signedUrl);
+    }
+
+
+    // file ko browser me send kar rahe hain
+    const signedUrl = createCloudFrontSignedUrl({ fileKey: `${file._id}${file.extension}`, fileName: file.name, download: false });
+
+
+    res.json({
+      name: file.name,
+      type: file.type,
+      viewUrl: signedUrl,
+    });
+
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
 
 }
 
@@ -312,8 +325,8 @@ export const shareFileThroughEmail = async (req, res) => {
     // File Share limit based on user plan 
     const FILE_SHARE_LIMITS = {
       free: 20,
-      starter: 500,
-      pro: 100,
+      starter: 100,
+      pro: Infinity,
       ultimate: Infinity
     };
 
@@ -389,19 +402,23 @@ export const privateShare = async (req, res) => {
     return res.status(403).json({ error: "You do not have access to this file" });
   }
 
-  const localFileFullPath = `/storage/local-files/${file._id}${file.extension}`;
-  const googleDriveFileFullPath = `/storage/google-drive-files/${file._id}${file.extension}`;
+  // agar user download karna chahta hai
+  if (req.query.action === "download") {
+    const signedUrl = createCloudFrontSignedUrl({ fileKey: `${file._id}${file.extension}`, fileName: file.name, download: true });
+    return res.redirect(signedUrl);
+  }
 
-  const fullPath = file.fileFrom === "local" ? localFileFullPath : googleDriveFileFullPath
+  // file ko browser me send kar rahe hain
+  const signedUrl = createCloudFrontSignedUrl({ fileKey: `${file._id}${file.extension}`, fileName: file.name, download: false });
 
-  const fileUrl = `http://localhost:2000${fullPath}`
 
   const fileData = {
     name: file.name,
     type: file.type,
-    viewUrl: fileUrl,
+    viewUrl: signedUrl,
     permission: sharedWithEntry.permission,
     userId: sharedWithEntry.userId,
+    id: file._id,
   }
 
   return res.status(200).json({ message: "Private Share Working", fileData });

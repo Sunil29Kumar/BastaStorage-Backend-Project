@@ -42,7 +42,7 @@ function MyFilesPreview() {
             </div>
 
             {/* GRID CONTAINER */}
-            <div className="max-h-[45vh] overflow-x-auto px-5 pb-10 custom-scrollbar">
+            <div className="max-h-[45vh] overflow-x-auto no-scrollbar px-5 pb-10 custom-scrollbar">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
                     {

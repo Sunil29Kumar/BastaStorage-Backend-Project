@@ -45,7 +45,7 @@ router.delete("/:id", checkAuth, blockIfExpired, blockIfPaused, deleteFile);
 router.post("/:id/share-link", checkAuth, blockIfExpired, blockIfPaused, shareFile);
 
 // share file viewer
-router.get("/share/:token", sharefileViewer)
+router.get("/share/:token?", sharefileViewer)
 
 // share file thwough email with permission
 router.post("/:id/share", checkAuth, blockIfExpired, blockIfPaused, shareFileThroughEmail);
@@ -54,7 +54,7 @@ router.post("/:id/share", checkAuth, blockIfExpired, blockIfPaused, shareFileThr
 router.get("/:id/shared-users", checkAuth, getSharedUsers);
 
 // private share 
-router.get("/:id/share/private/:token", checkAuth, blockIfExpired, blockIfPaused, privateShare)
+router.get("/:id/share/private/:token?", checkAuth, blockIfExpired, blockIfPaused, privateShare)
 
 // update shared file permission
 router.patch("/:fileId/share", checkAuth, blockIfExpired, blockIfPaused, updateSharedFilePermission)

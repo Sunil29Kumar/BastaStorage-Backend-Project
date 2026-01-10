@@ -11,7 +11,7 @@ const SharedLinksSchema = new Schema({
     createdAt: {
       type: Date,
       default: Date.now,
-      expires: 60*10, // 10 minutes
+      expires: 60*60, // 1 hour
     },
 })
 

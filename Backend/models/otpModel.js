@@ -13,7 +13,7 @@ const otpSchema = new Schema(
     createdAt: {
       type: Date,
       default: Date.now,
-      expires: 60,
+      expires: 60 * 10, // OTP expires after 10 minutes
     },
   },
 

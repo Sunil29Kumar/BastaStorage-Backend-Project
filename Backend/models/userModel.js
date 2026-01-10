@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      // pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$",
+      pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{6,}$",
       description:
         "Password must have 6+ characters with uppercase, lowercase, number and special character",
     },

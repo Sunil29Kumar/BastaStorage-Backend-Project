@@ -29,16 +29,27 @@ export const sendOTPUser = async (req, res, next) => {
 
   // schema 
   const { success, data, error } = sendOtpSchema.safeParse(req.body)
-  if (!success) return res.status(400).json({ error: z.flattenError(error).fieldErrors })
+  if (!success) return res.status(400).json({
+    detail: {
+      email: z.flattenError(error).fieldErrors.email,
+      password: z.flattenError(error).fieldErrors.password,
+      name: z.flattenError(error).fieldErrors.name
+    }
+  })
 
   const { email } = data;
   if (!email) return res.status(400).json({ error: "enter email" });
 
-  try {
+  // check email already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ error: "Email is already in use" });
+  }
 
+  try {
     const otp = await OTP.findOne({ email: email });
     sendOTP(email);
-    return res.json({ message: `OTP Send to ${email}` });
+    return res.status(200).json({ message: `OTP Send to ${email}` });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
@@ -49,6 +60,7 @@ export const verifyOtp = async (req, res, next) => {
 
   // schema 
   const { success, data, error } = otpSchema.safeParse(req.body)
+
   if (!success) {
     return res.status(400).json({ error: "Invalid Credentials" });
   }
@@ -346,7 +358,12 @@ export const setGooglePassword = async (req, res) => {
 
   // schema 
   const { success, data, error } = setGooglePasswordSchema.safeParse(req.body)
-  if (!success) return res.status(400).json({ error: z.flattenError(error).fieldErrors })
+  if (!success) return res.status(400).json({
+    detail: {
+      password: z.flattenError(error).fieldErrors.password,
+      confirmPassword: z.flattenError(error).fieldErrors.confirmPassword
+    }
+  })
 
 
   const { password, confirmPassword } = data;

@@ -29,7 +29,7 @@ function Folder() {
 
   return (
     <div className={`
-      p-6 rounded-[2rem] transition-all duration-500
+      p-6 rounded-t-4xl rounded-b-xl transition-all duration-500  
       ${isDarkMode ? "bg-[#111315] border border-white/5" : "bg-white shadow-sm border border-gray-100"}
     `}>
       {/* HEADER */}

@@ -4,8 +4,8 @@ import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import OTP from "./OTP.jsx";
 import LoginWithGoogle from "./LoginWithGoogle.jsx";
 import LoginWithGithub from "./LoginWithGithub.jsx";
-
 import TermsPrivacyFooter from "../Components/legal/TermsPrivacyFooter.jsx";
+import { useState } from "react";
 
 function Register() {
   const {
@@ -13,122 +13,162 @@ function Register() {
     setRegisterData,
     handleRegister,
     errorRegister,
-    setErrorRegister,
     otpError,
     isVerifyOtpWrong,
     registerLimiterError,
     isDarkMode,
+    otpSent
   } = useContext(BastaStorageContext);
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
   };
 
+  // Reusable Error Component for consistency
+  const ErrorMsg = ({ msg }) => (
+    msg ? <p className="text-[11px] text-red-500 mt-1 ml-1 animate-pulse font-medium">
+      <i className="ri-error-warning-fill mr-1"></i>{msg}
+    </p> : null
+  );
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      {registerLimiterError ? <div className=" text-[3vw] font-bold ">
-        {registerLimiterError}
-      </div> :
+    <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${isDarkMode ? "bg-[#0f1113]" : "bg-slate-50"}`}>
 
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-            Create Your Account
-          </h2>
+      {registerLimiterError ? (
+        <div className="text-center p-10 bg-red-50 border border-red-200 rounded-3xl">
+          <i className="ri-spam-3-line text-5xl text-red-500 mb-4 block"></i>
+          <h1 className="text-xl font-bold text-red-600">{registerLimiterError}</h1>
+        </div>
+      ) : (
+        <div className={`w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl transition-all border ${isDarkMode ? "bg-[#161b22] border-white/5 shadow-black/50" : "bg-white border-gray-100 shadow-blue-500/5"}`}>
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600/10 mb-4">
+              {/* LOGO */}
+              <div className="h-[10vh] flex items-center   ">
+                <img
+                  src={`${isDarkMode ? "/basta logo.png" : "/bst logo.png"}`}
+                  className="w-[4vw] cursor-pointer bg-black "
+                  alt="logo"
+                />
+              </div>
+            </div>
+            <h2 className={`text-2xl font-black tracking-tight ${isDarkMode ? "text-white" : "text-gray-800"}`}>
+              Join Basta Storage
+            </h2>
+            <p className="text-sm text-gray-500 mt-1 font-medium">Start your secure cloud journey</p>
+          </div>
+
           <form onSubmit={handleRegister} className="space-y-4">
-            <input
-              type="text"
-              name="name"
-              placeholder="Name"
-              value={registerData.name}
-              onChange={handleChange}
-              pattern=".{3,255}"
-              title="Name Must contain minimun 3 character"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errorRegister.errorFieldName === "name" && (
-              <p className=" text-center text-red-500 ">
-                {errorRegister.errorDescription}
-              </p>
-            )}
+            {/* Name Input */}
+            <div>
+              <div className="relative">
+                <i className="ri-user-3-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Full Name"
+                  value={registerData.name}
+                  onChange={handleChange}
+                  required
+                  disabled={otpSent} // Disable if OTP is sent
+                  className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${isDarkMode ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50" : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"}`}
+                />
+              </div>
+              <ErrorMsg msg={errorRegister?.name?.[0] ? errorRegister.name[0] : otpError?.name?.[0]} />
+            </div>
 
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={registerData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {/* {otpError && (
-            <p className=" text-center text-red-500 ">{otpError}</p>
+            {/* Email Input */}
+            <div>
+              <div className="relative">
+                <i className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={registerData.email}
+                  onChange={handleChange}
+                  required
+                  disabled={otpSent} // Disable if OTP is sent
+                  className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${isDarkMode ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50" : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"}`}
+                />
+              </div>
+              <ErrorMsg msg={otpError?.email?.[0] || errorRegister?.email?.[0] || (errorRegister.length > 0 ? errorRegister : null)} />
+            </div>
 
-          )} */}
+            {/* Password Input */}
+            <div>
+              <div className="relative group">
+                <i className="ri-lock-2-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
 
-            {errorRegister.error && (
-              <p className=" text-center text-red-500 ">{errorRegister.error}</p>
-            )}
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={registerData.password}
-              onChange={handleChange}
-              // pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&]).{6,}$"
-              title="Password must have 8+ characters with uppercase, lowercase, number and special character"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errorRegister.errorFieldName === "password" && (
-              <p className=" text-center text-red-500 ">
-                {errorRegister.errorDescription}
-              </p>
-            )}
+                <input
+                  type={showPassword ? "text" : "password"} // Dynamic Type
+                  name="password"
+                  placeholder="Create Password"
+                  value={registerData.password}
+                  disabled={otpSent} // Disable if OTP is sent
+                  onChange={handleChange}
+                  className={`w-full pl-11 pr-12 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${isDarkMode
+                    ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50"
+                    : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"
+                    }`}
+                />
+
+                {/* Eye Button */}
+                <button
+                  type="button" // Form submit hone se rokne ke liye
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors p-1"
+                >
+                  <i className={showPassword ? "ri-eye-off-line" : "ri-eye-line"}></i>
+                </button>
+              </div>
+
+              <ErrorMsg msg={errorRegister?.password?.[0] ? errorRegister.password[0] : otpError?.password?.[0]} />
+            </div>
+
             {!isVerifyOtpWrong && (
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                className="w-full cursor-pointer bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all active:scale-95"
               >
-                Register
+                Create Account
               </button>
             )}
           </form>
-          <div>
 
-            <p className=" mt-4 ">
-              <OTP email={registerData.email} name={registerData.name} password={registerData.password} />
-            </p>
-            <p className="text-center text-sm text-gray-600 mt-4">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="text-blue-600 hover:underline font-medium"
-              >
-                Login
-              </Link>
-            </p>
-          </div>
-          {/* or  */}
-          <div className="flex items-center my-6">
-            <div className="flex-grow border-t border-gray-300"></div>
-            <span className="mx-4 text-gray-500 font-medium">OR</span>
-            <div className="flex-grow border-t border-gray-300"></div>
-          </div>
-          <div className=" w-[100%] flex justify-evenly items-center  ">
-
-            <LoginWithGoogle />
-            <LoginWithGithub />
+          {/* OTP Section Wrapper */}
+          <div className="mt-4">
+            <OTP email={registerData.email} name={registerData.name} password={registerData.password} />
           </div>
 
+          <p className="text-center text-sm text-gray-500 mt-6 font-medium">
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-600 hover:text-blue-500 font-bold transition-colors">
+              Login
+            </Link>
+          </p>
 
-          {/* FOOTER - Policy links */}
+          {/* Separator */}
+          <div className="flex items-center my-8">
+            <div className={`flex-grow border-t ${isDarkMode ? "border-white/10" : "border-gray-100"}`}></div>
+            <span className="mx-4 text-[10px] font-black tracking-widest text-gray-400 uppercase">Secure Login</span>
+            <div className={`flex-grow border-t ${isDarkMode ? "border-white/10" : "border-gray-100"}`}></div>
+          </div>
+
+          {/* Social Logins */}
+          <div className="flex justify-center items-center gap-4 mb-8">
+            <div className="flex-1"><LoginWithGoogle /></div>
+            {"|"}
+            <div className="flex-1"><LoginWithGithub /></div>
+          </div>
+
           <TermsPrivacyFooter />
-
         </div>
-      }
-
-
-
+      )}
     </div>
   );
 }

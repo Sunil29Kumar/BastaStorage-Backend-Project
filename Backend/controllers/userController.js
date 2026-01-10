@@ -23,7 +23,14 @@ export const registerUser = async (req, res, next) => {
   // schema 
   const { success, data, error } = registerSchema.safeParse(req.body)
   if (!success) {
-    return res.status(400).json({ error: z.flattenError(error).fieldErrors })
+    return res.status(400).json({
+      detail: {
+        name: z.flattenError(error).fieldErrors.name,
+        email: z.flattenError(error).fieldErrors.email,
+        password: z.flattenError(error).fieldErrors.password,
+        otp: z.flattenError(error).fieldErrors.otp
+      }
+    });
   }
 
   // verify all field 
@@ -32,11 +39,22 @@ export const registerUser = async (req, res, next) => {
     return res.status(400).json({ error: "All files are required" });
   }
 
+  // check email already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ error: "Email is already in use" });
+  }
+
   // verify otp 
   const otpRecord = await OTP.findOne({ email, otp });
-  if (!otpRecord) {
-    return res.status(400).json({ message: "invalide otp enter again" });
+
+  if (otpRecord?.email != email) {
+    return res.status(400).json({ error: "OTP Expired or Session Timed Out. Please send a new OTP." });
   }
+  if (!otpRecord) {
+    return res.status(400).json({ error: "Invalid Email" });
+  }
+
 
   const session = await mongoose.startSession();
   try {
@@ -177,7 +195,7 @@ export const loginUser = async (req, res) => {
     pipeline.json.set(redisKey, "$", {
       userId: user._id,
     })
-    
+
     // user session tracker
     pipeline.sAdd(`userSession:${user._id}`, sessionId);
     pipeline.expire(redisKey, sessionExpiry / 1000)
@@ -329,7 +347,7 @@ export const getUserProfile = async (req, res) => {
     if (user.pictureKey) {
       signedUrl = await createGetSignedUrl({ fileKey: user.pictureKey, fileName: user.pictureKey, download: false });
     }
-    return res.status(200).json({ picture: signedUrl, name: user.name, email: user.email, role: user.role, isPasswordSet: req.user.password ? true : false, userIs: req.user.userIs });
+    return res.status(200).json({ picture: signedUrl, name: user.name, email: user.email, role: user.role, isPasswordSet: req.user.password ? true : false, userIs: req.user.userIs, loginWith: user.loginWith });
   } catch (error) {
     console.log("Error fetching user profile:", error);
     return res.status(500).json({ error: "Internal server error" });

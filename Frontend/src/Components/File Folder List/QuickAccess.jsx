@@ -28,7 +28,7 @@ function QuickAccess() {
       </h2>
 
       {/* Container with Horizontal Scroll for Mobile */}
-      <div className="flex gap-6 items-start overflow-x-auto no-scrollbar pb-4 -mx-2 px-2">
+      <div className="flex gap-6 items-start overflow-x-auto  no-scrollbar pb-4 -mx-2 px-2">
         {items.map((item, i) => {
           // Check if this item is currently selected
           const isActive = JSON.stringify(currentQuickAccessFile) === JSON.stringify(item.extension);

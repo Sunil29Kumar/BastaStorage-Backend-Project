@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function SharedFileViewer() {
+
+  const {BASE_URL,isDarkMode} = useContext(BastaStorageContext)
+
   const { token } = useParams();
   const [fileData, setFileData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -9,11 +13,13 @@ function SharedFileViewer() {
   async function fetchFile() {
     try {
       const response = await fetch(
-        `http://localhost:2000/file/share/${token}`,
+        `${BASE_URL}/file/share/${token}`,
         { credentials: "include" }
       );
       const data = await response.json();
       setFileData(data);
+      console.log(data);
+      
     } catch (error) {
       console.error("Error fetching file:", error);
     } finally {
@@ -48,7 +54,7 @@ function SharedFileViewer() {
         <img
           src={fileData.viewUrl}
           alt={fileData.name}
-          className="h-[80vh] w-[70%] rounded-lg shadow"
+          className="h-[80vh] w-[70%] rounded-lg shadow  "
         />
       );
     }
@@ -93,8 +99,8 @@ function SharedFileViewer() {
   };
 
   return (
-    <div className="h-[100vh] w-full bg-gray-900 flex flex-col items-center justify-center p-4">
-      <h2 className="text-xl font-semibold text-center text-white mb-4">
+    <div className={`h-[100vh] w-full ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"} flex flex-col items-center justify-center p-4`}>
+      <h2 className="text-xl font-semibold text-center mb-4">
         {fileData.name}
       </h2>
 
@@ -104,9 +110,9 @@ function SharedFileViewer() {
       {/* Actions */}
       <div className="mt-6 flex justify-center gap-4">
         <a
-          href={fileData.viewUrl}
+          onClick={() => window.open(`${BASE_URL}/file/share/${token}?action=download`)}
           download={fileData.name}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+          className="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded-lg shadow hover:bg-blue-700 transition"
         >
           Download
         </a>

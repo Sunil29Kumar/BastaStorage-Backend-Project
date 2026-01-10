@@ -91,7 +91,7 @@ function ContextAPI({ children }) {
     email: "",
     password: "",
   });
-  const [errorRegister, setErrorRegister] = useState({});
+  const [errorRegister, setErrorRegister] = useState([]);
   const [registerLimiterError, setRegisterLimiterError] = useState("");
 
   // Login request
@@ -132,7 +132,7 @@ function ContextAPI({ children }) {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpCountDown, setOtpCountDown] = useState(0);
-  const [otpError, setOtpError] = useState("");
+  const [otpError, setOtpError] = useState([]);
   const [sentOtpMessage, setSentOtpMessage] = useState("");
   const [isOtpWrong, setIsOtpWrong] = useState(true);
 
@@ -151,7 +151,7 @@ function ContextAPI({ children }) {
   const [loginWithGoogleMessage, setLoginWithGoogleMessage] = useState({});
 
   // set google password 
-  const [googlePasswordError, setGooglePasswordError] = useState("");
+  const [googlePasswordError, setGooglePasswordError] = useState([]);
   const [googlePasswordSuccessMessage, setGooglePasswordSuccessMessage] = useState("");
 
   // google drive 
@@ -651,27 +651,21 @@ function ContextAPI({ children }) {
         body: JSON.stringify({ ...registerData, otp }),
       });
       const data = await response.json();
-      setErrorRegister({
-        error: data,
-      });
-      if (data.statusCode === 429) {
-        setRegisterLimiterError(data.error);
+      console.log(data.error);
+
+      // setErrorRegister({
+      //   error: data,
+      // });
+
+      console.log("reg data", data);
+      // return
+
+      if (data.detail || data.status === 400) {
+        setErrorRegister(data.detail);
       }
-      else if (data.details) {
-        setErrorRegister({
-          errorDescription:
-            data.details.errInfo.details.schemaRulesNotSatisfied[0]
-              .propertiesNotSatisfied[0].description,
-          errorFieldName:
-            data.details.errInfo.details.schemaRulesNotSatisfied[0]
-              .propertiesNotSatisfied[0].propertyName,
-        });
-      } else if (data.error == "Email is already in use") {
-        setErrorRegister({
-          error: data.error,
-        });
-      }
-      else {
+
+
+      if (response.ok) {
         console.log(data);
         navigate("/Login");
         setRegisterData({
@@ -679,9 +673,21 @@ function ContextAPI({ children }) {
           email: "",
           password: "",
         });
+
       }
+
+      if (data.statusCode === 429) {
+        setRegisterLimiterError(data.error);
+      }
+
+
+      if (data.error) {
+        setErrorRegister(data?.error,);
+      }
+
     } catch (error) {
       console.log(error);
+
     }
   }
 
@@ -723,6 +729,9 @@ function ContextAPI({ children }) {
 
       else if (data.statusCode === 429) {
         setLoginLimiter(data.error)
+      }
+      else if (response.status === 400 || response.status === 404) {
+        setLoginError(data.error);
       }
 
     } catch (error) {
@@ -809,7 +818,7 @@ function ContextAPI({ children }) {
     getDirectoryItems();
   }
   // ------------- get OPT
-  async function sendOPT(email) {
+  async function sendOPT({ email, name, password }) {
     try {
       const response = await fetch(`${BASE_URL}/auth/sendOtp`, {
         method: "POST",
@@ -817,14 +826,18 @@ function ContextAPI({ children }) {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, name, password }),
       });
       const data = await response.json();
-      console.log(data.message);
+
+      if (data.status === 400 || data.detail) {
+        setOtpError(data.detail)
+        setIsOtpWrong(true);
+        setOtpSent(false);
+      }
       if (data.statusCode === 429) {
         setOtpLimiterError(data.error);
         setSentOtpMessage("");
-
       }
       if (response.ok) {
         setSentOtpMessage(data.message);
@@ -845,6 +858,8 @@ function ContextAPI({ children }) {
   }
   // verify opt
   async function verifyUserOtp({ email, otp }) {
+    console.log("otp emil =", email, otp);
+
     const response = await fetch(`${BASE_URL}/auth/verifyOtp`, {
       method: "POST",
       headers: {
@@ -867,7 +882,7 @@ function ContextAPI({ children }) {
 
   // -------------- Login with Github 
   const loginWithGithub = () => {
-    window.location.href = `http://localhost:2000/auth/github`;
+    window.location.href = `${BASE_URL}/auth/github`;
   }
 
   // -------------- Login with Google 
@@ -923,9 +938,13 @@ function ContextAPI({ children }) {
       body: JSON.stringify({ password, confirmPassword }),
     });
     const data = await response.json()
+
+    console.log("cpass da =", data);
+
+
     if (response.ok) {
       setGooglePasswordSuccessMessage(data.message);
-      setGooglePasswordError('');
+      setGooglePasswordError("");
 
       setTimeout(() => {
         getUserProfile();
@@ -933,10 +952,16 @@ function ContextAPI({ children }) {
 
 
     }
-    else if (response.status === 400) {
+    if (response.status === 400) {
       setGooglePasswordSuccessMessage("");
-      setGooglePasswordError(data.error);
+      setGooglePasswordError(data);
     }
+
+    if (data.detail) {
+      setGooglePasswordSuccessMessage("");
+      setGooglePasswordError(data.detail);
+    }
+
   }
 
 

@@ -17,19 +17,18 @@ import webhookRoute from "./routes/webhookRoute.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 
 import { connectDB } from "./database/db.js";
-import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
+// import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
 
 
 await connectDB();
 
-cleanupPendingUploads();
+// cleanupPendingUploads();
 
 const app = express();
 
 app.use(cookieParser(process.env.SECRET_KEY));
 
 // csp middleware 
-
 app.use(
   helmet({
     crossOriginEmbedderPolicy: false, // 🧩 Needed for iframes & OAuth popups

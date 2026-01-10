@@ -7,13 +7,13 @@ const router = express.Router();
 
 
 // fetch notifications
-router.get("/", checkAuth, fetchNotifications)
+router.get("/",  fetchNotifications)
 
 // mark Notification as read
-router.post("/mark-read/:id", checkAuth, markNotificationAsRead)
+router.post("/mark-read/:id",  markNotificationAsRead)
 
 // make Notification as Read all 
-router.post("/mark-read-all", checkAuth, markNotificationAllRead)
+router.post("/mark-read-all", markNotificationAllRead)
 
 
 export default router;

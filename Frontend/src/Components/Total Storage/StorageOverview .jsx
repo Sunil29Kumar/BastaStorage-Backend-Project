@@ -35,7 +35,7 @@ const StorageOverview = () => {
     const recentUploads = [...allFileDirectoriesList.files].reverse().slice(0, 3);
 
     return (
-        <div className={`w-full overflow-auto  mx-auto rounded-xl px-2 pt-5 pb-1  shadow-2xl transition-all duration-500  ${isDarkMode ? " border-white/5 text-white shadow-black/50" : "bg-gray-200  text-gray-800 shadow-gray-200/50"
+        <div className={`w-full overflow-auto no-scrollbar  mx-auto rounded-xl px-2 pt-5 pb-1  shadow-2xl transition-all duration-500  ${isDarkMode ? " border-white/5 text-white shadow-black/50" : "bg-gray-200  text-gray-800 shadow-gray-200/50"
             }`}>
 
             {/* --- HEADER --- */}

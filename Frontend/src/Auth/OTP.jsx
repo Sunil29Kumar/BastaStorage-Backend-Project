@@ -40,7 +40,7 @@ function OTP({ email, name, password }) {
   }, [otpSent, otpCountDown]);
 
   const handleSendOtp = () => {
-    sendOPT(email);
+    sendOPT({ email, name, password });
     setOtpCountDown(60); // reset countdown to 60s
   };
 
@@ -87,16 +87,23 @@ function OTP({ email, name, password }) {
                 <input
                   id="otp"
                   type="text"
-                  value={otp}
                   onChange={(e) => setOtp(e.target.value)}
+                  value={otp}
                   placeholder="••••"
+                  // pattern="\d{4}"
+                  maxLength={4}
                   className="w-32 text-center border border-gray-300 rounded-lg px-3 py-2 text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
-              {isOtpWrong && (
-                <p className="text-center text-red-500 text-sm">{otpError}</p>
+
+              {otpError?.error && (
+                <p className="text-center text-red-500 text-xs italic">
+                  {otpError.error}
+                </p>
               )}
+
+
 
               {isVerifyOtpWrong && (
                 <p className="text-center text-red-500 text-sm">
@@ -111,10 +118,10 @@ function OTP({ email, name, password }) {
               )}
 
 
-              <div className="flex justify-center">
+              <div className="flex justify-center ">
                 <button
                   type="submit"
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 transition"
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 transition cursor-pointer "
                 >
                   Verify OTP
                 </button>

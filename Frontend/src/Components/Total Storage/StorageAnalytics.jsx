@@ -44,7 +44,7 @@ const StorageAnalytics = () => {
     ];
 
     return (
-        <div className="w-fullmx-auto flex flex-col gap-8 p-10 overflow-auto">
+        <div className="w-fullmx-auto flex flex-col gap-8 p-10 overflow-auto no-scrollbar">
 
 
             {/* HEADER SECTION */}
