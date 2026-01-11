@@ -16,18 +16,18 @@ export const razorpayWebhookHandler = async (req, res) => {
     const message = JSON.stringify(req.body);
     const expected_signature = crypto.createHmac("sha256", key).update(message).digest("hex");
 
-    console.log("webhook response");
+    // console.log("webhook response");
 
 
     if (received_signature !== expected_signature) {
-        console.log("Invalid signature:", received_signature, expected_signature);
+        // console.log("Invalid signature:", received_signature, expected_signature);
         return res.status(400).json({ message: "Invalid signature" });
     }
 
 
     // Handle the webhook event
     if (req.body.event === "subscription.activated") {
-        console.log("webhook active payload => ", req.body.payload);
+        // console.log("webhook active payload => ", req.body.payload);
 
         const subscription = req.body.payload.subscription?.entity;
         const payment = req.body.payload.payment?.entity;
@@ -124,13 +124,13 @@ export const razorpayWebhookHandler = async (req, res) => {
             message: `Your subscription to the ${plans[planId].tier} plan has been activated successfully.`,
         });
 
-        console.log("subscription activated");
+        // console.log("subscription activated");
 
     }
 
     else if (req.body.event === "subscription.paused") {   // paused
 
-        console.log("webhook paused payload => ", req.body.payload);
+        // console.log("webhook paused payload => ", req.body.payload);
         const subscription = req.body.payload.subscription.entity;
 
         // Update subscription status in the database
@@ -170,7 +170,7 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     else if (req.body.event === "subscription.resumed") {   // resumed
 
-        console.log("webhook resumed payload => ", req.body.payload);
+        // console.log("webhook resumed payload => ", req.body.payload);
 
         const subscription = req.body.payload.subscription.entity;
         // Update subscription status in the database
@@ -211,7 +211,7 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     else if (req.body.event === "subscription.completed") {   // completed
 
-        console.log("webhook cancelled payload => ", req.body.payload);
+        // console.log("webhook cancelled payload => ", req.body.payload);
         const subscription = req.body.payload.subscription.entity;
 
         // Update subscription status in the database
@@ -251,13 +251,13 @@ export const razorpayWebhookHandler = async (req, res) => {
             message: "Your subscription has expired. You are in a 7-day grace period. Upgrade to keep your files."
         });
 
-        console.log("Subscription expired ");
+        // console.log("Subscription expired ");
 
     }
 
     else if (req.body.event === "subscription.cancelled") {   // cancelled
 
-        console.log("webhook cancelled payload => ", req.body.payload);
+        // console.log("webhook cancelled payload => ", req.body.payload);
         const subscription = req.body.payload.subscription.entity;
 
         // Update subscription status in the database
@@ -294,7 +294,7 @@ export const razorpayWebhookHandler = async (req, res) => {
             message: "Your subscription has been cancelled. You will continue to have access until the end of the current billing cycle."
         });
 
-        console.log("Subscription cancelled ");
+        // console.log("Subscription cancelled ");
 
     }
 

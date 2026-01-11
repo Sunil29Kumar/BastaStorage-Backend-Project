@@ -95,7 +95,7 @@ export const createFile = async (req, res) => {
 
     //  Get signed URL from s3Controller
     const { uploadURL, fileUrl } = await generateSignedUrl({ fileName: `${fileData._id}${fileData.extension}`, fileType });
-    console.log("uurl =", uploadURL);
+    // console.log("uurl =", uploadURL);
 
     return res.status(200).json({ message: "File Uploaded", uploadURL, fileId: fileData._id });
 
@@ -244,7 +244,7 @@ export const deleteFile = async (req, res) => {
     return res.status(200).json({ message: ` ${fileData.name} File Deleted Successfully` });
 
   } catch (err) {
-    console.error("Delete file error:", err);
+    // console.error("Delete file error:", err);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -261,7 +261,7 @@ export const shareFile = async (req, res) => {
 
   // Generate a shareable link (you can customize this logic)
   const token = crypto.randomUUID()
-  const shareableLink = `http://localhost:5173/share/${token}`;
+  const shareableLink = `${process.env.CLIENT_URL}/share/${token}`;
 
   await SharedLink.create({
     fileId: id,
@@ -362,7 +362,7 @@ export const shareFileThroughEmail = async (req, res) => {
 
     return res.status(200).json({ message: `File shared successfully with ${user.email}` });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return res.status(500).json({ error: "Server error", details: error });
   }
 }
@@ -378,7 +378,7 @@ export const getSharedUsers = async (req, res) => {
     return res.status(200).json(sharedUserData);
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return res.status(500).json({ message: "Server error", error });
   }
 }

@@ -16,6 +16,7 @@ import {
 } from "../controllers/fileController.js";
 import checkAuth from "../middleware/authMiddleware.js";
 import { blockIfExpired, blockIfPaused } from "../middleware/subscriptionMiddleware.js";
+import { fileDownloadLimiter, fileFolderDeleteLimiter, fileFolderRenameLimiter, uploadFileLimiter } from "../middleware/Rate Limiter/fileFolderLimiter.js";
 
 
 
@@ -25,21 +26,21 @@ router.param("id", checkAuth, validatinoIdMiddleware);
 router.param("parentDirId", checkAuth, validatinoIdMiddleware);
 
 // Create 
-router.post("/:parentDirId?", checkAuth, blockIfExpired, blockIfPaused, createFile);
+router.post("/:parentDirId?", checkAuth, uploadFileLimiter, blockIfExpired, blockIfPaused, createFile);
 
 
 // Read
 // route to read/download a file
-router.get("/:id?", checkAuth, getFile);
+router.get("/:id?", checkAuth, fileDownloadLimiter, getFile);
 
 // complete file
 router.post("/complete/:id", checkAuth, markFileUploaded)
 
 // route to rename a file
-router.patch("/:id", checkAuth, blockIfExpired, blockIfPaused, renameFile);
+router.patch("/:id", checkAuth,fileFolderRenameLimiter, blockIfExpired, blockIfPaused, renameFile);
 
 // ---------------------- Delete -------------------------
-router.delete("/:id", checkAuth, blockIfExpired, blockIfPaused, deleteFile);
+router.delete("/:id", checkAuth,fileFolderDeleteLimiter, blockIfExpired, blockIfPaused, deleteFile);
 
 // share file link
 router.post("/:id/share-link", checkAuth, blockIfExpired, blockIfPaused, shareFile);

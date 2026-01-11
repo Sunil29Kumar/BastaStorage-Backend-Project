@@ -6,9 +6,9 @@ function LoginWithGithub() {
 
     const { loginWithGithub } = useContext(BastaStorageContext);
     return (
-        <div>
+        <>
             <button onClick={loginWithGithub} className=' cursor-pointer  ' ><i className="ri-github-fill text-[2vw] hover:text-gray-300"></i></button>
-        </div>
+        </>
     )
 }
 

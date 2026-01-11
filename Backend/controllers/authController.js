@@ -87,7 +87,7 @@ export const verifyOtp = async (req, res, next) => {
 export const loginWithGithub = async (req, res, next) => {
   const params = new URLSearchParams({
     client_id: "Ov23liPF52IMctxkH6Jm",
-    redirect_uri: "http://localhost:2000/auth/github/callback",
+    redirect_uri: `${process.env.BASE_URL}/auth/github/callback`,
     scope: "read:user user:email",
     allow_signup: true,
   }).toString();
@@ -144,12 +144,12 @@ export const githubCallback = async (req, res, next) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
-      sameSite: "none",
+      sameSite: "Lax",
       secure: true
     });
     await User.updateOne({ email }, { $set: { loginWith: "github" } });
 
-    return res.redirect("http://localhost:5173/");
+    return res.redirect(`${process.env.CLIENT_URL}`);
 
   }
 
@@ -206,13 +206,13 @@ export const githubCallback = async (req, res, next) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
-      sameSite: "lax",
+      sameSite: "Lax",
       secure: true
     });
 
     await session.commitTransaction();
 
-    return res.redirect("http://localhost:5173/");
+    return res.redirect(`${process.env.CLIENT_URL}`);
   }
   catch (err) {
     await session.abortTransaction();
@@ -268,7 +268,7 @@ export const loginWithGoogle = async (req, res, next) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
-      sameSite: "none",
+      sameSite: "Lax",
       secure: true
     });
 
@@ -333,7 +333,7 @@ export const loginWithGoogle = async (req, res, next) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
-      sameSite: "lax",
+      sameSite: "Lax",
       secure: true
     });
 
@@ -348,7 +348,7 @@ export const loginWithGoogle = async (req, res, next) => {
 
   } catch (err) {
     session.abortTransaction();
-    console.log(err);
+    // console.log(err);
     return res.status(400).json({ error: "invalid fields", details: err });
   }
 
@@ -477,7 +477,7 @@ export const googleCallback = async (req, res) => {
       </script>
     `);
   } catch (err) {
-    console.error("Error in Google Callback:", err);
+    // console.error("Error in Google Callback:", err);
     res.status(500).send("Google auth failed");
   }
 };
@@ -502,7 +502,7 @@ export const googleDriveFilesFolder = async (req, res) => {
     return res.status(200).json({ files: result.data.files });
 
   } catch (err) {
-    console.error("Error in Google Drive Files Folder:", err);
+    // console.error("Error in Google Drive Files Folder:", err);
     res.status(500).send("Google Drive API failed");
   }
 };
@@ -536,7 +536,7 @@ export const getGoogleDriveFileBlob = async (req, res) => {
     driveResponse.data.pipe(res);
 
   } catch (err) {
-    console.error("Error in Google Drive File Blob:", err);
+    // console.error("Error in Google Drive File Blob:", err);
     res.status(500).send("Google Drive API failed");
   }
 };
@@ -555,7 +555,7 @@ export const requestRecovery = async (req, res) => {
     await RecoveryEmail.create({ email, token });
 
 
-    const link = `http://localhost:5173/recover-account?token=${token}`;
+    const link = `${process.env.CLIENT_URL}/recover-account?token=${token}`;
 
     const transporter = nodemailer.createTransport({
       service: "gmail",

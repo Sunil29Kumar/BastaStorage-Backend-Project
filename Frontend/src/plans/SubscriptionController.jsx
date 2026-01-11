@@ -12,7 +12,8 @@ export default function SubscriptionController() {
         handleResumeSubscription,
         subscriptionMessage,
         currentSubscription,
-        handleCancelSubscription
+        handleCancelSubscription,
+        BASE_URL
     } = useContext(BastaStorageContext);
 
     const [invoiceUrls, setInvoiceUrls] = useState([]);
@@ -41,7 +42,7 @@ export default function SubscriptionController() {
     const handleInvoiceDownload = async (subscriptionId) => {
         if (!subscriptionId) return;
         try {
-            const response = await fetch(`http://localhost:2000/subscription/invoice/${subscriptionId}`, {
+            const response = await fetch(`${BASE_URL}/subscription/invoice/${subscriptionId}`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

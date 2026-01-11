@@ -1,11 +1,9 @@
 import express from "express";
 import { getGoogleDriveFileBlob, githubCallback, googleCallback, googleDriveFilesFolder, loginWithGithub, loginWithGoogle, recoverAccount, requestRecovery, sendOTPUser, setGooglePassword, verifyOtp } from "../controllers/authController.js";
-import { githubCallbackLimiter } from "../middleware/githubCallbackLimiter.js";
-import { googleLimiter } from "../middleware/googleCallbackLimiter.js";
-import { otpLimiter } from "../middleware/otpLimiter.js";
 import { googleDriveAuthUrl } from "../utils/googleDriveAuthService.js";
 import checkAuth from "../middleware/authMiddleware.js";
 import { blockIfExpired, blockIfPaused } from "../middleware/subscriptionMiddleware.js";
+import { githubCallbackLimiter, googleLoginLimiter, otpLimiter } from "../middleware/Rate Limiter/authLimiter.js";
 
 const route = express.Router();
 
@@ -15,7 +13,7 @@ route.post("/verifyOtp", verifyOtp);
 route.get("/github", loginWithGithub);
 route.get("/github/callback", githubCallbackLimiter, githubCallback);
 
-route.post("/google/login", loginWithGoogle);
+route.post("/google/login", googleLoginLimiter, loginWithGoogle);
 // set google password 
 route.post("/google/set-password", checkAuth, setGooglePassword);
 

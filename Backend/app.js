@@ -47,7 +47,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          "http://localhost:5173",
+          `${process.env.CLIENT_URL}`,
         ],
 
         // // ✅ For dynamically loaded scripts (important for OAuth popup)
@@ -59,7 +59,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          "http://localhost:5173",
+          `${process.env.CLIENT_URL}`,
         ],
 
         // ✅ Allow connections to Google API endpoints
@@ -71,7 +71,7 @@ app.use(
           "https://content.googleapis.com",
           "https://drive.google.com",
           "http://localhost:5000",
-          "http://localhost:5173",
+          `${process.env.CLIENT_URL}`,
         ],
 
         // ✅ For OAuth popups and Google Drive iframes
@@ -141,7 +141,7 @@ app.use("/notification",checkAuth,notificationRoutes)
 
 // global error handler middleware
 app.use((err, req, res, next) => {
-  console.error("unexpected error", err);
+  // console.error("unexpected error", err);
   return res.status(500).json({ error: "somethig went wrong" });
 });
 

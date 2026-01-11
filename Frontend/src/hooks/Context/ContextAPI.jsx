@@ -9,7 +9,7 @@ import axios from "axios";
 export const BastaStorageContext = createContext();
 
 function ContextAPI({ children }) {
-  const BASE_URL = "http://localhost:2000";
+  const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:2000";
   const [directoriesList, setDirectoriesList] = useState([]);
 
   // nab bar minimize button 
@@ -91,7 +91,7 @@ function ContextAPI({ children }) {
     email: "",
     password: "",
   });
-  const [errorRegister, setErrorRegister] = useState([]);
+  const [errorRegister, setErrorRegister] = useState({});
   const [registerLimiterError, setRegisterLimiterError] = useState("");
 
   // Login request
@@ -132,7 +132,7 @@ function ContextAPI({ children }) {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpCountDown, setOtpCountDown] = useState(0);
-  const [otpError, setOtpError] = useState([]);
+  const [otpError, setOtpError] = useState({});
   const [sentOtpMessage, setSentOtpMessage] = useState("");
   const [isOtpWrong, setIsOtpWrong] = useState(true);
 
@@ -396,7 +396,7 @@ function ContextAPI({ children }) {
 
       const data = await res.json();
 
-      if (res.status === 403 || res.status === 400) {
+      if (res.status === 403 || res.status === 400 || res.status === 422 || res.status === 429) {
         setFileuploadMessage({ message: "", error: data.error })
         setIsFileInProgress(false);
         setCurrentFileName("");
@@ -506,7 +506,7 @@ function ContextAPI({ children }) {
         setDirUploadMessage({ message: "", error: "" })
       }, 4000);
     }
-    else if (response.status === 400 || response.status === 403) {
+    else if (response.status === 400 || response.status === 403 || response.status === 429) {
       setDirUploadMessage({ message: "", error: data.error })
       setNewDirname("");
       setShowInputBox(false);
@@ -533,7 +533,7 @@ function ContextAPI({ children }) {
         setFileDeleteMessage({ message: "", error: "" })
       }, 4000);
     }
-    else {
+    else if (response.status === 400 || response.status === 403 || response.status === 429) {
       setFileDeleteMessage({ message: "", error: data.error })
       await getDirectoryItems();
       setTimeout(() => {
@@ -558,7 +558,7 @@ function ContextAPI({ children }) {
         setDirDeleteMessage({ message: "", error: "" })
       }, 4000);
     }
-    else {
+    else if (response.status === 400 || response.status === 403 || response.status === 429) {
       setDirDeleteMessage({ message: "", error: data.error })
       await getDirectoryItems();
       setTimeout(() => {
@@ -597,7 +597,7 @@ function ContextAPI({ children }) {
         setFileRenameMessage({ message: "", error: "" })
       }, 4000);
     }
-    else {
+    else if (response.status === 400 || response.status === 403 || response.status === 429) {
       setFileRenameMessage({ message: "", error: data.error })
       setTimeout(() => {
         setFileRenameMessage({ message: "", error: "" })
@@ -629,7 +629,7 @@ function ContextAPI({ children }) {
         setDirRenameMessage({ message: "", error: "" })
       }, 4000);
     }
-    else {
+    else if (response.status === 400 || response.status === 403 || response.status === 429) {
       setDirRenameMessage({ message: "", error: data.error })
       setTimeout(() => {
         setDirRenameMessage({ message: "", error: "" })
@@ -653,14 +653,10 @@ function ContextAPI({ children }) {
       const data = await response.json();
       console.log(data.error);
 
-      // setErrorRegister({
-      //   error: data,
-      // });
-
       console.log("reg data", data);
       // return
 
-      if (data.detail || data.status === 400) {
+      if (data.detail) {
         setErrorRegister(data.detail);
       }
 
@@ -680,9 +676,13 @@ function ContextAPI({ children }) {
         setRegisterLimiterError(data.error);
       }
 
-
-      if (data.error) {
-        setErrorRegister(data?.error,);
+      if (data.otpExpiredError) {
+        setErrorRegister({ error: data.otpExpiredError });
+        setOtpSent(false);
+        setIsVerifyOtpWrong(true);
+        setSentOtpMessage("");
+        setOtp("");
+        setVerifyOtpMessage("");
       }
 
     } catch (error) {
@@ -730,7 +730,7 @@ function ContextAPI({ children }) {
       else if (data.statusCode === 429) {
         setLoginLimiter(data.error)
       }
-      else if (response.status === 400 || response.status === 404) {
+      else if (response.status === 400 || response.status === 404 || response.status === 500) {
         setLoginError(data.error);
       }
 
@@ -763,7 +763,7 @@ function ContextAPI({ children }) {
         setIsManageProfileShowing(false)
       }, 2000);
     }
-    else if (data.error) {
+    else if (data.error || response.status === 400 || response.status === 500 || response.status === 429) {
       setIsUpdatedUserData(false);
       setUserUpdateMessage({ success: "", error: data.error });
       setTimeout(() => {
@@ -822,40 +822,45 @@ function ContextAPI({ children }) {
     try {
       const response = await fetch(`${BASE_URL}/auth/sendOtp`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ email, name, password }),
       });
+
       const data = await response.json();
 
-      if (data.status === 400 || data.detail) {
-        setOtpError(data.detail)
+      if (!response.ok) {
+        // 1. Rate Limit Error
+        if (response.status === 429) {
+          setOtpLimiterError(data.error || "Too many requests");
+          return;
+        }
+
+        // 2. Validation ya Detail Errors (Zod format: {detail: {name: [...], email: [...]}})
+        if (data.detail) {
+          setOtpError(data.detail);
+        }
+        // 3. General String Errors (e.g., {error: "Email already exists"})
+        else if (data.error) {
+          setOtpError({ error: data.error });
+        }
+
         setIsOtpWrong(true);
         setOtpSent(false);
-      }
-      if (data.statusCode === 429) {
-        setOtpLimiterError(data.error);
-        setSentOtpMessage("");
-      }
-      if (response.ok) {
+      } else {
+        // Success Logic
         setSentOtpMessage(data.message);
         setOtpSent(true);
-        setOtpError("");
-        setOtpLimiterError();
+        setOtpError({}); // Clear errors on success
+        setOtpLimiterError("");
         setIsOtpWrong(false);
       }
-
-      else {
-        setOtpSent(false);
-        setOtpError(data.error);
-        setIsOtpWrong(true);
-      }
     } catch (error) {
-      console.log(error);
+      console.error("Fetch Error:", error);
+      setOtpError("Network error, please try again.");
     }
   }
+
   // verify opt
   async function verifyUserOtp({ email, otp }) {
     console.log("otp emil =", email, otp);
@@ -872,6 +877,8 @@ function ContextAPI({ children }) {
     if (response.ok) {
       setIsVerifyOtpWrong(false);
       setVerifyOtpMessage(data.message);
+      setErrorRegister({});
+
     } else {
       setIsVerifyOtpWrong(true);
       setVerifyOtpMessage(data.error);
@@ -901,6 +908,11 @@ function ContextAPI({ children }) {
       navigate("/recover-request");
       setGoogleLoginError(data.error);
       setLoggedIn(false)
+      return;
+    }
+
+    if (response.status === 429) {
+      setGoogleLoginError(data.error);
       return;
     }
 
@@ -973,7 +985,7 @@ function ContextAPI({ children }) {
   // Google drive 
   const googleDriveFiles = () => {
     const popup = window.open(
-      "http://localhost:2000/auth/google/drive",
+      `${BASE_URL}/auth/google/drive`,
       "Google Drive Login",
       `width=600,height=600,left=500,top=200`
     );
@@ -1127,7 +1139,7 @@ function ContextAPI({ children }) {
       }, 2500);
       getAllUsers(); // Refresh user list
     }
-    if (response.status === 403) {
+    if (response.status === 403 || response.status === 400 || response.status === 404 || response.status === 500) {
       setLogoutDeleteByIdMessage({ success: "", error: data.message });
       setTimeout(() => {
         setLogoutDeleteByIdMessage({ success: "", error: "" });
@@ -1404,6 +1416,15 @@ function ContextAPI({ children }) {
     const data = await respone.json();
     console.log("Subscription created:", data);
 
+    if (respone.status === 400 || respone.status === 403 || respone.status === 404 || respone.status === 422 || respone.status === 429) {
+      setIsClickOnSubscribe(false);
+      setSubscriptionMessage(data.error);
+      setTimeout(() => {
+        setSubscriptionMessage("")
+      }, 5000);
+      return;
+    }
+
 
     // step 2: open Razorpay checkout
     const rzp = new Razorpay({
@@ -1457,8 +1478,6 @@ function ContextAPI({ children }) {
     setCurrentSubscription(data.subscription);
   }
 
-
-
   // pause subscription
   async function handlePauseSubscription(subscriptionId) {
     const response = await fetch(`${BASE_URL}/subscription/pause/${subscriptionId}`, {
@@ -1472,19 +1491,17 @@ function ContextAPI({ children }) {
       fetchCurrentSubscription();
       setTimeout(() => {
         setSubscriptionMessage("")
-      }, 3000);
+      }, 5000);
     }
-    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422) {
+    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422 || response.status === 429) {
       setSubscriptionMessage(data.error);
-      console.log("Subscription cancelled:", data);
 
       fetchCurrentSubscription();
       setTimeout(() => {
         setSubscriptionMessage("")
-      }, 3000);
+      }, 5000);
     }
   }
-
 
   // Resume subscripition
   async function handleResumeSubscription(subscriptionId) {
@@ -1499,19 +1516,18 @@ function ContextAPI({ children }) {
       fetchCurrentSubscription();
       setTimeout(() => {
         setSubscriptionMessage("")
-      }, 3000);
+      }, 5000);
     }
-    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422) {
+    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422 || response.status === 429) {
       setSubscriptionMessage(data.error);
       console.log("Subscription cancelled:", data);
 
       fetchCurrentSubscription();
       setTimeout(() => {
         setSubscriptionMessage("")
-      }, 3000);
+      }, 5000);
     }
   }
-
 
   // cancle subscription
   async function handleCancelSubscription(subscriptionId) {
@@ -1525,16 +1541,16 @@ function ContextAPI({ children }) {
       fetchCurrentSubscription();
       setTimeout(() => {
         setSubscriptionMessage("")
-      }, 3000);
+      }, 5000);
     }
-    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422) {
+    if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422 || response.status === 429) {
       setSubscriptionMessage(data.error);
       console.log("Subscription cancelled:", data);
 
       fetchCurrentSubscription();
       setTimeout(() => {
         setSubscriptionMessage("")
-      }, 3000);
+      }, 5000);
     }
   }
 

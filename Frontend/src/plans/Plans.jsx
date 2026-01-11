@@ -14,7 +14,7 @@ export default function Plans() {
     const [mode, setMode] = useState("monthly");
 
 
-    const { PLAN_CATALOG, checking, isClickOnSubscribe, createSubscription, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, currentSubscription } = useContext(BastaStorageContext)
+    const { PLAN_CATALOG, checking, isClickOnSubscribe, createSubscription, fetchCurrentSubscription, handlePauseSubscription, handleResumeSubscription, currentSubscription, subscriptionMessage } = useContext(BastaStorageContext)
 
     const plans = PLAN_CATALOG[mode];
 
@@ -109,6 +109,15 @@ export default function Plans() {
 
 
 
+            {
+                subscriptionMessage && (
+                    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-5 duration-300">
+                        <div className="bg-blue-600 text-white px-8 py-4 rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-600/40 border border-white/20 backdrop-blur-xl">
+                            {subscriptionMessage}
+                        </div>
+                    </div>
+                )
+            }
 
         </div>
     );

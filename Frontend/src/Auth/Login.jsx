@@ -17,7 +17,7 @@ function Login() {
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${isDarkMode ? "bg-[#0f1113]" : "bg-slate-50"}`}>
-      
+
       {loginLimiter ? (
         <div className="text-center p-10 bg-red-50 border border-red-200 rounded-3xl animate-bounce">
           <i className="ri-error-warning-line text-5xl text-red-500 mb-4 block"></i>
@@ -25,14 +25,21 @@ function Login() {
         </div>
       ) : (
         <div className={`w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl transition-all border ${isDarkMode ? "bg-[#161b22] border-white/5 shadow-black/50" : "bg-white border-gray-100 shadow-blue-500/5"}`}>
-          
+
           {/* Header Section */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600/10 mb-4">
-              <i className="ri-shield-user-line text-3xl text-blue-600"></i>
+            <div className="inline-flex items-center justify-center rounded-2xl bg-blue-600/10 mb-4">
+              {/* LOGO */}
+              <div className="  ">
+                <img
+                  src={`${isDarkMode ? "/basta logo.png" : "/bst logo.png"}`}
+                  className="w-[4vw] cursor-pointer bg-black "
+                  alt="logo"
+                />
+              </div>
             </div>
             <h2 className={`text-2xl font-black tracking-tight ${isDarkMode ? "text-white" : "text-gray-800"}`}>
-              Welcome Back
+              Login to Basta Storage
             </h2>
             <p className="text-sm text-gray-500 mt-1 font-medium">Please enter your details</p>
           </div>
@@ -48,11 +55,10 @@ function Login() {
                 value={loginData.email}
                 onChange={handleChange}
                 required
-                className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${
-                  isDarkMode 
-                    ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50" 
-                    : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"
-                }`}
+                className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${isDarkMode
+                  ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50"
+                  : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"
+                  }`}
               />
             </div>
 
@@ -66,11 +72,10 @@ function Login() {
                 value={loginData.password}
                 onChange={handleChange}
                 required
-                className={`w-full pl-11 pr-12 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${
-                  isDarkMode 
-                    ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50" 
-                    : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"
-                }`}
+                className={`w-full pl-11 pr-12 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${isDarkMode
+                  ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50"
+                  : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"
+                  }`}
               />
               <button
                 type="button"
@@ -83,8 +88,8 @@ function Login() {
 
             {/* Login Error Display */}
             {loginError && (
-              <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-xl animate-in fade-in slide-in-from-top-1">
-                <p className="text-center text-red-500 text-xs font-bold italic">
+              <div className="">
+                <p className="text-center text-red-500 text-xs font-bold ">
                   <i className="ri-error-warning-fill mr-1"></i> {loginError}
                 </p>
               </div>
@@ -115,10 +120,10 @@ function Login() {
           </div>
 
           {/* Social Buttons Container */}
-          <div className="flex justify-center items-center gap-4 mb-8">
-            <div className="flex-1"><LoginWithGoogle /></div>
-            {"|"}
-            <div className="flex-1"><LoginWithGithub /></div>
+          <div className=" w-full  flex justify-center items-center gap-4 mb-8  ">
+            <div className=""><LoginWithGoogle /></div>
+            <div>{"|"}</div>
+            <div className=" "><LoginWithGithub /></div>
           </div>
 
           <TermsPrivacyFooter />

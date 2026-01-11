@@ -49,7 +49,7 @@ export const registerUser = async (req, res, next) => {
   const otpRecord = await OTP.findOne({ email, otp });
 
   if (otpRecord?.email != email) {
-    return res.status(400).json({ error: "OTP Expired or Session Timed Out. Please send a new OTP." });
+    return res.status(400).json({ otpExpiredError: "OTP Expired or Session Timed Out. Please send a new OTP." });
   }
   if (!otpRecord) {
     return res.status(400).json({ error: "Invalid Email" });
@@ -146,18 +146,27 @@ export const loginUser = async (req, res) => {
   const { email, password } = data;
 
   try {
+    // check user email
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: "Invalid email or password" });
 
+    // check if user is deleted
     if (user.isDeleted) {
       return res.status(403).json({ error: "Your account has been deleted. Please contact support." });
     }
+
+    // check is user login with social link and not set password
+    if (!user.password) {
+      return res.status(400).json({ error: `This email is linked with ${user.loginWith}. Please login using Social Login or set a password from your profile.` });
+    }
+
 
     // update login with 
     if (user) {
       user.loginWith = "email";
       await user.save();
     }
+
 
     // comparing password 
     const isPasswordValid = await user.comparePassword(password);
@@ -206,7 +215,7 @@ export const loginUser = async (req, res) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
-      sameSite: "none",
+      sameSite: "Lax",
       secure: true
     });
 
@@ -218,7 +227,7 @@ export const loginUser = async (req, res) => {
 
     return res.status(200).json({ message: "login success" });
   } catch (error) {
-    return res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: "somethig went wrong" });
   }
 };
 
@@ -300,7 +309,7 @@ export const updateUserProfile = async (req, res) => {
     // delete old photo from s3 if exists
     if (req.file && req.user.picture) {
       deleteFileFromS3(req.user?.pictureKey).catch((err) => {
-        console.log("Error deleting old profile photo from S3:", err);
+        // console.log("Error deleting old profile photo from S3:", err);
       })
     }
 
@@ -328,7 +337,7 @@ export const updateUserProfile = async (req, res) => {
     return res.status(200).json({ message: "Profile updated successfully", updateUser, });
 
   } catch (error) {
-    console.log("Error updating profile:", error);
+    // console.log("Error updating profile:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 
@@ -349,7 +358,7 @@ export const getUserProfile = async (req, res) => {
     }
     return res.status(200).json({ picture: signedUrl, name: user.name, email: user.email, role: user.role, isPasswordSet: req.user.password ? true : false, userIs: req.user.userIs, loginWith: user.loginWith });
   } catch (error) {
-    console.log("Error fetching user profile:", error);
+    // console.log("Error fetching user profile:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 }

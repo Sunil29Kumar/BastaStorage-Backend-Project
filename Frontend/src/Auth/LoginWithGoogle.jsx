@@ -9,7 +9,7 @@ function LoginWithGoogle() {
     const { loginWithGoogle, setIsLoginWithGoogle, isLoginWithGoogle } = useContext(BastaStorageContext)
 
     return (
-        <div className=' ' >
+        < >
 
             <GoogleLogin
                 onSuccess={async credentialResponse => {
@@ -22,7 +22,7 @@ function LoginWithGoogle() {
                 theme='filled_blue'
                 text='icon'
 
-            /></div>
+            /></>
     )
 }
 

@@ -3,7 +3,7 @@ import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import { Link } from "react-router-dom";
 
 function RecoverRequest() {
-  const { googleLoginError, sendRecoverRequest, recoveryRequestMessage } =
+  const { googleLoginError, sendRecoverRequest, recoveryRequestMessage , isDarkMode } =
     useContext(BastaStorageContext);
 
   const [email, setEmail] = useState("");

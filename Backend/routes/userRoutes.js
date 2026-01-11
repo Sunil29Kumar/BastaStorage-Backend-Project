@@ -14,11 +14,12 @@ import {
   updateUserProfile,
   updateUserRole,
 } from "../controllers/userController.js";
-import { registerLimiter } from "../middleware/registerLimiter.js";
-import { loginLimiter } from "../middleware/loginLimiter.js";
 import userMiddleware from "../middleware/userMiddleware.js";
 import upload from "../middleware/multerMiddleware.js";
 import { blockIfExpired, blockIfPaused } from "../middleware/subscriptionMiddleware.js";
+import { profileUpdateLimiter } from "../middleware/Rate Limiter/userLimiter.js";
+import { loginLimiter, registerLimiter } from "../middleware/Rate Limiter/authLimiter.js";
+import { adminActionLimiter } from "../middleware/Rate Limiter/adminLimiter.js";
 
 const router = express.Router();
 
@@ -39,7 +40,7 @@ router.get("/user/logout", checkAuth, logoutUser);
 router.get("/user/logoutAllDevice", checkAuth, logoutAllDevice);
 
 //update user profile
-router.post("/user", checkAuth, blockIfPaused,blockIfExpired, upload.single("userProfile"), updateUserProfile);
+router.post("/user", checkAuth, profileUpdateLimiter, blockIfPaused, blockIfExpired, upload.single("userProfile"), updateUserProfile);
 
 router.get("/user/profile", checkAuth, getUserProfile);
 
@@ -47,16 +48,16 @@ router.get("/user/profile", checkAuth, getUserProfile);
 router.get("/users", checkAuth, userMiddleware, getAllUsers)
 
 // logout user by id throw admin and manager
-router.post("/users/logout", checkAuth, userMiddleware, logoutUserById);
+router.post("/users/logout", checkAuth, adminActionLimiter, userMiddleware, logoutUserById);
 
 // delete user using id  by admin 
 // hard delete 
-router.post("/users/delete/hard", checkAuth, userMiddleware, hardDeleteUserById);
+router.post("/users/delete/hard", checkAuth, adminActionLimiter, userMiddleware, hardDeleteUserById);
 
 // soft delete
-router.post("/users/delete/soft", checkAuth, userMiddleware, softDeleteUserById);
+router.post("/users/delete/soft", checkAuth, adminActionLimiter, userMiddleware, softDeleteUserById);
 
 // change role 
-router.patch("/users/changeRole", checkAuth, userMiddleware, updateUserRole);
+router.patch("/users/changeRole", checkAuth, adminActionLimiter, userMiddleware, updateUserRole);
 
 export default router;

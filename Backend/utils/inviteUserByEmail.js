@@ -58,7 +58,7 @@ async function inviteUserByEmail(
 
     });
 
-    console.log(`Invitation sent: ${info.messageId}`);
+    // console.log(`Invitation sent: ${info.messageId}`);
   } catch (err) {
     console.error("Error sending email:", err);
   }

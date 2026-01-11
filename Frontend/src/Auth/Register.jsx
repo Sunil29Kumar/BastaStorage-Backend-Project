@@ -21,6 +21,8 @@ function Register() {
   } = useContext(BastaStorageContext);
 
   const [showPassword, setShowPassword] = useState(false);
+  console.log(otpError?.name);
+
 
   const handleChange = (e) => {
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
@@ -46,9 +48,9 @@ function Register() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600/10 mb-4">
+            <div className="inline-flex items-center justify-center rounded-2xl bg-blue-600/10 mb-4">
               {/* LOGO */}
-              <div className="h-[10vh] flex items-center   ">
+              <div className="  ">
                 <img
                   src={`${isDarkMode ? "/basta logo.png" : "/bst logo.png"}`}
                   className="w-[4vw] cursor-pointer bg-black "
@@ -78,7 +80,7 @@ function Register() {
                   className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${isDarkMode ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50" : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"}`}
                 />
               </div>
-              <ErrorMsg msg={errorRegister?.name?.[0] ? errorRegister.name[0] : otpError?.name?.[0]} />
+              <ErrorMsg className="bg-amber-300" msg={errorRegister?.name?.[0] ? errorRegister.name[0] : otpError?.name?.[0] ? otpError.name[0] : null} />
             </div>
 
             {/* Email Input */}
@@ -96,7 +98,7 @@ function Register() {
                   className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all focus:ring-2 outline-none ${isDarkMode ? "bg-gray-800/50 border-white/10 text-white focus:ring-blue-500/50" : "bg-gray-50 border-gray-200 focus:ring-blue-500/20"}`}
                 />
               </div>
-              <ErrorMsg msg={otpError?.email?.[0] || errorRegister?.email?.[0] || (errorRegister.length > 0 ? errorRegister : null)} />
+              <ErrorMsg msg={otpError?.email?.[0] || otpError?.error || errorRegister?.email?.[0] || (errorRegister.error ? errorRegister.error : null)} />
             </div>
 
             {/* Password Input */}
@@ -160,10 +162,10 @@ function Register() {
           </div>
 
           {/* Social Logins */}
-          <div className="flex justify-center items-center gap-4 mb-8">
-            <div className="flex-1"><LoginWithGoogle /></div>
+          <div className="flex justify-center items-center gap-4 mb-8 ">
+            <div className=""><LoginWithGoogle /></div>
             {"|"}
-            <div className="flex-1"><LoginWithGithub /></div>
+            <div className=""><LoginWithGithub /></div>
           </div>
 
           <TermsPrivacyFooter />

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 
 function ShareFilesDashboard() {
-  const { isDarkMode, setShowShareFile, shareLink, shareFileId, setIsShareLinkCopied, storeUserData, inviteUser, fetchSharedUsers, sharedUsersData, inviteUserMessage, updateSharedFilePermission, removeSharedUser, inviteLoading, updatePermissionLoading } = useContext(BastaStorageContext);
+  const { isDarkMode, setShowShareFile, shareLink, shareFileId, setIsShareLinkCopied, storeUserData, inviteUser, fetchSharedUsers, sharedUsersData, inviteUserMessage, updateSharedFilePermission, removeSharedUser, inviteLoading, updatePermissionLoading, BASE_URL } = useContext(BastaStorageContext);
 
   const [email, setEmail] = useState("");
   const [permission, setPermission] = useState("View");
@@ -103,7 +103,7 @@ function ShareFilesDashboard() {
                 {/* image */}
                 <div className=" w-[3.5vw] h-[3.5vw] rounded-full bg-blue-200 overflow-hidden ">
                   <img
-                    src={storeUserData.picture ? `http://localhost:2000${storeUserData.picture}` : "/user-img.png"}
+                    src={storeUserData.picture ? `${BASE_URL}${storeUserData.picture}` : "/user-img.png"}
                     alt="User Avatar"
                     className="w-full h-full  object-contain " />
                 </div>
@@ -130,7 +130,7 @@ function ShareFilesDashboard() {
                   {/* image */}
                   <div className=" w-[3.5vw] h-[3.5vw] rounded-full bg-blue-200 overflow-hidden ">
                     <img
-                      src={user.userId.picture ? `http://localhost:2000${user.userId.picture}` : "/user-img.png"}
+                      src={user.userId.picture ? `${BASE_URL}${user.userId.picture}` : "/user-img.png"}
                       alt="User Avatar"
                       className="w-full h-full  object-contain " />
                   </div>
