@@ -49,20 +49,5 @@ BastaStorage ek modern **SaaS-based cloud storage application** hai jo users ko 
 
 ---
 
-## 📸 Screenshots
 
-### User Dashboard
-![Dashboard Preview](https://placehold.co/800x450/f8fafc/64748b?text=File+Management+UI)
-*Clean aur minimal interface jahan user apni files manage kar sakta hai.*
 
-### Subscription Plans
-![Pricing Preview](https://placehold.co/800x450/f8fafc/64748b?text=SaaS+Subscription+Plans)
-*Razorpay integrated pricing section.*
-
----
-
-## ⚙️ Installation & Setup
-
-1. **Clone the project**
-   ```bash
-   git clone [https://github.com/your-username/basta-storage.git](https://github.com/your-username/basta-storage.git)
