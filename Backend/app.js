@@ -55,6 +55,7 @@ app.use(
           "https://drive.google.com",
           "https://www.gstatic.com",
           process.env.CLIENT_URL || "http://localhost:5173",
+          "https://checkout.razorpay.com",
         ],
 
         // // ✅ For dynamically loaded scripts (important for OAuth popup)
@@ -88,6 +89,7 @@ app.use(
           "https://drive.google.com",
           "https://content.googleapis.com",
           "https://www.gstatic.com",
+          "https://api.razorpay.com", "https://checkout.razorpay.com"
         ],
 
         // ✅ Allow images from Google Drive / user uploads
