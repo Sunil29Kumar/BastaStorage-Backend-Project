@@ -40,14 +40,16 @@ BastaStorage ek modern **SaaS-based cloud storage application** hai jo users ko 
 
 | Layer | Technology |
 | :--- | :--- |
-| **Frontend** | React.js, Tailwind CSS, Lucide Icons |
-| **Backend** | Node.js, Express.js |
-| **Database** | MongoDB (Mongoose) |
-| **Caching/Session** | Redis |
-| **Cloud Storage** | AWS S3 |
-| **Payments** | Razorpay |
-
----
+| **Frontend** | React.js, Tailwind CSS, React Icons |
+| **State Management** | Context API (API Handling) |
+| **Routing** | React Router DOM |
+| **Backend** | Node.js, Express.js (MERN Stack) |
+| **Database** | MongoDB Atlas (Cloud) |
+| **Caching/Session** | Redis Cloud |
+| **Automation** | Cron Jobs (Notifications) |
+| **Payments** | Razorpay (Webhooks for Subscriptions) |
+| **Cloud Storage** | AWS S3 (Object Storage) |
+| **CDN** | AWS CloudFront (Fast Content Delivery) |
 
 
 
