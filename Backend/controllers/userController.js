@@ -198,7 +198,7 @@ export const loginUser = async (req, res) => {
     const redisKey = `session:${sessionId}`;
     const sessionExpiry = 1000 * 60 * 60 * 24 * 7
 
-    const pipeline = rediclient.multi()
+    const pipeline = await rediclient.multi()
 
     // session store userId 
     pipeline.json.set(redisKey, "$", {

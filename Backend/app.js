@@ -19,16 +19,16 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import { connectDB } from "./database/db.js";
 
 import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
-// import rediclient from "./database/redis.js";
+import { connectRedis } from "./database/redis.js";
 
 
+// connect to database
 await connectDB();
 
-// if (!rediclient.isOpen) {
-//   await rediclient.connect();
-// }
+// connect to redis
+await connectRedis();
 
-
+// start  cron job to cleanup pending uploads
 cleanupPendingUploads();
 
 const app = express();
