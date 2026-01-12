@@ -15,7 +15,7 @@ import ManageSubscription from "./plans/ManageSubscription";
 import MyFiles from "./Components/MyFiles";
 import Terms from "./Components/legal/Terms";
 import PrivacyPolicy from "./Components/legal/PrivacyPolicy";
-import Plans from "./plans/plans";
+import Plans from "./plans/Plans.jsx";
 
 function App() {
   return (
