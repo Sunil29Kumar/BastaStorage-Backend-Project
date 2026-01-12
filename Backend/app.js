@@ -47,7 +47,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          `${process.env.CLIENT_URL}`,
+          `${process.env.CLIENT_URL || "http://localhost:5173"}`,
         ],
 
         // // ✅ For dynamically loaded scripts (important for OAuth popup)
@@ -59,7 +59,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          `${process.env.CLIENT_URL}`,
+          `${process.env.CLIENT_URL || "http://localhost:5173"}`,
         ],
 
         // ✅ Allow connections to Google API endpoints
@@ -71,7 +71,7 @@ app.use(
           "https://content.googleapis.com",
           "https://drive.google.com",
           "http://localhost:5000",
-          `${process.env.CLIENT_URL}`,
+          `${process.env.CLIENT_URL || "http://localhost:5173"}`,
         ],
 
         // ✅ For OAuth popups and Google Drive iframes
@@ -119,7 +119,7 @@ app.use(express.json());
 // allowing cors
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
   })
 );

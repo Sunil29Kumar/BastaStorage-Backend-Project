@@ -261,7 +261,7 @@ export const shareFile = async (req, res) => {
 
   // Generate a shareable link (you can customize this logic)
   const token = crypto.randomUUID()
-  const shareableLink = `${process.env.CLIENT_URL}/share/${token}`;
+  const shareableLink = `${process.env.CLIENT_URL || "http://localhost:5173"}/share/${token}`;
 
   await SharedLink.create({
     fileId: id,

@@ -87,7 +87,7 @@ export const verifyOtp = async (req, res, next) => {
 export const loginWithGithub = async (req, res, next) => {
   const params = new URLSearchParams({
     client_id: "Ov23liPF52IMctxkH6Jm",
-    redirect_uri: `${process.env.BASE_URL}/auth/github/callback`,
+    redirect_uri: `${process.env.BASE_URL || "http://localhost:2000"}/auth/github/callback`,
     scope: "read:user user:email",
     allow_signup: true,
   }).toString();
@@ -149,7 +149,7 @@ export const githubCallback = async (req, res, next) => {
     });
     await User.updateOne({ email }, { $set: { loginWith: "github" } });
 
-    return res.redirect(`${process.env.CLIENT_URL}`);
+    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}`);
 
   }
 
@@ -212,7 +212,7 @@ export const githubCallback = async (req, res, next) => {
 
     await session.commitTransaction();
 
-    return res.redirect(`${process.env.CLIENT_URL}`);
+    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}`);
   }
   catch (err) {
     await session.abortTransaction();
@@ -555,7 +555,7 @@ export const requestRecovery = async (req, res) => {
     await RecoveryEmail.create({ email, token });
 
 
-    const link = `${process.env.CLIENT_URL}/recover-account?token=${token}`;
+    const link = `${process.env.CLIENT_URL || "http://localhost:5173"}/recover-account?token=${token}`;
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
