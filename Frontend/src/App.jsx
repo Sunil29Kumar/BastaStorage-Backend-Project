@@ -10,11 +10,12 @@ import RecoverRequest from "./Account recover/RecoverRequest";
 import RecoverAccount from "./Account recover/RecoverAccount";
 import SharedFileViewer from "./Components/Share files/SharedFileViewer";
 import PrivateShareFileViewer from "./Components/Share files/PrivateShareFileViewer";
-import Plans from "./plans/plans";
+
 import ManageSubscription from "./plans/ManageSubscription";
 import MyFiles from "./Components/MyFiles";
 import Terms from "./Components/legal/Terms";
 import PrivacyPolicy from "./Components/legal/PrivacyPolicy";
+import Plans from "./plans/plans";
 
 function App() {
   return (

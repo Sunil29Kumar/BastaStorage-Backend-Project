@@ -122,3 +122,6 @@ export default function Plans() {
         </div>
     );
 }
+
+
+export default Plans;
