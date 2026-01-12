@@ -10,7 +10,7 @@ import TermsPrivacyFooter from "../Components/legal/TermsPrivacyFooter.jsx";
 
 
 
-export default function Plans() {
+function Plans() {
     const [mode, setMode] = useState("monthly");
 
 
