@@ -730,7 +730,7 @@ function ContextAPI({ children }) {
       else if (data.statusCode === 429) {
         setLoginLimiter(data.error)
       }
-      else if (response.status === 400 || response.status === 404 || response.status === 500) {
+      else if (response.status === 400 || response.status === 404 || response.status === 500 || response.status === 401) {
         setLoginError(data.error);
       }
 
