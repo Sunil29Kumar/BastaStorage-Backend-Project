@@ -19,13 +19,14 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import { connectDB } from "./database/db.js";
 
 import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
-import rediclient from "./database/redis.js";
+// import rediclient from "./database/redis.js";
 
 
 await connectDB();
-if (!rediclient.isOpen) {
-  await rediclient.connect();
-}
+
+// if (!rediclient.isOpen) {
+//   await rediclient.connect();
+// }
 
 
 cleanupPendingUploads();

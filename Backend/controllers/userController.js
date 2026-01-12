@@ -215,7 +215,7 @@ export const loginUser = async (req, res) => {
       httpOnly: true,
       signed: true,
       maxAge: sessionExpiry,
-      sameSite: "lax",
+      sameSite: "none",
       secure: true
     });
 

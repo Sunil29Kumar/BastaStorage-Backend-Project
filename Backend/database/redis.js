@@ -5,6 +5,8 @@ import { createClient } from "redis";
 
 const rediclient = createClient({
     url: process.env.REDIS_URL,
+    username: process.env.REDIS_USERNAME,
+    password: process.env.REDIS_PASSWORD,
     
 });
 
