@@ -13,7 +13,7 @@ export const cleanupPendingUploads = () => {
     const DAY = 24 * 60 * 60 * 1000;
 
     new CronJob(
-        "*/10 * * * * *",   // every 6 hours (REALISTIC)
+        "0 0 * * *",   // every 1 day (REALISTIC)
         async () => {
             console.log(" Grace expiry cron started");
 

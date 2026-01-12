@@ -17,12 +17,18 @@ import webhookRoute from "./routes/webhookRoute.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 
 import { connectDB } from "./database/db.js";
-// import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
+
+import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
+import rediclient from "./database/redis.js";
 
 
 await connectDB();
+if (!rediclient.isOpen) {
+  await rediclient.connect();
+}
 
-// cleanupPendingUploads();
+
+cleanupPendingUploads();
 
 const app = express();
 
