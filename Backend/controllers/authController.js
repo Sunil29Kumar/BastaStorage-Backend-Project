@@ -149,7 +149,7 @@ export const githubCallback = async (req, res, next) => {
     });
     await User.updateOne({ email }, { $set: { loginWith: "github" } });
 
-    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}`);
+    return res.redirect(process.env.CLIENT_URL || "http://localhost:5173");
 
   }
 
@@ -212,7 +212,7 @@ export const githubCallback = async (req, res, next) => {
 
     await session.commitTransaction();
 
-    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}`);
+    return res.redirect(process.env.CLIENT_URL || "http://localhost:5173");
   }
   catch (err) {
     await session.abortTransaction();

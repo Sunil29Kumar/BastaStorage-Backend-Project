@@ -47,7 +47,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          `${process.env.CLIENT_URL || "http://localhost:5173"}`,
+          process.env.CLIENT_URL || "http://localhost:5173",
         ],
 
         // // ✅ For dynamically loaded scripts (important for OAuth popup)
@@ -59,7 +59,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          `${process.env.CLIENT_URL || "http://localhost:5173"}`,
+          process.env.CLIENT_URL || "http://localhost:5173",
         ],
 
         // ✅ Allow connections to Google API endpoints
@@ -70,8 +70,8 @@ app.use(
           "https://www.googleapis.com",
           "https://content.googleapis.com",
           "https://drive.google.com",
-          "http://localhost:5000",
-          `${process.env.CLIENT_URL || "http://localhost:5173"}`,
+          process.env.BASE_URL || "http://localhost:2000",
+          process.env.CLIENT_URL || "http://localhost:5173",
         ],
 
         // ✅ For OAuth popups and Google Drive iframes
@@ -137,7 +137,7 @@ app.use("/webhook", webhookRoute);
 app.use("/subscription", checkAuth, subscriptionRoute);
 
 // notifound route
-app.use("/notification",checkAuth,notificationRoutes)
+app.use("/notification", checkAuth, notificationRoutes)
 
 // global error handler middleware
 app.use((err, req, res, next) => {
