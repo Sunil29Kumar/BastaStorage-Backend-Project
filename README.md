@@ -1,4 +1,4 @@
-# 📦 BastaStorage
+# BastaStorage
 ### Secure, Scalable & Smart Cloud Storage Solution
 
 ![BastaStorage Banner](https://placehold.co/1200x400/0f172a/white?text=BastaStorage+Cloud+Management)
