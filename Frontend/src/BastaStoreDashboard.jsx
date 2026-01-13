@@ -50,7 +50,7 @@ function BastaStoreDashboard() {
     showShareFile,
     isShareLinkCopied,
     isGDBoxOpen,
-    dirUploadMessage, isClickOnNotificationBell
+    dirUploadMessage, isClickOnNotificationBell, isNavMinimized, setIsNavMinimized
   } = useContext(BastaStorageContext);
 
 
@@ -83,6 +83,8 @@ function BastaStoreDashboard() {
       </div>
     </div>
   );
+
+
 }
 
 export default BastaStoreDashboard;

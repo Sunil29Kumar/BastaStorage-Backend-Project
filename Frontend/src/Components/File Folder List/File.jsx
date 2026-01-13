@@ -7,7 +7,7 @@ function File() {
   const {
     isDarkMode, filesList, BASE_URL, renameFile, handleDeleteFile, fileRenameMessage, fileDeleteMessage,
     setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
-    setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied
+    setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied,isClickOnDeleteFileFolderButton
   } = useContext(BastaStorageContext);
 
   const [openMenueId, setOpenMenueId] = useState(null);
@@ -41,7 +41,7 @@ function File() {
     renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
     handleDeleteFile, isShareFileHover, setIsShareFileHover,
     setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied,
-    getFileFormatData, getExtension
+    getFileFormatData, getExtension,isClickOnDeleteFileFolderButton
   };
 
   return (
@@ -101,7 +101,7 @@ function File() {
 }
 
 /* --- Action Menu --- */
-const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData }) => {
+const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData,isClickOnDeleteFileFolderButton }) => {
 
   const format = getFileFormatData(file.name);
   const buttonRef = useRef(null);
@@ -198,7 +198,9 @@ const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, re
           </div>
 
           <div className={`my-1 border-t ${isDarkMode ? 'border-white/5' : 'border-gray-50'}`} />
-          <MenuBtn icon="ri-delete-bin-line" label="Delete" danger
+          <MenuBtn icon="ri-delete-bin-line"
+           label={isClickOnDeleteFileFolderButton ? "Deleting..." : "Delete"}
+           danger
             onClick={() => { handleDeleteFile(file.id); setOpenMenueId(null); }}
             isDarkMode={isDarkMode} />
         </div>

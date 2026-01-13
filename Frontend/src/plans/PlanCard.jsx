@@ -1,17 +1,15 @@
 export default function PlanCard({ plan, onSelect, currentSubscription, isClickOnSubscribe }) {
-
-    console.log("cc", currentSubscription);
-    const isCurrentPlan = currentSubscription && currentSubscription.planId === plan.id && ["active", "paused"].includes(currentSubscription.status);
-
-    console.log(isCurrentPlan);
-
+    
+    // Logic: Agar user ke paas koi paid subscription nahi hai aur ye 'free_plan' card hai, 
+    // tab bhi ise "Current Plan" dikhao.
+    const isCurrentPlan = (currentSubscription && currentSubscription.planId === plan.id && ["active", "paused"].includes(currentSubscription.status)) || 
+                          (!currentSubscription && plan.id === "free_plan");
 
     return (
         <div
             className={`relative flex flex-col rounded-3xl border p-6 shadow-sm bg-white/70 
             backdrop-blur-xl transition-all duration-300 
             hover:shadow-xl hover:-translate-y-1
-            
             ${plan.popular
                     ? "border-blue-500 shadow-blue-200 ring-2 ring-blue-400/30"
                     : "border-slate-200"
@@ -47,12 +45,12 @@ export default function PlanCard({ plan, onSelect, currentSubscription, isClickO
                 </div>
             </div>
 
-            {/* Features */}
+            {/* Features List */}
             <ul className="flex-1 mb-6 space-y-3 text-sm text-slate-700">
                 {plan.features.map((f, i) => (
                     <li key={i} className="flex items-start gap-3">
                         <svg
-                            className="h-5 w-5 text-blue-600"
+                            className="h-5 w-5 text-blue-600 shrink-0"
                             viewBox="0 0 24 24"
                             fill="none"
                             strokeWidth="2"
@@ -69,32 +67,25 @@ export default function PlanCard({ plan, onSelect, currentSubscription, isClickO
                 ))}
             </ul>
 
-            {/* CTA Button */}
-
-            {isCurrentPlan ?
-                <div className=" bg-green-600 text-white text-md text-center px-4 py-3 font-semibold rounded-full shadow">
+            {/* CTA Button Logic */}
+            {isCurrentPlan ? (
+                <div className="mt-auto w-full bg-green-100 text-green-700 border border-green-200 text-md text-center px-4 py-3 font-semibold rounded-xl shadow-sm">
                     ✔ Current Plan
                 </div>
-                :
+            ) : (
                 <button
                     disabled={isClickOnSubscribe}
-                    onClick={() => {
-                        console.log("clcked");
-
-                        onSelect(plan)
-                    }}
-                    className={`mt-auto w-full  rounded-xl px-4 py-3 text-sm font-semibold transition-all
+                    onClick={() => onSelect(plan)}
+                    className={`mt-auto w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all
                     ${isClickOnSubscribe ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
                     ${plan.popular
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : "bg-slate-900 text-white hover:bg-slate-800"
-                        }  `}
+                        }`}
                 >
-                    {plan.cta}
+                    {isClickOnSubscribe ? "Processing..." : plan.cta}
                 </button>
-            }
-
-
+            )}
         </div>
     );
 }

@@ -31,6 +31,7 @@ function ContextAPI({ children }) {
   const [newFilename, setNewFilename] = useState("");
   const [newDirname, setNewDirname] = useState("");
   const { dirId } = useParams();
+  const [isClickOnCreateFolderButton, setIsClickOnCreateFolderButton] = useState(false);
   const navigate = useNavigate();
 
   // dark mode
@@ -54,6 +55,9 @@ function ContextAPI({ children }) {
   const [dirUploadMessage, setDirUploadMessage] = useState({ message: "", error: "" })
   const [dirRenameMessage, setDirRenameMessage] = useState({ message: "", error: "" })
   const [dirDeleteMessage, setDirDeleteMessage] = useState({ message: "", error: "" })
+  
+  const [isClickOnRenameButton, setIsClickOnRenameButton] = useState(false);
+  const [isClickOnDeleteFileFolderButton, setIsClickOnDeleteFileFolderButton] = useState(false);
 
   // get current folder name
   const [currentFolderName, setCurrentFolderName] = useState("");
@@ -93,6 +97,7 @@ function ContextAPI({ children }) {
   });
   const [errorRegister, setErrorRegister] = useState({});
   const [registerLimiterError, setRegisterLimiterError] = useState("");
+  const [isClickOnRegisterButton, setIsClickOnRegisterButton] = useState(false);
 
   // Login request
   const [loginData, setLoginData] = useState({
@@ -102,6 +107,7 @@ function ContextAPI({ children }) {
   const [loginError, setLoginError] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loginLimiter, setLoginLimiter] = useState("")
+  const [isClickOnLoginButton, setIsClickOnLoginButton] = useState(false);
 
   // fetch LOGIN DATA : fetch user Data after login
   const [storeUserData, setStoreUserData] = useState(null);
@@ -179,10 +185,27 @@ function ContextAPI({ children }) {
     error: ""
   });
 
-
-  // subscription plans and payment integration
+  // subscription and payment
   const PLAN_CATALOG = {
     monthly: [
+      {
+        id: "free_plan",
+        name: "Free",
+        tagline: "Basic storage for personal use",
+        storage: "500 MB",
+        price: 0,
+        period: "/forever",
+        cta: "Current Plan",
+        features: [
+          "500 MB Secure Cloud Storage",
+          "Personal Folder Limit (20 max)",
+          "Basic File Sharing (20 max)",
+          "GD Import (Max 50MB per file)",
+          "Single File/Folder Deletion",
+          "Access on 1 Device only",
+        ],
+        popular: false,
+      },
       {
         id: "plan_Rlq3ab5HeGgjyG",
         name: "Starter",
@@ -192,91 +215,136 @@ function ContextAPI({ children }) {
         period: "/mo",
         cta: "Start with 1 TB",
         features: [
-          "Secure cloud storage",
-          "Basic link sharing",
-          "Standard download speed",
+          "1 TB Secure Storage",
+          "Expanded Folders (Up to 100)",
+          "Enhanced Sharing (Up to 100 files)",
+          "Smart GD Sync (Max 1GB per file)",
+          "Bulk File & Folder Import (GD)",
+          "Multi-file Actions & Deletion",
+          "Access on 2 Devices",
+          "GST Invoice & Email Support",
         ],
         popular: true,
       },
       {
         id: "plan_Rlq7hitgvaDl8S",
         name: "Pro",
-        tagline: "Best for creators & professionals",
+        tagline: "For creators & professionals",
         storage: "5 TB",
         price: 349,
         period: "/mo",
         cta: "Upgrade to 5 TB",
         features: [
-          "Everything in Starter",
-          "Faster uploads",
-          "Email + Chat support",
-          "Password-protected links",
+          "5 TB High-speed Storage",
+          "Advanced Folder Management (500 max)",
+          "Unlimited File Sharing links",
+          "Pro GD Sync (No file size limit)",
+          "Full Folder Structure Import (GD)",
+          "Advanced Multi-file Batch Actions",
+          "Access on 4 Devices",
+          "Priority Chat & Email Support",
         ],
         popular: false,
       },
       {
         id: "plan_Rlq9w3xcX5Dzqd",
         name: "Ultimate",
-        tagline: "For teams & advanced users",
+        tagline: "Power tools for teams & power users",
         storage: "10 TB",
         price: 799,
         period: "/mo",
         cta: "Go Unlimited",
         features: [
-          "Everything in Pro",
-          "Version history (30 days)",
-          "Priority support",
-          "Team management tools",
+          "10 TB Enterprise-Grade Storage",
+          "Unlimited Folders & Projects",
+          "Unlimited Sharing & Imports",
+          "Advanced Versioning & Recovery",
+          "Enterprise GD Sync (All-in-one)",
+          "Mass Delete & Data Management",
+          "Access on 8 Devices",
+          "Full Admin Controls & 24/7 Support",
         ],
         popular: false,
       },
     ],
 
     yearly: [
+      // Tip: Yearly features same raheinge, bas Price aur Period update hoga
+      {
+        id: "free_plan",
+        name: "Free",
+        tagline: "Basic storage for personal use",
+        storage: "500 MB",
+        price: 0,
+        period: "/forever",
+        cta: "Current Plan",
+        features: [
+          "500 MB Secure Cloud Storage",
+          "Personal Folder Limit (20 max)",
+          "Basic File Sharing (20 max)",
+          "GD Import (Max 50MB per file)",
+          "Single File/Folder Deletion",
+          "Access on 1 Device only",
+        ],
+        popular: false,
+      },
       {
         id: "plan_Rlq6UhmQHI5dOm",
         name: "Starter",
-        tagline: "Basic storage for individuals",
+        tagline: "Great value for yearly backup",
         storage: "1 TB",
         price: 1499,
         period: "/yr",
         cta: "Start with 1 TB",
         features: [
-          "Secure cloud storage",
-          "Basic link sharing",
-          "Standard download speed",
+          "1 TB Secure Storage",
+          "Expanded Folders (Up to 100)",
+          "Enhanced Sharing (Up to 100 files)",
+          "Smart GD Sync (Max 1GB per file)",
+          "Bulk File & Folder Import (GD)",
+          "Multi-file Actions & Deletion",
+          "Access on 2 Devices",
+          "GST Invoice & Email Support",
         ],
         popular: true,
       },
       {
         id: "plan_Rlq8ww0f2qVHFb",
         name: "Pro",
-        tagline: "Ideal for creators & devs",
+        tagline: "Best for professional long-term storage",
         storage: "5 TB",
         price: 3499,
         period: "/yr",
         cta: "Upgrade to 5 TB",
         features: [
-          "Everything in Starter",
-          "Fast uploads",
-          "Email + Chat support",
-          "Password-protected links",
+          "5 TB High-speed Storage",
+          "Advanced Folder Management (500 max)",
+          "Unlimited File Sharing links",
+          "Pro GD Sync (No file size limit)",
+          "Full Folder Structure Import (GD)",
+          "Advanced Multi-file Batch Actions",
+          "Access on 4 Devices",
+          "Priority Chat & Email Support",
         ],
         popular: false,
       },
       {
         id: "plan_RlqB5gOigJ0THa",
         name: "Ultimate",
-        tagline: "Teams & advanced users",
+        tagline: "Full enterprise power at scale",
         storage: "10 TB",
         price: 7999,
         period: "/yr",
         cta: "Go Unlimited",
         features: [
-          "Everything in Pro",
-          "Version history (30 days)",
-          "Priority support",
-          "Team management tools",
+          "10 TB Enterprise-Grade Storage",
+          "Unlimited Folders & Projects",
+          "Unlimited Sharing & Imports",
+          "Advanced Versioning & Recovery",
+          "Enterprise GD Sync (All-in-one)",
+          "Mass Delete & Data Management",
+          "Access on 8 Devices",
+          "Full Admin Controls & 24/7 Support",
         ],
         popular: false,
       },
@@ -376,6 +444,7 @@ function ContextAPI({ children }) {
   // ----- UPLOAD FILE
   const xhrRef = useRef(null);
   async function uploadFile(e) {
+    setIsFileInProgress(true);
     const file = e.target.files[0];
     setCurrentFileName(file.name);
 
@@ -465,6 +534,7 @@ function ContextAPI({ children }) {
 
   // cancle uploading
   function cancleUpload() {
+    setIsFileUploadingCancle(true);
 
     if (xhrRef.current && xhrRef.current.readyState !== XMLHttpRequest.DONE) {
       xhrRef.current.abort();
@@ -485,6 +555,7 @@ function ContextAPI({ children }) {
 
   // create directory
   async function handleCreateDirectory(e) {
+    setIsClickOnCreateFolderButton(true);
     e.preventDefault();
     const url = `${BASE_URL}/directory/${dirId || ""}`;
     const response = await fetch(url, {
@@ -501,6 +572,7 @@ function ContextAPI({ children }) {
       setDirUploadMessage({ message: data.message, error: "" })
       setNewDirname("");
       setShowInputBox(false);
+      setIsClickOnCreateFolderButton(false);
       await getDirectoryItems();
       setTimeout(() => {
         setDirUploadMessage({ message: "", error: "" })
@@ -521,6 +593,7 @@ function ContextAPI({ children }) {
 
   // ----- delete file
   async function handleDeleteFile(fileId) {
+    setIsClickOnDeleteFileFolderButton(true);
     const response = await fetch(`${BASE_URL}/file/${fileId}`, {
       method: "DELETE",
       credentials: "include",
@@ -528,6 +601,7 @@ function ContextAPI({ children }) {
     const data = await response.json();
     if (response.status === 200) {
       setFileDeleteMessage({ message: data.message, error: "" })
+      setIsClickOnDeleteFileFolderButton(false);
       await getDirectoryItems();
       setTimeout(() => {
         setFileDeleteMessage({ message: "", error: "" })
@@ -545,6 +619,7 @@ function ContextAPI({ children }) {
 
   // ------ delete directroy
   async function handleDeleteDirectory(directoryId) {
+    setIsClickOnDeleteFileFolderButton(true);
     const response = await fetch(`${BASE_URL}/directory/${directoryId}`, {
       method: "DELETE",
       credentials: "include",
@@ -553,6 +628,7 @@ function ContextAPI({ children }) {
     console.log(data);
     if (response.status === 200) {
       setDirDeleteMessage({ message: data.message, error: "" })
+      setIsClickOnDeleteFileFolderButton(false);
       await getDirectoryItems();
       setTimeout(() => {
         setDirDeleteMessage({ message: "", error: "" })
@@ -576,6 +652,7 @@ function ContextAPI({ children }) {
 
   // save rename file
   async function saveFilename(e) {
+    setIsClickOnRenameButton(true);
     e.preventDefault();
     const response = await fetch(`${BASE_URL}/file/${selectedId}`, {
       method: "PATCH",
@@ -591,6 +668,7 @@ function ContextAPI({ children }) {
       setNewFilename("");
       setSelectedId(null);
       setShowFileRenameInputBox(false);
+      setIsClickOnRenameButton(false);
       await getDirectoryItems();
       setFileRenameMessage({ message: data.message, error: "" })
       setTimeout(() => {
@@ -608,6 +686,7 @@ function ContextAPI({ children }) {
 
   // save rename directory
   async function saveDirectory(e) {
+    setIsClickOnRenameButton(true);
     e.preventDefault();
     const response = await fetch(`${BASE_URL}/directory/${selectedId}`, {
       method: "PATCH",
@@ -624,6 +703,7 @@ function ContextAPI({ children }) {
       setNewFilename("");
       setSelectedId(null);
       setShowFolderRenameInputBox(false);
+      setIsClickOnRenameButton(false);
       await getDirectoryItems();
       setTimeout(() => {
         setDirRenameMessage({ message: "", error: "" })
@@ -641,6 +721,7 @@ function ContextAPI({ children }) {
 
   // Register Post Request
   async function handleRegister(e) {
+    setIsClickOnRegisterButton(true);
     e.preventDefault();
     try {
       const response = await fetch(`${BASE_URL}/user/register`, {
@@ -651,9 +732,8 @@ function ContextAPI({ children }) {
         body: JSON.stringify({ ...registerData, otp }),
       });
       const data = await response.json();
-      console.log(data.error);
-
-      console.log("reg data", data);
+      // console.log(data.error);
+      // console.log("reg data", data);
       // return
 
       if (data.detail) {
@@ -662,7 +742,8 @@ function ContextAPI({ children }) {
 
 
       if (response.ok) {
-        console.log(data);
+        // console.log(data);
+        setIsClickOnRegisterButton(false);
         navigate("/Login");
         setRegisterData({
           name: "",
@@ -693,6 +774,7 @@ function ContextAPI({ children }) {
 
   // login user
   async function handleLogin(e) {
+    setIsClickOnLoginButton(true);
     e.preventDefault();
     try {
       const response = await fetch(`${BASE_URL}/user/login`, {
@@ -714,11 +796,13 @@ function ContextAPI({ children }) {
       }
 
       if (response.ok) {
+        // setIsClickOnLoginButton(false);
         const res = await fetch(`${BASE_URL}/user/profile`, {
           credentials: "include",
         });
 
         if (res.ok) {
+          setIsClickOnLoginButton(false);
           const userData = await res.json();
           setStoreUserData(userData);
           setLoggedIn(true);
@@ -1439,6 +1523,11 @@ function ContextAPI({ children }) {
           startPolling(data.subscriptionId);
         }
       },
+      modal: {
+        ondismiss: function () {
+          setIsClickOnSubscribe(false);
+        }
+      },
       notes: {
         plan_id: planId,
       }
@@ -1629,10 +1718,10 @@ function ContextAPI({ children }) {
         // storage full message
         storageData, storageFullMessage, isStorageFull,
 
-        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, dirId, showInputBox, setShowInputBox, fileUploadMessage,
+        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, isClickOnCreateFolderButton, dirId, showInputBox, setShowInputBox, fileUploadMessage,
 
         fileRenameMessage, fileDeleteMessage,
-        dirUploadMessage, dirDeleteMessage, dirRenameMessage,
+        dirUploadMessage, dirDeleteMessage, dirRenameMessage,isClickOnRenameButton,isClickOnDeleteFileFolderButton,
 
         showFileRenameInputBox, setShowFileRenameInputBox, showFolderRenameInputBox, setShowFolderRenameInputBox, selectedId, setSelectedId, fileInfo, setFileInfo, showFileInfo, setShowFileInfo, folderInfo, setFolderInfo, showFolderInfo, setShowFolderInfo,
 
@@ -1664,10 +1753,10 @@ function ContextAPI({ children }) {
         logoutUserById, hardDeleteUserById, softDeleteUserById, logoutDeleteByIdMessage,
 
         // register 
-        registerData, setRegisterData, errorRegister, setErrorRegister, registerLimiterError,
+        registerData, setRegisterData, errorRegister, setErrorRegister, registerLimiterError, isClickOnRegisterButton,
 
         // login 
-        loginData, setLoginData, loginError, setLoginError, loggedIn, setLoggedIn, loginLimiter,
+        loginData, setLoginData, loginError, setLoginError, loggedIn, setLoggedIn, loginLimiter, isClickOnLoginButton,
 
         // 
 

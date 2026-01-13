@@ -7,7 +7,7 @@ import UpgradePlanCard from "../plans/UpgradePlan";
 
 function SideBar() {
   const location = useLocation();
-  const { setShowFileFolderMenu, showFileFolderMenu,isDarkMode, isNavMinimized, setIsNavMinimized } =
+  const { setShowFileFolderMenu, showFileFolderMenu, isDarkMode, isNavMinimized, setIsNavMinimized } =
     useContext(BastaStorageContext);
 
   const windowWidth = window.innerWidth;
@@ -42,7 +42,7 @@ function SideBar() {
         {/* LOGO */}
         <div className="h-[10vh] flex items-center   ">
           <img
-            src={`${isDarkMode ?"/basta logo.png" : "/bst logo.png"}`}
+            src={`${isDarkMode ? "/basta logo.png" : "/bst logo.png"}`}
             className="w-[4vw] cursor-pointer bg-black "
             alt="logo"
           />
@@ -93,9 +93,9 @@ function SideBar() {
         {/* SETTINGS */}
         <div>
           <p className={`text-sm text-gray-400 mb-1 ${isNavMinimized ? "text-center" : ""} `}>Settings</p>
-          <Link to="/help-support" className={baseClass}>
+          {/* <Link to="/help-support" className={baseClass}>
             <i className={`ri-question-line ${isNavMinimized ? "text-xl" : "text-xl"} `}></i> {!isNavMinimized && "Help & Support"}
-          </Link>
+          </Link> */}
 
           <Link to="/settings" className={baseClass}>
             <i className={`ri-settings-3-line ${isNavMinimized ? "text-xl" : "text-xl"} `}></i> {!isNavMinimized && "Settings"}
@@ -104,7 +104,9 @@ function SideBar() {
       </div>
 
       {/* plan  */}
-      <UpgradePlanCard />
+      <div>
+        <UpgradePlanCard />
+      </div>
 
       {/* BOTTOM CREATE BUTTON */}
       <div className={`px-2 mt-auto mb-4 transition-all duration-300`}>

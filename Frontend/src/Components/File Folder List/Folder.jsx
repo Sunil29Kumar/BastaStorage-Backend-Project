@@ -12,6 +12,7 @@ function Folder() {
     setShowFolderRenameInputBox,
     setShowFolderInfo,
     setFolderInfo,
+    isClickOnDeleteFileFolderButton
   } = useContext(BastaStorageContext);
 
   const [openFolderMenueId, setOpenFolderMenueId] = useState(null);
@@ -72,9 +73,8 @@ function Folder() {
             <div className="relative">
               <button
                 onClick={() => setOpenFolderMenueId(openFolderMenueId === folder.id ? null : folder.id)}
-                className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${
-                  isDarkMode ? "hover:bg-white/10 text-gray-400" : "hover:bg-gray-100 text-gray-500"
-                }`}
+                className={`w-8 h-8 flex cursor-pointer items-center justify-center rounded-full transition-all ${isDarkMode ? "hover:bg-white/10 text-gray-400" : "hover:bg-gray-100 text-gray-500"
+                  }`}
               >
                 <i className="ri-more-2-fill"></i>
               </button>
@@ -126,7 +126,7 @@ function Folder() {
 
                   <MenuAction
                     icon="ri-delete-bin-line"
-                    label="Delete"
+                    label={isClickOnDeleteFileFolderButton ? "Deleting..." : "Delete"}
                     danger
                     onClick={() => handleDeleteDirectory(folder.id)}
                     isDarkMode={isDarkMode}
@@ -145,9 +145,9 @@ function MenuAction({ icon, label, onClick, danger, isDarkMode }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 text-[12px] font-bold transition-all
-        ${danger 
-          ? "text-red-500 hover:bg-red-500/10" 
+      className={`w-full flex items-center cursor-pointer gap-3 px-4 py-2.5 text-[12px] font-bold transition-all
+        ${danger
+          ? "text-red-500 hover:bg-red-500/10"
           : isDarkMode ? "text-gray-300 hover:bg-white/5 hover:text-blue-400" : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"}
       `}
     >

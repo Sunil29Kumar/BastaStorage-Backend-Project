@@ -8,6 +8,7 @@ function RenameFolderInputBox() {
     setNewFilename,
     saveDirectory,
     setShowFolderRenameInputBox,
+    isClickOnRenameButton
   } = useContext(BastaStorageContext);
 
   const renameRef = useRef(null);
@@ -90,9 +91,9 @@ function RenameFolderInputBox() {
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-xl text-sm font-bold shadow-lg shadow-amber-500/30 transition-all"
+              className="px-6 py-2.5 cursor-pointer bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-xl text-sm font-bold shadow-lg shadow-amber-500/30 transition-all"
             >
-              Update Folder
+              {isClickOnRenameButton ? "Updating..." : "Update Folder"}
             </button>
           </div>
         </form>

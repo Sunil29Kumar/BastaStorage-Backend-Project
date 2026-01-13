@@ -8,6 +8,7 @@ function RenameFileInputBox() {
     setNewFilename,
     saveFilename,
     setShowFileRenameInputBox,
+    isClickOnRenameButton
   } = useContext(BastaStorageContext);
 
   const renameRef = useRef(null);
@@ -86,9 +87,9 @@ function RenameFileInputBox() {
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition-all"
+              className="px-6 py-2.5 cursor-pointer bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition-all"
             >
-              Save Changes
+              {isClickOnRenameButton ? "Updating..." : "Save Changes"}
             </button>
           </div>
         </form>

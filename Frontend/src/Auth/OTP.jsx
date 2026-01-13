@@ -62,15 +62,15 @@ function OTP({ email, name, password }) {
       )}
 
       {isVerifyOtpWrong && (
-        <div className="max-w-md mx-auto p-4 bg-gray-100 rounded-2xl shadow-md space-y-4 ">
+        <div className={`max-w-md mx-auto p-4 bg-gray-100 rounded-2xl shadow-md space-y-4 ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"}`}>
           {/* <div className={`max-w-md mx-auto p-4  rounded-2xl shadow-md space-y-4 ${name.length > 0 && email.length > 0 && password.length > 0 ? "bg-green-300" : "bg-gray-100"}`}> */}
           {!otpSent && (
-            <div className={`flex justify-center ${isDarkMode ? "text-white  " : "text-black "}`}>
+            <div className={`flex justify-center ${isDarkMode ? "  text-white  " : "text-black "}`}>
               <button
                 onClick={handleSendOtp}
                 className={`transition font-medium cursor-pointer  `}
               >
-                Send OTP
+                {otpSent ? "Sent OTP" :"Send OTP"} 
               </button>
             </div>
           )}

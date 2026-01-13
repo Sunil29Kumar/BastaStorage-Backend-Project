@@ -9,6 +9,7 @@ function CreateFolderInputBox() {
     setNewDirname,
     newDirname,
     setShowInputBox,
+    isClickOnCreateFolderButton
   } = useContext(BastaStorageContext);
 
   return (
@@ -25,9 +26,8 @@ function CreateFolderInputBox() {
         <div className="flex justify-between items-center mb-5">
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-lg ${
-                isDarkMode ? "bg-gray-700" : "bg-blue-100"
-              }`}
+              className={`p-2 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-blue-100"
+                }`}
             >
               <FaFolderPlus className="text-blue-500" />
             </div>
@@ -85,7 +85,7 @@ function CreateFolderInputBox() {
               disabled={!newDirname.trim()}
               className="px-5 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 disabled:opacity-50"
             >
-              Create
+              {isClickOnCreateFolderButton ? "Creating..." : "Create"}
             </button>
           </div>
         </form>

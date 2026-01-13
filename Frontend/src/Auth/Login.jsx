@@ -6,7 +6,7 @@ import LoginWithGithub from "./LoginWithGithub";
 import TermsPrivacyFooter from "../Components/legal/TermsPrivacyFooter";
 
 function Login() {
-  const { loginData, setLoginData, handleLogin, loginError, loginLimiter, isDarkMode } =
+  const { loginData, setLoginData, handleLogin, loginError, loginLimiter, isDarkMode , isClickOnLoginButton } =
     useContext(BastaStorageContext);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -98,9 +98,10 @@ function Login() {
             {/* Login Button */}
             <button
               type="submit"
+              disabled={isClickOnLoginButton}
               className="w-full cursor-pointer bg-blue-600 text-white py-3 mt-2 rounded-xl font-bold shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all active:scale-95"
             >
-              Sign In
+             {isClickOnLoginButton ? "Signing In..." : "Sign In"}
             </button>
           </form>
 

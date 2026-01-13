@@ -17,7 +17,8 @@ function Register() {
     isVerifyOtpWrong,
     registerLimiterError,
     isDarkMode,
-    otpSent
+    otpSent,
+    isClickOnRegisterButton
   } = useContext(BastaStorageContext);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -135,9 +136,10 @@ function Register() {
             {!isVerifyOtpWrong && (
               <button
                 type="submit"
+                disabled={isClickOnRegisterButton}
                 className="w-full cursor-pointer bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all active:scale-95"
               >
-                Create Account
+                {isClickOnRegisterButton ? "Creating Account..." : "Create Account"}
               </button>
             )}
           </form>
