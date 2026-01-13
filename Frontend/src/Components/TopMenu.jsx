@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import { FaSearch, FaBell, FaMoon, FaSun } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function TopMenu() {
   const {
@@ -16,6 +16,9 @@ function TopMenu() {
 
 
   const pathname = useLocation().pathname;
+
+  console.log(storeUserData);
+
 
   return (
     <div
@@ -74,10 +77,29 @@ function TopMenu() {
         </button>
 
         {/* USER */}
+        {storeUserData?.role !== "user" && (
+          <Link
+            to="/users"
+            className={`
+      hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full 
+      text-[10px] font-black uppercase tracking-wider transition-all duration-300
+      ${isDarkMode
+                ? "bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20"
+                : "bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100"
+              }
+    `}
+          >
+            {/* Ek chota star ya crown icon role ke saath achha lagega */}
+            <i className="ri-shield-check-fill text-xs"></i>
+            {storeUserData?.role}
+          </Link>
+        )}
+
         <div
           onClick={() => setAccountMenu(true)}
           className="w-15 h-15 rounded-full overflow-hidden cursor-pointer border-2 border-blue-400"
         >
+
           <img
             src={
               storeUserData?.picture
@@ -87,6 +109,7 @@ function TopMenu() {
             alt="user"
             className="w-full h-full object-cover"
           />
+
         </div>
       </div>
     </div>
