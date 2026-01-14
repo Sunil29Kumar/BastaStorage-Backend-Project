@@ -1015,9 +1015,7 @@ function ContextAPI({ children }) {
     if (response.ok) {
       setGoogleLoginError("");
       setLoginWithGoogleMessage(data);
-      setTimeout(() => {
-        setIsGoogleLoginLoading(false);
-      }, 1000);
+
 
       // fetch user data
       const res = await fetch(`${BASE_URL}/user/profile`, {
@@ -1028,6 +1026,9 @@ function ContextAPI({ children }) {
         const userData = await res.json();
         setStoreUserData(userData);
         setLoggedIn(true);
+        setTimeout(() => {
+          setIsGoogleLoginLoading(false);
+        }, 1000);
         await getDirectoryItems();
         navigate("/");
       }
