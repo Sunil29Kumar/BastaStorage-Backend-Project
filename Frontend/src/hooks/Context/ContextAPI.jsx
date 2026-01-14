@@ -431,7 +431,6 @@ function ContextAPI({ children }) {
   }
 
 
-
   useEffect(() => {
     getAllFilesDirectoriesList();
     getDirectoryItems();

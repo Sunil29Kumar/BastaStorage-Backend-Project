@@ -94,7 +94,7 @@ const fileSchema = await mongoose.Schema(
 fileSchema.index(
   { "timeStamp.fileCreatedAt": 1 },
   {
-    expireAfterSeconds: 30, // 0.5 min
+    expireAfterSeconds: 86400, // 1 day
     partialFilterExpression: {
       status: { $in: ["initiated", "uploading"] },
     },
