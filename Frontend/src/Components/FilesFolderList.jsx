@@ -25,7 +25,7 @@ function FilesFolderList() {
   const CurrentComponent = components[location.pathname] || <MyFiles />;
 
   return (
-    <div className={`fileFolderList pb-1  ${!isNavMinimized ? "w-[85%]" : "w-[94%]"}  transition-all duration-100 ease-in-out   overflow-hidden flex flex-col gap-1 px-2 relative rounded-l-4xl  ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-900"}`}>
+    <div className={`fileFolderList py-1  ${!isNavMinimized ? "w-[85%]" : "w-[94%]"}  transition-all duration-100 ease-in-out   overflow-hidden flex flex-col gap-1 px-2 relative rounded-l-4xl  ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-900"}`}>
       <TopMenu />
 
       {CurrentComponent}
