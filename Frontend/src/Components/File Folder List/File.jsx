@@ -216,7 +216,9 @@ const ListRow = (props) => {
 
 
   return (
-    <tr className={`group transition-all ${props.isDarkMode ? "bg-gray-800/20 hover:bg-gray-800/50" : "bg-white hover:bg-blue-50 shadow-sm"} border rounded-xl`}>
+    <tr
+    disabled={props.status === "initiated"}
+    className={`group transition-all ${props.isDarkMode ? "bg-gray-800/20 hover:bg-gray-800/50" : "bg-white hover:bg-blue-50 shadow-sm"} border rounded-xl`}>
       <td className="px-4 py-3 rounded-l-2xl">
         <div className="flex items-center gap-4">
           <div className={`text-2xl  p-2 rounded-lg ${format.bg} ${format.color} group-hover:scale-110 transition-transform`}>

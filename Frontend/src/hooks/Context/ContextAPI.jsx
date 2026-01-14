@@ -55,7 +55,7 @@ function ContextAPI({ children }) {
   const [dirUploadMessage, setDirUploadMessage] = useState({ message: "", error: "" })
   const [dirRenameMessage, setDirRenameMessage] = useState({ message: "", error: "" })
   const [dirDeleteMessage, setDirDeleteMessage] = useState({ message: "", error: "" })
-  
+
   const [isClickOnRenameButton, setIsClickOnRenameButton] = useState(false);
   const [isClickOnDeleteFileFolderButton, setIsClickOnDeleteFileFolderButton] = useState(false);
 
@@ -155,6 +155,7 @@ function ContextAPI({ children }) {
   // login with google 
   const [googleLoginError, setGoogleLoginError] = useState("");
   const [loginWithGoogleMessage, setLoginWithGoogleMessage] = useState({});
+  const [isGoogleLoginLoading, setIsGoogleLoginLoading] = useState(false);
 
   // set google password 
   const [googlePasswordError, setGooglePasswordError] = useState([]);
@@ -754,6 +755,8 @@ function ContextAPI({ children }) {
 
       if (data.statusCode === 429) {
         setRegisterLimiterError(data.error);
+        setIsClickOnRegisterButton(false);
+
       }
 
       if (data.otpExpiredError) {
@@ -763,6 +766,8 @@ function ContextAPI({ children }) {
         setSentOtpMessage("");
         setOtp("");
         setVerifyOtpMessage("");
+        setIsClickOnRegisterButton(false);
+
       }
 
     } catch (error) {
@@ -812,9 +817,13 @@ function ContextAPI({ children }) {
 
       else if (data.statusCode === 429) {
         setLoginLimiter(data.error)
+        setIsClickOnLoginButton(false);
+
       }
       else if (response.status === 400 || response.status === 404 || response.status === 500 || response.status === 401) {
         setLoginError(data.error);
+        setIsClickOnLoginButton(false);
+
       }
 
     } catch (error) {
@@ -972,11 +981,13 @@ function ContextAPI({ children }) {
 
   // -------------- Login with Github 
   const loginWithGithub = () => {
+    setIsGoogleLoginLoading(true);
     window.location.href = `${BASE_URL}/auth/github`;
   }
 
   // -------------- Login with Google 
   async function loginWithGoogle(credential) {
+    setIsGoogleLoginLoading(true);
     const response = await fetch(`${BASE_URL}/auth/google/login`, {
       method: "POST",
       credentials: "include",
@@ -991,17 +1002,22 @@ function ContextAPI({ children }) {
       navigate("/recover-request");
       setGoogleLoginError(data.error);
       setLoggedIn(false)
+      setIsGoogleLoginLoading(false);
       return;
     }
 
     if (response.status === 429) {
       setGoogleLoginError(data.error);
+      setIsGoogleLoginLoading(false);
       return;
     }
 
     if (response.ok) {
       setGoogleLoginError("");
       setLoginWithGoogleMessage(data);
+      setTimeout(() => {
+        setIsGoogleLoginLoading(false);
+      }, 1000);
 
       // fetch user data
       const res = await fetch(`${BASE_URL}/user/profile`, {
@@ -1720,7 +1736,7 @@ function ContextAPI({ children }) {
         fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, isClickOnCreateFolderButton, dirId, showInputBox, setShowInputBox, fileUploadMessage,
 
         fileRenameMessage, fileDeleteMessage,
-        dirUploadMessage, dirDeleteMessage, dirRenameMessage,isClickOnRenameButton,isClickOnDeleteFileFolderButton,
+        dirUploadMessage, dirDeleteMessage, dirRenameMessage, isClickOnRenameButton, isClickOnDeleteFileFolderButton,
 
         showFileRenameInputBox, setShowFileRenameInputBox, showFolderRenameInputBox, setShowFolderRenameInputBox, selectedId, setSelectedId, fileInfo, setFileInfo, showFileInfo, setShowFileInfo, folderInfo, setFolderInfo, showFolderInfo, setShowFolderInfo,
 
@@ -1800,6 +1816,7 @@ function ContextAPI({ children }) {
         googleLoginError,
         setGoogleLoginError,
         loginWithGoogleMessage,
+        isGoogleLoginLoading,
         // set google password 
         setGooglePassword,
         googlePasswordSuccessMessage,

@@ -7,6 +7,9 @@ function Notification() {
     const [isSeeAllActive, setIsSeeAllActive] = useState(false);
     const dropdownRef = useRef(null);
 
+    console.log(notificationsData);
+
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -55,8 +58,17 @@ function Notification() {
             <div className={`max-h-[400px] overflow-y-auto no-scrollbar ${isDarkMode ? "bg-slate-900/50" : "bg-slate-50/30"}`}>
                 {notificationsData && notificationsData.length > 0 ? (
                     <div className={`divide-y ${theme.header}`}>
-                        {notificationsData.slice(0, isSeeAllActive ? notificationsData.length : 2).map((notification, index) => (
-                            <div
+                        {notificationsData.slice(0, isSeeAllActive ? notificationsData.length : 2).map((notification, index) => {
+
+                            const date = new Date(notification.createdAt);
+
+                            const year = date.getUTCFullYear();
+                            const month = date.toLocaleString('en-US', { month: 'short' });
+                            const day = date.getUTCDate();
+                            const hour = date.getHours();
+                            const minute = date.getMinutes();
+                            const finalFormat = `${year} ${month} ${day}  at ${hour}:${minute}`;
+                            return <div
                                 onClick={() => markNotificationAsRead(notification._id)}
 
                                 key={index}
@@ -78,8 +90,8 @@ function Notification() {
                                         <h3 className={`text-sm font-black leading-tight truncate ${theme.title}`}>
                                             {notification.title}
                                         </h3>
-                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter pt-0.5">
-                                            {notification.time || "Just Now"}
+                                        <span className="text-[9px] font-bold text-slate-400  tracking-tighter pt-0.5">
+                                            {finalFormat || "Just now"}
                                         </span>
                                     </div>
                                     <p className={`text-xs font-medium leading-relaxed ${theme.message} line-clamp-2`}>
@@ -87,7 +99,7 @@ function Notification() {
                                     </p>
                                 </div>
                             </div>
-                        ))}
+                        })}
                     </div>
                 ) : (
                     <div className="p-16 text-center flex flex-col items-center justify-center space-y-4">
