@@ -134,6 +134,9 @@ app.use(
 );
 
 
+app.get("/", (req, res) => {
+  res.send("ka ho babua ?");
+});
 
 app.use("/directory", checkAuth, directoryRoutes);
 app.use("/file", fileRoutes);
