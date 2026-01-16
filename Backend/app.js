@@ -138,6 +138,12 @@ app.get("/", (req, res) => {
   res.send("ka ho babua ?");
 });
 
+app.get("/error",(req,res)=>{
+  console.log("process exit with error");
+  process.exit(1)
+  
+})
+
 app.use("/directory", checkAuth, directoryRoutes);
 app.use("/file", fileRoutes);
 app.use("/", userRoutes);
