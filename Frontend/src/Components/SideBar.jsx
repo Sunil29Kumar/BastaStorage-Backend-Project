@@ -130,7 +130,7 @@ function SideBar() {
               setIsNavMinimized={setIsNavMinimized}
               windowWidth={windowWidth} />
 
-            {/* <NavLink to="/trash" icon="ri-delete-bin-line" label="Trash"
+            <NavLink to="/trash" icon="ri-delete-bin-line" label="Trash"
               active={location.pathname === "/trash"}
               isNavMinimized={isNavMinimized}
               baseClass={baseClass}
@@ -151,7 +151,7 @@ function SideBar() {
               baseClass={baseClass}
               activeClass={activeClass}
               setIsNavMinimized={setIsNavMinimized}
-              windowWidth={windowWidth} /> */}
+              windowWidth={windowWidth} />
 
             <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
 

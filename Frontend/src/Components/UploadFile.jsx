@@ -46,7 +46,7 @@ function UploadFile() {
         onClick={() => {
           setIsGDBoxOpen(false);
           setShowInputBox(false);
-          setShowFileFolderMenu(false);
+          // setShowFileFolderMenu(false);
         }}
         onChange={(e) => uploadFile(e)}
         className="hidden"
