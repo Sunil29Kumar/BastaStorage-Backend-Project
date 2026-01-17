@@ -48,7 +48,7 @@ function CreateUploadFFList() {
         className={`
           ${menuStyles}
           rounded-2xl shadow-2xl border transition-all duration-300 ease-out animate-in fade-in zoom-in-95
-          flex flex-col gap-1 p-2 z-[50]
+          flex flex-col gap-1 p-2 z-[100]
           ${isDarkMode
             ? "bg-gray-900/95 border-gray-700 text-white"
             : "bg-white border-gray-200 text-black"}

@@ -97,7 +97,6 @@ function SideBar() {
           <div className={`flex flex-col gap-2 overflow-y-auto  px-2
               [&::-webkit-scrollbar]:w-1
               [&::-webkit-scrollbar-track]:bg-transparent 
-       
               [&::-webkit-scrollbar-thumb]:bg-blue-400
               [&::-webkit-scrollbar-thumb]:rounded-full
               ${isNavMinimized ? "h-[70vh] " : windowWidth < 1000 ? "h-[65vh]" : "h-[55vh] "} 

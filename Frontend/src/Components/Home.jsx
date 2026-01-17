@@ -13,8 +13,13 @@ function Home() {
 
   return (
     <div
-      className={`w-full h-full px-2 py-5 space-y-5 rounded-t-xl rounded-b-4xl ${isDarkMode ? "bg-gray-800 text-white" : " text-gray-900"
-        }`}
+      className={`w-full h-full overflow-x-auto px-2 py-5 space-y-5 rounded-t-xl rounded-b-4xl ${isDarkMode ? "bg-gray-800 text-white" : " text-gray-900"
+        }
+        [&::-webkit-scrollbar]:w-1
+              [&::-webkit-scrollbar-track]:bg-transparent 
+              [&::-webkit-scrollbar-thumb]:bg-blue-400
+              [&::-webkit-scrollbar-thumb]:rounded-full
+        `}
     >
 
       <StorageCards />
