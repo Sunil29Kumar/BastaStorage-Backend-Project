@@ -10,7 +10,7 @@ import StorageAnalytics from "./Total Storage/StorageAnalytics";
 import HelpSupport from "./Help and support/HelpSupport";
 import Settings from "./Settings/Settings";
 function FilesFolderList() {
-  const { isDarkMode, isNavMinimized } = useContext(BastaStorageContext);
+  const { isDarkMode, isNavMinimized, windowWidth } = useContext(BastaStorageContext);
 
   const location = useLocation();
 
@@ -24,8 +24,24 @@ function FilesFolderList() {
 
   const CurrentComponent = components[location.pathname] || <MyFiles />;
 
+  let dashboardWidth = "w-[83%]  left-[17%]"
+  if (isNavMinimized && windowWidth > 1285) {
+    dashboardWidth = "w-[92%] left-[8%]"
+  }
+  if (isNavMinimized && windowWidth < 1285 && windowWidth >= 1000) {
+    dashboardWidth = "w-[91%] left-[9%] ";
+  }
+  else {
+    if (windowWidth < 1285 && windowWidth >= 1000) {
+      dashboardWidth = "w-[77%] left-[23%]"
+    }
+    if (windowWidth < 1000) {
+      dashboardWidth = "w-[100%] left-0"
+    }
+  }
+
   return (
-    <div className={`fileFolderList py-1  ${!isNavMinimized ? "w-[85%]" : "w-[94%]"}  transition-all duration-100 ease-in-out   overflow-hidden flex flex-col gap-1 px-2 relative rounded-l-4xl  ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-900"}`}>
+    <div className={`fileFolderList  ${windowWidth <= 1285 ? "p-3" : " py-1  px-2  "}  absolute  top-[0%] bottom-0 ${dashboardWidth}  transition-all duration-100 ease-in-out   overflow-hidden flex flex-col gap-1 ${windowWidth >= 1000 ? " rounded-l-4xl" : ""}  ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-900"}`}>
       <TopMenu />
 
       {CurrentComponent}

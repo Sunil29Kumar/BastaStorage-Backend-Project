@@ -9,9 +9,7 @@ function UpgradePlanCard() {
         <Link
             to={`${storeUserData?.userIs === "pro" ? "/manage-subscription" : "/plans"}`}
             className={`
-                relative flex items-center transition-all duration-500 group
-                /* Mobile: Full width by default, Desktop: depends on isNavMinimized */
-                w-full sm:w-auto
+                relative flex items-center transition-all duration-500 group w-full sm:w-auto
                 ${!isNavMinimized
                     ? "gap-4 p-4 rounded-[1.5rem] sm:rounded-[2rem] mx-0 sm:mx-2 mb-4"
                     : "w-12 h-12 rounded-2xl mx-auto mb-6 justify-center"
@@ -22,7 +20,6 @@ function UpgradePlanCard() {
                     : "bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50"
                 }
                 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1
-                /* Hide on very small screens if needed, or keep as a floating action */
             `}
         >
             {/* Background Glow Effect */}
@@ -71,9 +68,9 @@ function UpgradePlanCard() {
             )}
 
             {/* Notification Dot */}
-            {isNavMinimized && (
+            {/* {isNavMinimized && (
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full animate-pulse"></div>
-            )}
+            )} */}
         </Link>
     );
 }

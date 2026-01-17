@@ -53,7 +53,7 @@ function BastaStoreDashboard() {
     dirUploadMessage, isClickOnNotificationBell, isNavMinimized, setIsNavMinimized
   } = useContext(BastaStorageContext);
 
-
+// 1285 
   return (
     <div className={` ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"} h-[100vh]`}>
       <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl  flex relative  ">

@@ -15,6 +15,9 @@ function ContextAPI({ children }) {
   // nab bar minimize button 
   const [isNavMinimized, setIsNavMinimized] = useState(false);
 
+  // window width
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
   // Breadcrum 
   const [currentDirPath, setCurrentDirPath] = useState([])
 
@@ -1726,7 +1729,7 @@ function ContextAPI({ children }) {
         directoriesList, setDirectoriesList, filesList, setFilesList, allFileDirectoriesList,
 
         // nav bar minimize buttion
-        isNavMinimized, setIsNavMinimized,
+        isNavMinimized, setIsNavMinimized, windowWidth,
 
         // BreadCrum 
         currentDirPath, setCurrentDirPath,

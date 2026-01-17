@@ -38,6 +38,7 @@ function TopMenu() {
       {/* --- LEFT: SEARCH SECTION --- */}
       {(pathname === "/my-files" || pathname.startsWith("/directory/")) ? (
         <div className="relative w-full max-w-[450px] group transition-all duration-500 ease-in-out focus-within:max-w-[550px]">
+
           <div className={`relative flex items-center transition-all duration-300 ${isDarkMode ? "text-gray-400 focus-within:text-blue-400" : "text-blue-400"}`}>
             <FaSearch className="absolute left-4 z-10 transition-transform group-focus-within:scale-110" />
 
@@ -153,7 +154,7 @@ function TopMenu() {
         <div className="flex-1">
           {pathname === "/" && (
             <div className="flex items-center gap-3">
-              <div className="w-1 h-8 bg-blue-600 rounded-full"></div>
+              {/* <div className="w-1 h-8 bg-blue-600 rounded-full"></div> */}
               <h1 className={`text-2xl font-black tracking-tight ${isDarkMode ? "text-white" : "text-gray-800"}`}>Dashboard</h1>
             </div>
           )}

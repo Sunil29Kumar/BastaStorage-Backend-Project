@@ -8,7 +8,7 @@ function UploadFile() {
     setIsGDBoxOpen,
     setShowInputBox,
     isDarkMode,
-    isNavMinimized
+    isNavMinimized, windowWidth ,setShowFileFolderMenu
   } = useContext(BastaStorageContext);
 
   return (
@@ -21,7 +21,8 @@ function UploadFile() {
         ${isDarkMode
           ? "text-gray-200 hover:bg-gray-700"
           : "text-gray-700 hover:bg-gray-100"}
-      `}
+       ${isNavMinimized ? "justify-center px-0  " : ""}
+          `}
     >
       {/* Icon */}
       <div
@@ -31,12 +32,12 @@ function UploadFile() {
         `}
       >
         <FaCloudUploadAlt
-          className={`${isDarkMode ? "text-green-400 text-3xl" : "text-green-600 text-2xl"}`}
+          className={`${isDarkMode ? "text-green-400 text-3xl" : "text-green-600 text-3xl"}`}
         />
       </div>
 
       {/* Text */}
-      {!isNavMinimized && <span className="text-sm font-medium">Upload file</span>}
+      {(!isNavMinimized || windowWidth < 1000) && <span className="text-md">Upload file</span>}
 
       {/* Hidden Input */}
       <input
@@ -45,6 +46,7 @@ function UploadFile() {
         onClick={() => {
           setIsGDBoxOpen(false);
           setShowInputBox(false);
+          setShowFileFolderMenu(false);
         }}
         onChange={(e) => uploadFile(e)}
         className="hidden"
