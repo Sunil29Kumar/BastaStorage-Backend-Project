@@ -13,6 +13,7 @@ import {
   shareFile,
   shareFileThroughEmail,
   sharefileViewer,
+  toggleStarFile,
   updateSharedFilePermission,
 } from "../controllers/fileController.js";
 import checkAuth from "../middleware/authMiddleware.js";
@@ -40,6 +41,9 @@ router.get("/:id?", checkAuth, fileDownloadLimiter, getFile);
 
 // complete file
 router.post("/complete/:id", checkAuth, markFileUploaded)
+
+// is Stared file
+router.patch("/star/:id", checkAuth, blockIfExpired, blockIfPaused,toggleStarFile )
 
 
 

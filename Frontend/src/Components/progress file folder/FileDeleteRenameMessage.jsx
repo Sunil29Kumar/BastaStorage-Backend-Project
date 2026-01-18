@@ -58,6 +58,7 @@ function FileDeleteRenameMessage() {
                 error={fileDeleteMessage.error} 
                 type="delete" 
             />
+          
         </>
     );
 }

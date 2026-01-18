@@ -33,6 +33,11 @@ const fileSchema = await mongoose.Schema(
       default: "initiated",
     },
 
+    isStarred: {
+      type: Boolean,
+      default: false,
+    },
+
     sharedWith: [
       {
         userId: {

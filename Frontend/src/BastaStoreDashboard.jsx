@@ -25,6 +25,7 @@ import DirDeleteRenameMessage from "./Components/progress file folder/DirDeleteR
 import StorageOverview from "./Components/Total Storage/StorageOverview .jsx";
 import Notification from "./Components/Notification/Notification.jsx";
 import CookieConsent from "./CookieConsent.jsx";
+import FavoriteFileMessage from "./Components/progress file folder/FavoriteFileMessage.jsx";
 
 
 function BastaStoreDashboard() {
@@ -70,6 +71,7 @@ function BastaStoreDashboard() {
         {showFileFolderMenu && <CreateUploadFFList />}
         {isFileInProgress && <FileProgress />}
         <FileUploadCancleMessage />
+        <FavoriteFileMessage/>
         {isManageProfileShowing && <ManageUserProfile />}
         {isStorageFull && <StorageFullMessage />}
         {storeUserData?.isPasswordSet === false && <GoogleLoginSetPasswordMessage />}

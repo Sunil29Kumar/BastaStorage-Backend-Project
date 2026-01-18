@@ -8,7 +8,7 @@ function RecentFiles() {
         isDarkMode, BASE_URL, renameFile, handleDeleteFile,
         setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
         setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied,
-        isClickOnDeleteFileFolderButton, getRecentFiles, recentFilesList
+        isClickOnDeleteFileFolderButton, getRecentFiles, recentFilesList, handleFavoriteFile
     } = useContext(BastaStorageContext);
 
     const [openMenueId, setOpenMenueId] = useState(null);
@@ -45,7 +45,7 @@ function RecentFiles() {
         renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
         handleDeleteFile, isShareFileHover, setIsShareFileHover,
         setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied,
-        getFileFormatData, getExtension, isClickOnDeleteFileFolderButton
+        getFileFormatData, getExtension, isClickOnDeleteFileFolderButton, handleFavoriteFile
     };
 
     return (
@@ -86,6 +86,54 @@ function RecentFiles() {
         </div>
     );
 }
+
+
+
+// --- Action Menu (Rename/Delete/Download) ---
+const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData, isClickOnDeleteFileFolderButton, handleFavoriteFile }) => {
+    const format = getFileFormatData(file.name);
+
+    return (
+        <div className="relative">
+            <button
+                onClick={() => setOpenMenueId(openMenueId === file._id ? null : file._id)}
+                className={`p-1.5 rounded-full transition-all cursor-pointer ${openMenueId === file._id ? "bg-blue-500/20 text-blue-500" : "hover:bg-gray-500/10"}`}
+            >
+                <i className="ri-more-2-fill text-xl"></i>
+            </button>
+
+            {openMenueId === file._id && (
+                <div
+                    ref={menuRef}
+                    className={`absolute z-50 right-0 bottom-full mb-2 w-52 rounded-2xl shadow-2xl border py-2 backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 ${isDarkMode ? "bg-gray-900/95 border-white/10 shadow-black" : "bg-white border-gray-100 shadow-blue-500/10"}`}
+                >
+                    <div className="px-4 py-2 text-[9px] font-black uppercase tracking-widest opacity-30 border-b border-white/5 mb-1">Actions</div>
+
+                    <MenuBtn icon={`ri-star-${file.isStarred ? "fill text-yellow-400" : "line"}`} label="Add to Favorites"
+                        onClick={() => { handleFavoriteFile(file._id); }}
+                        isDarkMode={isDarkMode} />
+
+                    <MenuBtn icon="ri-download-cloud-2-line" label="Download" onClick={() => window.open(`${BASE_URL}/file/${file._id}?action=download`)} isDarkMode={isDarkMode} />
+
+                    <MenuBtn icon="ri-edit-circle-line" label="Rename" onClick={() => { renameFile(file._id, file.name); setShowFileRenameInputBox(true); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
+
+                    <MenuBtn icon="ri-information-line" label="Details" onClick={() => { setFileInfo([{ fileId: file._id, icon: format.icon, fileName: file.name, fileSize: formatSize(file.size), fileCreationDate: file.timeStamp.fileCreatedAt }]); setShowFileInfo(true); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
+
+                    <div className="my-1 border-t border-white/5" />
+
+                    <MenuBtn
+                        icon="ri-delete-bin-line"
+                        label={isClickOnDeleteFileFolderButton ? "Deleting..." : "Delete"}
+                        danger
+                        onClick={() => { handleDeleteFile(file._id); setOpenMenueId(null); }}
+                        isDarkMode={isDarkMode}
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
+
 
 // --- Individual Grid Card ---
 export const GridCard = (props) => {
@@ -135,47 +183,6 @@ export const GridCard = (props) => {
                 {/* Actions Menu Component */}
                 <ActionMenu {...props} />
             </div>
-        </div>
-    );
-};
-
-// --- Action Menu (Rename/Delete/Download) ---
-const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData, isClickOnDeleteFileFolderButton }) => {
-    const format = getFileFormatData(file.name);
-
-    return (
-        <div className="relative">
-            <button
-                onClick={() => setOpenMenueId(openMenueId === file._id ? null : file._id)}
-                className={`p-1.5 rounded-full transition-all cursor-pointer ${openMenueId === file._id ? "bg-blue-500/20 text-blue-500" : "hover:bg-gray-500/10"}`}
-            >
-                <i className="ri-more-2-fill text-xl"></i>
-            </button>
-
-            {openMenueId === file._id && (
-                <div
-                    ref={menuRef}
-                    className={`absolute z-50 right-0 bottom-full mb-2 w-52 rounded-2xl shadow-2xl border py-2 backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 ${isDarkMode ? "bg-gray-900/95 border-white/10 shadow-black" : "bg-white border-gray-100 shadow-blue-500/10"}`}
-                >
-                    <div className="px-4 py-2 text-[9px] font-black uppercase tracking-widest opacity-30 border-b border-white/5 mb-1">Actions</div>
-
-                    <MenuBtn icon="ri-download-cloud-2-line" label="Download" onClick={() => window.open(`${BASE_URL}/file/${file._id}?action=download`)} isDarkMode={isDarkMode} />
-
-                    <MenuBtn icon="ri-edit-circle-line" label="Rename" onClick={() => { renameFile(file._id, file.name); setShowFileRenameInputBox(true); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
-
-                    <MenuBtn icon="ri-information-line" label="Details" onClick={() => { setFileInfo([{ fileId: file._id, icon: format.icon, fileName: file.name, fileSize: formatSize(file.size), fileCreationDate: file.timeStamp.fileCreatedAt }]); setShowFileInfo(true); setOpenMenueId(null); }} isDarkMode={isDarkMode} />
-
-                    <div className="my-1 border-t border-white/5" />
-
-                    <MenuBtn
-                        icon="ri-delete-bin-line"
-                        label={isClickOnDeleteFileFolderButton ? "Deleting..." : "Delete"}
-                        danger
-                        onClick={() => { handleDeleteFile(file._id); setOpenMenueId(null); }}
-                        isDarkMode={isDarkMode}
-                    />
-                </div>
-            )}
         </div>
     );
 };

@@ -7,7 +7,7 @@ function File() {
   const {
     isDarkMode, filesList, BASE_URL, renameFile, handleDeleteFile, fileRenameMessage, fileDeleteMessage,
     setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
-    setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, isClickOnDeleteFileFolderButton
+    setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, isClickOnDeleteFileFolderButton,handleFavoriteFile
   } = useContext(BastaStorageContext);
 
   const [openMenueId, setOpenMenueId] = useState(null);
@@ -41,7 +41,7 @@ function File() {
     renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
     handleDeleteFile, isShareFileHover, setIsShareFileHover,
     setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied,
-    getFileFormatData, getExtension, isClickOnDeleteFileFolderButton
+    getFileFormatData, getExtension, isClickOnDeleteFileFolderButton , handleFavoriteFile
   };
 
   return (
@@ -101,7 +101,7 @@ function File() {
 }
 
 /* --- Action Menu --- */
-const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData, isClickOnDeleteFileFolderButton }) => {
+const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData, isClickOnDeleteFileFolderButton ,handleFavoriteFile }) => {
 
   const format = getFileFormatData(file.name);
   const buttonRef = useRef(null);
@@ -152,6 +152,10 @@ const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, re
           <div className={`px-5 py-2 text-[10px] font-black text-start uppercase tracking-[0.15em] opacity-30 border-b mb-1 ${isDarkMode ? 'border-white/5' : 'border-gray-50'}`}>
             File Management
           </div>
+
+          <MenuBtn icon={`ri-star-${file.isStarred ? "fill text-yellow-400" : "line"}`} label="Add to Favorites"
+            onClick={() => {handleFavoriteFile(file.id) }}
+            isDarkMode={isDarkMode} />
 
           <MenuBtn icon="ri-download-cloud-2-line" label="Download"
             onClick={() => window.open(`${BASE_URL}/file/${file.id}?action=download`)} isDarkMode={isDarkMode} />

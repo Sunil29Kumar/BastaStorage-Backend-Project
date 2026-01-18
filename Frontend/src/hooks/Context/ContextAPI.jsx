@@ -65,6 +65,9 @@ function ContextAPI({ children }) {
   const [isClickOnRenameButton, setIsClickOnRenameButton] = useState(false);
   const [isClickOnDeleteFileFolderButton, setIsClickOnDeleteFileFolderButton] = useState(false);
 
+  // Favorite
+  const [favoriteFileMessage, setFavoriteFileMessage] = useState({ message: "", error: "" })
+
   // get current folder name
   const [currentFolderName, setCurrentFolderName] = useState("");
   const [showInputBox, setShowInputBox] = useState(false);
@@ -738,6 +741,26 @@ function ContextAPI({ children }) {
   }
 
 
+  // make file favorite
+  async function handleFavoriteFile(fileId) {
+    const response = await fetch(`${BASE_URL}/file/star/${fileId}`, {
+      method: "PATCH",
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log(data);
+    if (response.ok) {
+      setFavoriteFileMessage({ message: data.message, error: "" })
+      await getDirectoryItems();
+      await getRecentFiles();
+    }
+    else if (response.status === 400 || response.status === 403 || response.status === 429) {
+      setFavoriteFileMessage({ message: "", error: data.error })
+    }
+    setTimeout(() => {
+      setFavoriteFileMessage({ message: "", error: "" })
+    }, 4000);
+  }
 
 
   // Register Post Request
@@ -1755,7 +1778,9 @@ function ContextAPI({ children }) {
         // storage full message
         storageData, storageFullMessage, isStorageFull,
 
-        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, isClickOnCreateFolderButton, dirId, showInputBox, setShowInputBox, fileUploadMessage, getRecentFiles, recentFilesList,
+        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, isClickOnCreateFolderButton, dirId, showInputBox, setShowInputBox, fileUploadMessage, getRecentFiles, recentFilesList, 
+        // favorite file
+        handleFavoriteFile, favoriteFileMessage,
 
         fileRenameMessage, fileDeleteMessage,
         dirUploadMessage, dirDeleteMessage, dirRenameMessage, isClickOnRenameButton, isClickOnDeleteFileFolderButton,

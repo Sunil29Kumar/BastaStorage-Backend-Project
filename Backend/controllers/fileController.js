@@ -501,3 +501,24 @@ export const getRecentFiles = async (req, res) => {
     return res.status(500).json({ error: "Server error", details: error.message });
   }
 }
+
+
+// make file starred or unstarred
+export const toggleStarFile = async (req, res) => {
+  const id = req.params.id;
+  const userId = req.user._id;
+  try {
+
+    const file = await File.findOne({ _id: id, userId: userId });
+    if (!file) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    file.isStarred = !file.isStarred;
+    await file.save();
+    return res.status(200).json({ message: `File is ${file.isStarred ? "starred" : "unstarred"} successfully.` });
+
+  } catch (error) {
+    return res.status(500).json({ error: "Server error", details: error.message });
+  }
+
+}
