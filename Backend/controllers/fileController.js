@@ -486,3 +486,18 @@ export const removeSharedUser = async (req, res) => {
   }
 }
 
+// recent files
+export const getRecentFiles = async (req, res) => {
+
+  const userId = req.user._id;
+  try {
+
+    const recentFiles = await File.find({ userId: req.user._id })
+      .sort({ "timeStamp.fileCreatedAt": -1 }) // Sabse nayi files sabse upar
+      .limit(10); // Sirf top 10 files
+
+    return res.status(200).json(recentFiles);
+  } catch (error) {
+    return res.status(500).json({ error: "Server error", details: error.message });
+  }
+}

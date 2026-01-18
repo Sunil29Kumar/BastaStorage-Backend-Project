@@ -146,7 +146,8 @@ function SideBar() {
               windowWidth={windowWidth} />
 
             <NavLink to="/favorites" icon="ri-star-line" label="Favorites"
-              active={location.pathname === "/favorites"} isNavMinimized={isNavMinimized}
+              active={location.pathname === "/favorites"}
+              isNavMinimized={isNavMinimized}
               baseClass={baseClass}
               activeClass={activeClass}
               setIsNavMinimized={setIsNavMinimized}
@@ -157,12 +158,24 @@ function SideBar() {
             <p className={`text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 ${isNavMinimized ? "text-center px-0" : ""}`}>
               {isNavMinimized ? "••" : "Account"}
             </p>
-            <NavLink to="/storageAnalytics" icon="ri-bar-chart-line" label="Analytics" active={location.pathname === "/storageAnalytics"} isNavMinimized={isNavMinimized}
+
+            <NavLink to="/storageAnalytics" icon="ri-bar-chart-line" label="Analytics"
+              active={location.pathname === "/storageAnalytics"} isNavMinimized={isNavMinimized}
               baseClass={baseClass}
               activeClass={activeClass}
               setIsNavMinimized={setIsNavMinimized}
               windowWidth={windowWidth} />
-            <NavLink to="/settings" icon="ri-settings-3-line" label="Settings" active={location.pathname === "/settings"} isNavMinimized={isNavMinimized}
+
+            <NavLink to="/settings" icon="ri-settings-3-line" label="Settings"
+              active={location.pathname === "/settings"}
+              isNavMinimized={isNavMinimized}
+              baseClass={baseClass}
+              activeClass={activeClass}
+              setIsNavMinimized={setIsNavMinimized}
+              windowWidth={windowWidth} />
+            <NavLink to="/help-support" icon="ri-question-line" label="Help & Support"
+              active={location.pathname === "/help-support"}
+              isNavMinimized={isNavMinimized}
               baseClass={baseClass}
               activeClass={activeClass}
               setIsNavMinimized={setIsNavMinimized}

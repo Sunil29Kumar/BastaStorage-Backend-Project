@@ -16,6 +16,7 @@ import MyFiles from "./Components/MyFiles";
 import Terms from "./Components/legal/Terms";
 import PrivacyPolicy from "./Components/legal/PrivacyPolicy";
 import Plans from "./plans/Plans.jsx";
+import RecentFiles from "./Components/RecentFiles.jsx";
 
 function App() {
   return (
@@ -75,68 +76,64 @@ function App() {
       <Route
         path="/storageAnalytics"
         element={
-          <BastaStorageProvider>
-            <BastaStoreDashboard />
-          </BastaStorageProvider>
+          <BastaStorageProvider><BastaStoreDashboard /></BastaStorageProvider>
         }
       />
       <Route
         path="/help-support"
         element={
-          <BastaStorageProvider>
-            <BastaStoreDashboard />
-          </BastaStorageProvider>
+          <BastaStorageProvider><BastaStoreDashboard /></BastaStorageProvider>
         }
       />
       <Route
         path="/settings"
         element={
-          <BastaStorageProvider>
-            <BastaStoreDashboard />
-          </BastaStorageProvider>
+          <BastaStorageProvider><BastaStoreDashboard /></BastaStorageProvider>
+        }
+      />
+      <Route
+        path="/recent-files"
+        element={
+          <BastaStorageProvider><BastaStoreDashboard /></BastaStorageProvider>
+        }
+      />
+      <Route
+        path="/favorites"
+        element={
+          <BastaStorageProvider><BastaStoreDashboard /></BastaStorageProvider>
         }
       />
 
       <Route
         path="/users"
         element={
-          <BastaStorageProvider>
-            <GetAllUser />
-          </BastaStorageProvider>
+          <BastaStorageProvider><GetAllUser /></BastaStorageProvider>
         }
       />
 
       <Route
         path="/recover-request"
         element={
-          <BastaStorageProvider>
-            <RecoverRequest />
-          </BastaStorageProvider>
+          <BastaStorageProvider><RecoverRequest /></BastaStorageProvider>
         }
       />
 
       <Route
         path="/recover-account"
         element={
-          <BastaStorageProvider>
-            <RecoverAccount />
-          </BastaStorageProvider>
+          <BastaStorageProvider><RecoverAccount /></BastaStorageProvider>
         }
       />
 
       {/* public share  */}
       <Route path="/share/:token" element={
-        <BastaStorageProvider>
-          <SharedFileViewer />
-        </BastaStorageProvider>
+        <BastaStorageProvider><SharedFileViewer /></BastaStorageProvider>
       } />
 
       {/* private share  */}
       <Route path="/share/:fileId/view/:token"
         element={
-          <BastaStorageProvider>
-            <PrivateShareFileViewer />
-          </BastaStorageProvider>
+          <BastaStorageProvider><PrivateShareFileViewer /></BastaStorageProvider>
         }
       />
 
@@ -145,9 +142,7 @@ function App() {
       <Route
         path="/plans"
         element={
-          <BastaStorageProvider>
-            <Plans />
-          </BastaStorageProvider>
+          <BastaStorageProvider><Plans /></BastaStorageProvider>
         }
       />
 
@@ -155,28 +150,23 @@ function App() {
       <Route
         path="/manage-subscription"
         element={
-          <BastaStorageProvider>
-            <ManageSubscription />
-          </BastaStorageProvider>
+          <BastaStorageProvider><ManageSubscription /></BastaStorageProvider>
         }
       />
 
       <Route
         path="/terms"
         element={
-          <BastaStorageProvider>
-            <Terms />
-          </BastaStorageProvider>
+          <BastaStorageProvider><Terms /></BastaStorageProvider>
         }
       />
       <Route
         path="/privacy-policy"
         element={
-          <BastaStorageProvider>
-            <PrivacyPolicy />
-          </BastaStorageProvider>
+          <BastaStorageProvider><PrivacyPolicy /></BastaStorageProvider>
         }
       />
+
 
     </Routes>
   );

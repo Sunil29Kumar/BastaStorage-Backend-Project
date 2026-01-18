@@ -7,7 +7,7 @@ function File() {
   const {
     isDarkMode, filesList, BASE_URL, renameFile, handleDeleteFile, fileRenameMessage, fileDeleteMessage,
     setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
-    setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied,isClickOnDeleteFileFolderButton
+    setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, isClickOnDeleteFileFolderButton
   } = useContext(BastaStorageContext);
 
   const [openMenueId, setOpenMenueId] = useState(null);
@@ -41,7 +41,7 @@ function File() {
     renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo,
     handleDeleteFile, isShareFileHover, setIsShareFileHover,
     setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied,
-    getFileFormatData, getExtension,isClickOnDeleteFileFolderButton
+    getFileFormatData, getExtension, isClickOnDeleteFileFolderButton
   };
 
   return (
@@ -101,7 +101,7 @@ function File() {
 }
 
 /* --- Action Menu --- */
-const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData,isClickOnDeleteFileFolderButton }) => {
+const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, renameFile, setShowFileRenameInputBox, setShowFileInfo, setFileInfo, handleDeleteFile, isShareFileHover, setIsShareFileHover, setShowShareFile, setShareFileId, shareLink, setIsShareLinkCopied, BASE_URL, getFileFormatData, isClickOnDeleteFileFolderButton }) => {
 
   const format = getFileFormatData(file.name);
   const buttonRef = useRef(null);
@@ -199,8 +199,8 @@ const ActionMenu = ({ file, isDarkMode, openMenueId, setOpenMenueId, menuRef, re
 
           <div className={`my-1 border-t ${isDarkMode ? 'border-white/5' : 'border-gray-50'}`} />
           <MenuBtn icon="ri-delete-bin-line"
-           label={isClickOnDeleteFileFolderButton ? "Deleting..." : "Delete"}
-           danger
+            label={isClickOnDeleteFileFolderButton ? "Deleting..." : "Delete"}
+            danger
             onClick={() => { handleDeleteFile(file.id); setOpenMenueId(null); }}
             isDarkMode={isDarkMode} />
         </div>
@@ -217,8 +217,8 @@ const ListRow = (props) => {
 
   return (
     <tr
-    disabled={props.status === "initiated"}
-    className={`group transition-all ${props.isDarkMode ? "bg-gray-800/20 hover:bg-gray-800/50" : "bg-white hover:bg-blue-50 shadow-sm"} border rounded-xl`}>
+      disabled={props.status === "initiated"}
+      className={`group transition-all ${props.isDarkMode ? "bg-gray-800/20 hover:bg-gray-800/50" : "bg-white hover:bg-blue-50 shadow-sm"} border rounded-xl`}>
       <td className="px-4 py-3 rounded-l-2xl">
         <div className="flex items-center gap-4">
           <div className={`text-2xl  p-2 rounded-lg ${format.bg} ${format.color} group-hover:scale-110 transition-transform`}>

@@ -30,6 +30,9 @@ function ContextAPI({ children }) {
   // quick access file
   const [currentQuickAccessFile, setCurrentQuickAccessFile] = useState("")
 
+  // recent files 
+  const [recentFilesList, setRecentFilesList] = useState([])
+
 
   const [newFilename, setNewFilename] = useState("");
   const [newDirname, setNewDirname] = useState("");
@@ -719,6 +722,21 @@ function ContextAPI({ children }) {
       }, 4000);
     }
   }
+
+
+  // recent files 
+  async function getRecentFiles() {
+    const response = await fetch(`${BASE_URL}/file/recent-files`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    console.log("Recent file = ", data);
+
+    if (response.ok) {
+      setRecentFilesList(data);
+    }
+  }
+
 
 
 
@@ -1737,7 +1755,7 @@ function ContextAPI({ children }) {
         // storage full message
         storageData, storageFullMessage, isStorageFull,
 
-        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, isClickOnCreateFolderButton, dirId, showInputBox, setShowInputBox, fileUploadMessage,
+        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, isClickOnCreateFolderButton, dirId, showInputBox, setShowInputBox, fileUploadMessage, getRecentFiles, recentFilesList,
 
         fileRenameMessage, fileDeleteMessage,
         dirUploadMessage, dirDeleteMessage, dirRenameMessage, isClickOnRenameButton, isClickOnDeleteFileFolderButton,

@@ -9,6 +9,8 @@ import StorageOverview from "./Total Storage/StorageOverview ";
 import StorageAnalytics from "./Total Storage/StorageAnalytics";
 import HelpSupport from "./Help and support/HelpSupport";
 import Settings from "./Settings/Settings";
+import RecentFiles from "./RecentFiles";
+import Favorites from "./Favorites";
 function FilesFolderList() {
   const { isDarkMode, isNavMinimized, windowWidth } = useContext(BastaStorageContext);
 
@@ -16,6 +18,8 @@ function FilesFolderList() {
 
   const components = {
     "/": <Home />,
+    "/recent-files": <RecentFiles />,
+    "/favorites": <Favorites />,
     "/storageOverview": <StorageOverview />,
     "/storageAnalytics": <StorageAnalytics />,
     "/help-support": <HelpSupport />,
