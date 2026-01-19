@@ -143,7 +143,7 @@ function Login() {
             <div className="absolute flex items-center justify-center">
               <img
                 src={isDarkMode ? "/basta logo.png" : "/bst logo.png"}
-                className="w-10 h-10 animate-pulse bg-black p-1 rounded-lg"
+                className="w-15 h-15 animate-pulse p-1 rounded-lg"
                 alt="loading"
               />
             </div>
