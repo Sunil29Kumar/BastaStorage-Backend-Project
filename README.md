@@ -338,19 +338,19 @@ npm run dev
 
 #### Login and Register
 
-<img src="./Aplication%20Preview/login%20and%20register%20page/register%20page.png" alt="Register page" width="400" height="600">   <img src="./Aplication%20Preview/login%20and%20register%20page/login%20page.png" alt="Login page" width="400" height="600">
+<img src="./Application%20Preview/login%20and%20register%20page/register%20page.png" alt="Register page" width="400" height="600">   <img src="./Application%20Preview/login%20and%20register%20page/login%20page.png" alt="Login page" width="400" height="600">
 
 
 #### Home Page
 
-<img src="./Aplication%20Preview/Dashboard/home.png" alt="home" width="400" height="600">  <img src="./Aplication%20Preview/Dashboard/manage%20file.png" alt="manage file" width="400" height="600"> 
-<img src="./Aplication%20Preview/Dashboard/storage.png" alt="storage" width="400" height="600">  <img src="./Aplication%20Preview/Dashboard/storage%20analytics.png" alt="storage analytics" width="400" height="600"> 
+<img src="./Application%20Preview/Dashboard/home.png" alt="home" width="400" height="600">  <img src="./Application%20Preview/Dashboard/manage%20file.png" alt="manage file" width="400" height="600"> 
+<img src="./Application%20Preview/Dashboard/storage.png" alt="storage" width="400" height="600">  <img src="./Application%20Preview/Dashboard/storage%20analytics.png" alt="storage analytics" width="400" height="600"> 
 
 
 #### Subscriptions (Razorpay)
 
-<img src="./Aplication%20Preview/plan/manage%20subscription.png" alt="Manage Subscription" width="400" height="600"> <img src="./Aplication%20Preview/plan/monthly%20plan.png" alt="Monthly plan" width="400" height="600"> 
-                                                           <img src="./Aplication%20Preview/plan/yearly%20plan.png" alt="Yearly plan" width="400" height="600"> 
+<img src="./Application%20Preview/plan/manage%20subscription.png" alt="Manage Subscription" width="400" height="600"> <img src="./Application%20Preview/plan/monthly%20plan.png" alt="Monthly plan" width="400" height="600"> 
+                                                           <img src="./Application%20Preview/plan/yearly%20plan.png" alt="Yearly plan" width="400" height="600"> 
 
 
 
