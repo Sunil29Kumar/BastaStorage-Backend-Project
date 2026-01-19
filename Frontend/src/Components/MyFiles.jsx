@@ -14,7 +14,8 @@ function MyFiles() {
               [&::-webkit-scrollbar]:w-1
               [&::-webkit-scrollbar-track]:bg-transparent 
               [&::-webkit-scrollbar-thumb]:bg-blue-400
-              [&::-webkit-scrollbar-thumb]:rounded-full ">
+              [&::-webkit-scrollbar-thumb]:rounded-full 
+              ">
       {/* Breadcrumb */}
       <Breadcrumb currentComp="My Files" />
 

@@ -13,7 +13,7 @@ function GoogleDriveLayout() {
 
 
     return (
-        <div className={` bottom-0  w-[35vw] h-[100vh]    rounded-r-4xl  flex flex-col p-4 overflow-x-auto z-[1] ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black "}`}>
+        <div className={` relative top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[90vh]    rounded-r-4xl  flex flex-col p-4 overflow-x-auto z-[1] ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black "}`}>
 
             {googleDriveFilesData.length > 0 && googleDriveFilesData ?
 

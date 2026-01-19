@@ -1778,7 +1778,7 @@ function ContextAPI({ children }) {
         // storage full message
         storageData, storageFullMessage, isStorageFull,
 
-        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, isClickOnCreateFolderButton, dirId, showInputBox, setShowInputBox, fileUploadMessage, getRecentFiles, recentFilesList, 
+        fileProgress, setFileProgress, newFilename, setNewFilename, newDirname, setNewDirname, isClickOnCreateFolderButton, dirId, showInputBox, setShowInputBox, fileUploadMessage, getRecentFiles, recentFilesList,
         // favorite file
         handleFavoriteFile, favoriteFileMessage,
 

@@ -10,10 +10,13 @@ function FileInformation() {
   return (
     <div
       ref={infoRef}
-      className={`w-[30vw] h-[100vh] rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in slide-in-from-bottom-4 duration-300 ${isDarkMode
+      className={` relative top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[90vh] rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in slide-in-from-bottom-4 duration-300 
+        ${isDarkMode
         ? "bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700"
         : "bg-gradient-to-br bg-gray-300 border-gray-200"
-        }`}
+        }
+        
+        `}
     >
       {fileInfo.length > 0 && (
         <div className="flex flex-col h-full ">
@@ -49,13 +52,18 @@ function FileInformation() {
                 : "hover:bg-blue-50 text-gray-500 hover:text-blue-600"
                 }`}
             >
-              <i className="ri-arrow-right-s-fill text-3xl"></i>
+              <i className="ri-close-line text-3xl"></i>
 
             </button>
           </div>
 
           {/* Content Section */}
-          <div className="px-6 py-5 overflow-y-auto custom-scrollbar">
+          <div className={`px-6 py-5 overflow-y-auto custom-scrollbar
+            [&::-webkit-scrollbar]:w-1
+              [&::-webkit-scrollbar-track]:bg-transparent 
+              [&::-webkit-scrollbar-thumb]:bg-blue-400
+              [&::-webkit-scrollbar-thumb]:rounded-full
+            `}>
             <div className="space-y-4">
               {/* File ID */}
               <div className={`p-4 rounded-xl ${isDarkMode ? "bg-gray-800/70" : "bg-gray-50"
