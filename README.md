@@ -388,7 +388,7 @@ Used for managing premium storage plans and billing.
 If you find this project useful, please consider giving it a star ⭐️ on GitHub to help others find it!
 
 ## License
-Distributed under the **MIT License**. See `LICENSE` for more information.
+Distributed under the **MIT License**. See [MIT](./LICENSE) for more information.
 
 ## 👤 Author
 **Sunil Kumar**
