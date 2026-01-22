@@ -35,6 +35,9 @@ const app = express();
 
 app.use(cookieParser(process.env.SECRET_KEY));
 
+app.use("/webhook", express.raw({ type: "application/json" }), webhookRoute);
+
+
 // csp middleware 
 app.use(
   helmet({
@@ -137,7 +140,6 @@ app.use(
 app.get("/", (req, res) => {
   res.send("ka ho babua ?");
 });
-
 app.get("/error",(req,res)=>{
   console.log("process exit with error");
   process.exit(1)
@@ -151,7 +153,7 @@ app.use("/auth", authRoute);
 app.use("/google-drive", checkAuth, googleDriveRoute);
 
 // subscription and webhook routes
-app.use("/webhook", webhookRoute);
+// app.use("/webhook", webhookRoute);
 app.use("/subscription", checkAuth, subscriptionRoute);
 
 // notifound route
