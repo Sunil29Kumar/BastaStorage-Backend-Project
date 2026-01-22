@@ -14,7 +14,7 @@ export const razorpayWebhookHandler = async (req, res) => {
     const received_signature = req.headers["x-razorpay-signature"];
     const key = process.env.RZP_WEBHOOK_SECRET;
     // const message = JSON.stringify(req.body);
-    const message = req.body;
+    const message = req.body.toString();
     const expected_signature = crypto.createHmac("sha256", key).update(message).digest("hex");
 
     console.log("webhook response");
