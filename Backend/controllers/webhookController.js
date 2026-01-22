@@ -28,13 +28,17 @@ export const razorpayWebhookHandler = async (req, res) => {
         return res.status(400).json({ message: "Invalid signature" });
     }
 
+    console.log("expected signiture =", expected_signature);
+    
+
 
     // Handle the webhook event
-    if (req.body.event === "subscription.activated") {
-        console.log("webhook active payload => ", req.body.payload);
+    // if (req.body.event === "subscription.activated") {
+    if (data.event === "subscription.activated") {   // activated
+        console.log("webhook active payload => ", data.payload);
 
-        const subscription = req.body.payload.subscription?.entity;
-        const payment = req.body.payload.payment?.entity;
+        const subscription = data.payload.subscription?.entity;
+        const payment = data.payload.payment?.entity;
         const planId = subscription.plan_id;
 
         // check if already acive plan 
@@ -213,10 +217,11 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     }
 
-    else if (req.body.event === "subscription.completed") {   // completed
+    // else if (req.body.event === "subscription.completed") {   // completed
+    else if (data.event === "subscription.completed") {   // completed
 
         // console.log("webhook cancelled payload => ", req.body.payload);
-        const subscription = req.body.payload.subscription.entity;
+        const subscription = data.payload.subscription.entity;
 
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
