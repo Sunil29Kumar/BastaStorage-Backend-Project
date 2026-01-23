@@ -19,6 +19,7 @@ export const createSubscription = async (req, res) => {
 
         const totalCount = plan.period === 'monthly' ? 1 : 12;
 
+
         // Create subscription on Razorpay
         const subscription = await razor.subscriptions.create({
             plan_id: planId,
@@ -29,11 +30,13 @@ export const createSubscription = async (req, res) => {
         });
 
 
+
         // check existing user subscription for same plan
         const existingSubscription = await Subscription.findOne({ userId: req.user._id, planId: planId, status: { $in: ["active", "paused"] } });
         if (existingSubscription) {
             return res.status(404).json({ error: "This Plan already On Boarding" })
         }
+
 
         // Save New subscription in DB
         const newSubscription = new Subscription({

@@ -1,30 +1,27 @@
-import nodemailer from "nodemailer";
-import OTP from "../models/otpModel.js";
 import dotenv from "dotenv";
 dotenv.config();
+import OTP from "../models/otpModel.js";
+import { Resend } from "resend";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.USER_EMAIL,
-    pass: process.env.USER_PASSWORD,
-  },
-});
 
-export async function sendOTP(email) {
-  const otp = Math.floor(1000 + Math.random() * 9000).toString();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-  await OTP.findOneAndUpdate(
-    { email },
-    { otp: otp, createdAt: new Date() },
-    { upsert: true }
-  );
+export async function sendOTPResend(email) {
 
-  const info = await transporter.sendMail({
-    from: `"BastaStorage" <${process.env.USER_EMAIL}>`,
-    to: email,
-    subject: "Your One-Time Password (OTP) - BastaStorage",
-    html: `
+  try {
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+    await OTP.findOneAndUpdate(
+      { email },
+      { otp: otp, createdAt: new Date() },
+      { upsert: true }
+    );
+
+    const { data, error } = await resend.emails.send({
+      from: `BastaStorage <otp@bastastorage.me>`,
+      to: email,
+      subject: "Your One-Time Password (OTP) - BastaStorage",
+      html: `
       <div style="
         max-width: 480px; 
         margin: auto; 
@@ -67,7 +64,16 @@ export async function sendOTP(email) {
         </p>
       </div>
     `,
-  });
+    });
 
-  // console.log("Message sent: %s", info.messageId);
+    if (error) {
+      return console.error({ error });
+    }
+
+  } catch (error) {
+    console.error("❌ Crash in sendOTPResend:", error.message);
+    return { success: false, error: error.message };
+
+  }
+
 }

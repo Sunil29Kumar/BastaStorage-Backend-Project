@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import OTP from "../models/otpModel.js";
-import { sendOTP } from "../utils/sendOTP.js";
+import { sendOTP, sendOTPResend } from "../utils/sendOTP.js";
 import { verifyIdToken } from "../utils/googleAuthService.js";
 import User from "../models/userModel.js";
 import mongoose from "mongoose";
@@ -48,7 +48,8 @@ export const sendOTPUser = async (req, res, next) => {
 
   try {
     const otp = await OTP.findOne({ email: email });
-    sendOTP(email);
+    // sendOTP(email);
+    await sendOTPResend(email);
     return res.status(200).json({ message: `OTP Send to ${email}` });
   } catch (error) {
     return res.status(400).json({ error: error.message });

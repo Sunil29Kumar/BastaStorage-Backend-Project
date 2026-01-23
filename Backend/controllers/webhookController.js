@@ -14,14 +14,14 @@ export const razorpayWebhookHandler = async (req, res) => {
     const received_signature = req.headers["x-razorpay-signature"];
     const key = process.env.RZP_WEBHOOK_SECRET;
     // const message = JSON.stringify(req.body);
-    const message = req.body.toString();
+    const message = req.body
     const expected_signature = crypto.createHmac("sha256", key).update(message).digest("hex");
 
     console.log("webhook response");
 
-    const data = JSON.parse(message);
-    console.log("event name ",data.event);
-    
+    const data = JSON.parse(message.toString());
+    console.log("event name ", data.event);
+
 
     if (received_signature !== expected_signature) {
         console.log("Invalid signature:", received_signature, expected_signature);
@@ -29,12 +29,24 @@ export const razorpayWebhookHandler = async (req, res) => {
     }
 
     console.log("expected signiture =", expected_signature);
-    
 
 
     // Handle the webhook event
+
+
+    if (data.event === "subscription.authorized") {
+        console.log("⏳ Subscription authorized, waiting for capture");
+    }
+
+    else if (data.event === "payment.captured") {
+        const payment = data.payload.payment.entity;
+
+        console.log("✅ Payment captured:", payment.id);
+    }
+
+
     // if (req.body.event === "subscription.activated") {
-    if (data.event === "subscription.activated") {   // activated
+    else if (data.event === "subscription.activated") {   // activated
         console.log("webhook active payload => ", data.payload);
 
         const subscription = data.payload.subscription?.entity;
