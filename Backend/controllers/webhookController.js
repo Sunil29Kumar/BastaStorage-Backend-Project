@@ -18,9 +18,12 @@ export const razorpayWebhookHandler = async (req, res) => {
     const expected_signature = crypto.createHmac("sha256", key).update(message).digest("hex");
 
     console.log("webhook response");
+    console.log("Raw message =",message);
+    console.log("Raw message stringified =", JSON.stringify(message));
 
     const data = JSON.parse(message.toString());
     console.log("event name ", data.event);
+    console.log("event  ", data);
 
 
     if (received_signature !== expected_signature) {
@@ -148,10 +151,10 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     }
 
-    else if (req.body.event === "subscription.paused") {   // paused
+    else if (data.event === "subscription.paused") {   // paused
 
         // console.log("webhook paused payload => ", req.body.payload);
-        const subscription = req.body.payload.subscription.entity;
+        const subscription = data.payload.subscription.entity;
 
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
@@ -188,11 +191,11 @@ export const razorpayWebhookHandler = async (req, res) => {
         });
     }
 
-    else if (req.body.event === "subscription.resumed") {   // resumed
+    else if (data.event === "subscription.resumed") {   // resumed
 
-        // console.log("webhook resumed payload => ", req.body.payload);
+        console.log("webhook resumed payload => ", data.payload);
 
-        const subscription = req.body.payload.subscription.entity;
+        const subscription = data.payload.subscription.entity;
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
             { razorpaySubscriptionId: subscription.id },
@@ -276,10 +279,10 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     }
 
-    else if (req.body.event === "subscription.cancelled") {   // cancelled
+    else if (data.event === "subscription.cancelled") {   // cancelled
 
-        // console.log("webhook cancelled payload => ", req.body.payload);
-        const subscription = req.body.payload.subscription.entity;
+        // console.log("webhook cancelled payload => ", data.payload);
+        const subscription = data.payload.subscription.entity;
 
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(

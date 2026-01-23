@@ -1,22 +1,30 @@
-import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.USER_EMAIL,
-        pass: process.env.USER_PASSWORD,
-    },
-});
+import dotenv from "dotenv";
+dotenv.config();
+import { Resend } from "resend";
+
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 export const sendMail = async ({ to, subject, html }) => {
     try {
-        await transporter.sendMail({
-            from: `"BastaStorage" <${process.env.USER_EMAIL}>`,
+
+        const { data, error } = await resend.emails.send({
+            from: `BastaStorage <billing@bastastorage.me>`,
             to,
             subject,
-            html,
+            html
         });
+
+        if (error) {
+            return console.error({ error });
+        }
+
     } catch (err) {
         console.error("Mail error:", err.message);
     }
 };
+
+
+

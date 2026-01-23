@@ -48,6 +48,8 @@ export const createSubscription = async (req, res) => {
 
         await newSubscription.save();
 
+        console.log("add new subscription in db");
+        
         console.log("new Subscription =", newSubscription);
 
         return res.status(200).json({ subscriptionId: subscription.id, });
