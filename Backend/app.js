@@ -22,21 +22,14 @@ import { cleanupPendingUploads } from "./cron/cleanupPendingUploads.js";
 import { connectRedis } from "./database/redis.js";
 
 
-// connect to database
+// Connect to MongoDB
 await connectDB();
 
-// connect to redis
+// Connect to Redis
 await connectRedis();
 
-// start  cron job to cleanup pending uploads
-cleanupPendingUploads();
 
 const app = express();
-
-app.use(cookieParser(process.env.SECRET_KEY));
-
-app.use("/webhook", express.raw({ type: "application/json" }), webhookRoute);
-
 
 // csp middleware 
 app.use(
@@ -57,7 +50,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          process.env.CLIENT_URL || "http://localhost:5173",
+          process.env.CLIENT_URL ,
           "https://checkout.razorpay.com",
         ],
 
@@ -70,7 +63,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          process.env.CLIENT_URL || "http://localhost:5173",
+          process.env.CLIENT_URL ,
         ],
 
         // ✅ Allow connections to Google API endpoints
@@ -81,8 +74,8 @@ app.use(
           "https://www.googleapis.com",
           "https://content.googleapis.com",
           "https://drive.google.com",
-          process.env.BASE_URL || "http://localhost:2000",
-          process.env.CLIENT_URL || "http://localhost:5173",
+          process.env.BASE_URL ,
+          process.env.CLIENT_URL ,
         ],
 
         // ✅ For OAuth popups and Google Drive iframes
@@ -125,48 +118,49 @@ app.use(
 );
 
 
-// parsing data comming from frontend body
+// Middlewares
 app.use(express.json());
+app.use(cookieParser(process.env.SECRET_KEY));
 
-// allowing cors
+
+// Allowing CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
 
 
-app.get("/", (req, res) => {
-  res.send("ka ho babua ?");
-});
-app.get("/error",(req,res)=>{
-  console.log("process exit with error");
-  process.exit(1)
-  
-})
-
-app.use("/directory", checkAuth, directoryRoutes);
+// Protected routes
+app.use("/subscription", checkAuth, subscriptionRoute);
 app.use("/file", fileRoutes);
+app.use("/directory", checkAuth, directoryRoutes);
 app.use("/", userRoutes);
+
+// Public routes
 app.use("/auth", authRoute);
 app.use("/google-drive", checkAuth, googleDriveRoute);
+app.use("/webhook", webhookRoute);
 
-// subscription and webhook routes
-// app.use("/webhook", webhookRoute);
-app.use("/subscription", checkAuth, subscriptionRoute);
-
-// notifound route
 app.use("/notification", checkAuth, notificationRoutes)
 
-// global error handler middleware
+
+app.get("/", (req, res) => {
+  res.send("BastaStorage Backend is running...");
+});
+
+
+// global error handler 
 app.use((err, req, res, next) => {
-  // console.error("unexpected error", err);
   return res.status(500).json({ error: "somethig went wrong" });
 });
 
 
 app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Server Started on port ${process.env.PORT}`);
-});
 
+  // start  cron job 
+  cleanupPendingUploads();
+
+});

@@ -198,24 +198,24 @@ function ContextAPI({ children }) {
   // subscription and payment
   const PLAN_CATALOG = {
     monthly: [
-      {
-        id: "free_plan",
-        name: "Free",
-        tagline: "Basic storage for personal use",
-        storage: "500 MB",
-        price: 0,
-        period: "/forever",
-        cta: "Current Plan",
-        features: [
-          "500 MB Secure Cloud Storage",
-          "Personal Folder Limit (20 max)",
-          "Basic File Sharing (20 max)",
-          "GD Import (Max 50MB per file)",
-          "Single File/Folder Deletion",
-          "Access on 1 Device only",
-        ],
-        popular: false,
-      },
+      // {
+      //   id: "free_plan",
+      //   name: "Free",
+      //   tagline: "Basic storage for personal use",
+      //   storage: "500 MB",
+      //   price: 0,
+      //   period: "/forever",
+      //   cta: "Current Plan",
+      //   features: [
+      //     "500 MB Secure Cloud Storage",
+      //     "Personal Folder Limit (20 max)",
+      //     "Basic File Sharing (20 max)",
+      //     "GD Import (Max 50MB per file)",
+      //     "Single File/Folder Deletion",
+      //     "Access on 1 Device only",
+      //   ],
+      //   popular: false,
+      // },
       {
         id: "plan_Rlq3ab5HeGgjyG",
         name: "Starter",
@@ -280,24 +280,24 @@ function ContextAPI({ children }) {
 
     yearly: [
       // Tip: Yearly features same raheinge, bas Price aur Period update hoga
-      {
-        id: "free_plan",
-        name: "Free",
-        tagline: "Basic storage for personal use",
-        storage: "500 MB",
-        price: 0,
-        period: "/forever",
-        cta: "Current Plan",
-        features: [
-          "500 MB Secure Cloud Storage",
-          "Personal Folder Limit (20 max)",
-          "Basic File Sharing (20 max)",
-          "GD Import (Max 50MB per file)",
-          "Single File/Folder Deletion",
-          "Access on 1 Device only",
-        ],
-        popular: false,
-      },
+      // {
+      //   id: "free_plan",
+      //   name: "Free",
+      //   tagline: "Basic storage for personal use",
+      //   storage: "500 MB",
+      //   price: 0,
+      //   period: "/forever",
+      //   cta: "Current Plan",
+      //   features: [
+      //     "500 MB Secure Cloud Storage",
+      //     "Personal Folder Limit (20 max)",
+      //     "Basic File Sharing (20 max)",
+      //     "GD Import (Max 50MB per file)",
+      //     "Single File/Folder Deletion",
+      //     "Access on 1 Device only",
+      //   ],
+      //   popular: false,
+      // },
       {
         id: "plan_Rlq6UhmQHI5dOm",
         name: "Starter",
@@ -1547,6 +1547,7 @@ function ContextAPI({ children }) {
   // create subscription
   async function createSubscription(planId) {
     setIsClickOnSubscribe(true);
+    
     // step 1: create subscription on backend
     const respone = await fetch(`${BASE_URL}/subscription`, {
       method: "POST",
@@ -1559,6 +1560,8 @@ function ContextAPI({ children }) {
 
     const data = await respone.json();
     console.log("Subscription created:", data);
+    console.log("plain id", planId);
+
 
     if (respone.status === 400 || respone.status === 403 || respone.status === 404 || respone.status === 422 || respone.status === 429) {
       setIsClickOnSubscribe(false);

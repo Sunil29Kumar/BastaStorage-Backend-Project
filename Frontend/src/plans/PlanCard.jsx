@@ -2,8 +2,7 @@ export default function PlanCard({ plan, onSelect, currentSubscription, isClickO
     
     // Logic: Agar user ke paas koi paid subscription nahi hai aur ye 'free_plan' card hai, 
     // tab bhi ise "Current Plan" dikhao.
-    const isCurrentPlan = (currentSubscription && currentSubscription.planId === plan.id && ["active", "paused"].includes(currentSubscription.status)) || 
-                          (!currentSubscription && plan.id === "free_plan");
+    const isCurrentPlan = (currentSubscription && currentSubscription.planId === plan.id && ["active", "paused"].includes(currentSubscription.status)) || (!currentSubscription && plan.id === "free_plan");
 
     return (
         <div

@@ -13,17 +13,13 @@ export const razorpayWebhookHandler = async (req, res) => {
     // Verify the webhook signature
     const received_signature = req.headers["x-razorpay-signature"];
     const key = process.env.RZP_WEBHOOK_SECRET;
-    // const message = JSON.stringify(req.body);
-    const message = req.body
+    const message = JSON.stringify(req.body);
     const expected_signature = crypto.createHmac("sha256", key).update(message).digest("hex");
 
     console.log("webhook response");
-    console.log("Raw message =",message);
-    console.log("Raw message stringified =", JSON.stringify(message));
 
-    const data = JSON.parse(message.toString());
-    console.log("event name ", data.event);
-    console.log("event  ", data);
+    // const data = JSON.parse(message.toString());
+    // console.log("event  ", data);
 
 
     if (received_signature !== expected_signature) {
@@ -37,23 +33,11 @@ export const razorpayWebhookHandler = async (req, res) => {
     // Handle the webhook event
 
 
-    if (data.event === "subscription.authorized") {
-        console.log("⏳ Subscription authorized, waiting for capture");
-    }
+    if (req.body.event === "subscription.activated") {
+        console.log("webhook active payload => ", req.body.payload);
 
-    else if (data.event === "payment.captured") {
-        const payment = data.payload.payment.entity;
-
-        console.log("✅ Payment captured:", payment.id);
-    }
-
-
-    // if (req.body.event === "subscription.activated") {
-    else if (data.event === "subscription.activated") {   // activated
-        console.log("webhook active payload => ", data.payload);
-
-        const subscription = data.payload.subscription?.entity;
-        const payment = data.payload.payment?.entity;
+        const subscription = req.body.payload.subscription?.entity;
+        const payment = req.body.payload.payment?.entity;
         const planId = subscription.plan_id;
 
         // check if already acive plan 
@@ -130,7 +114,11 @@ export const razorpayWebhookHandler = async (req, res) => {
 
         // update user's total space based on plan
         const storageQuotaBytes = plans[planId].storageQuotaBytes;
-        const user = await User.findByIdAndUpdate(subscriptionUpdate?.userId, { totalSpace: storageQuotaBytes, userIs: "pro", subscriptionTier: plans[planId].tier });
+        const user = await User.findByIdAndUpdate(subscriptionUpdate?.userId, {
+            totalSpace: storageQuotaBytes,
+            userIs: "pro",
+            subscriptionTier: plans[planId].tier
+        });
 
         // send subscription activated mail
         await sendSubscriptionMail({
@@ -151,10 +139,10 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     }
 
-    else if (data.event === "subscription.paused") {   // paused
+    else if (req.body.event === "subscription.paused") {   // paused
 
         // console.log("webhook paused payload => ", req.body.payload);
-        const subscription = data.payload.subscription.entity;
+        const subscription = req.body.payload.subscription.entity;
 
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
@@ -191,11 +179,11 @@ export const razorpayWebhookHandler = async (req, res) => {
         });
     }
 
-    else if (data.event === "subscription.resumed") {   // resumed
+    else if (req.body.event === "subscription.resumed") {   // resumed
 
-        console.log("webhook resumed payload => ", data.payload);
+        console.log("webhook resumed payload => ", req.body.payload);
 
-        const subscription = data.payload.subscription.entity;
+        const subscription = req.body.payload.subscription.entity;
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
             { razorpaySubscriptionId: subscription.id },
@@ -233,11 +221,10 @@ export const razorpayWebhookHandler = async (req, res) => {
     }
 
     // else if (req.body.event === "subscription.completed") {   // completed
-    else if (data.event === "subscription.completed") {   // completed
+    else if (req.body.event === "subscription.completed") {   // completed
 
         // console.log("webhook cancelled payload => ", req.body.payload);
-        const subscription = data.payload.subscription.entity;
-
+        const subscription = req.body.payload.subscription.entity;
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
             { razorpaySubscriptionId: subscription.id },
@@ -279,10 +266,10 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     }
 
-    else if (data.event === "subscription.cancelled") {   // cancelled
+    else if (req.body.event === "subscription.cancelled") {   // cancelled
 
-        // console.log("webhook cancelled payload => ", data.payload);
-        const subscription = data.payload.subscription.entity;
+        // console.log("webhook cancelled payload => ", req.body.payload);
+        const subscription = req.body.payload.subscription.entity;
 
         // Update subscription status in the database
         const updatedSubscription = await Subscription.findOneAndUpdate(
@@ -312,7 +299,7 @@ export const razorpayWebhookHandler = async (req, res) => {
 
         // notification about cancellation
         await createNotification({
-            userId: sub.userId,
+            userId: updatedSubscription.userId,
             type: "subscription",
             title: "Subscription cancelled",
             message: "Your subscription has been cancelled. You will continue to have access until the end of the current billing cycle."
