@@ -18,22 +18,18 @@ export const razorpayWebhookHandler = async (req, res) => {
 
     console.log("webhook response");
 
-    // const data = JSON.parse(message.toString());
-    // console.log("event  ", data);
-
+    const data = JSON.parse(message.toString());
 
     if (received_signature !== expected_signature) {
         console.log("Invalid signature:", received_signature, expected_signature);
         return res.status(400).json({ message: "Invalid signature" });
     }
 
-    console.log("expected signiture =", expected_signature);
-
 
     // Handle the webhook event
 
-
     if (req.body.event === "subscription.activated") {
+        // else if (req.body.event === "invoice.paid") {   // activated
         console.log("webhook active payload => ", req.body.payload);
 
         const subscription = req.body.payload.subscription?.entity;
@@ -117,7 +113,7 @@ export const razorpayWebhookHandler = async (req, res) => {
         const user = await User.findByIdAndUpdate(subscriptionUpdate?.userId, {
             totalSpace: storageQuotaBytes,
             userIs: "pro",
-            subscriptionTier: plans[planId].tier
+            subscriptionTier: plans[planId]?.tier
         });
 
         // send subscription activated mail
@@ -132,10 +128,13 @@ export const razorpayWebhookHandler = async (req, res) => {
             userId: subscriptionUpdate.userId,
             type: "subscription",
             title: "Subscription activated",
-            message: `Your subscription to the ${plans[planId].tier} plan has been activated successfully.`,
+            message: `Your subscription to the ${plans[planId]?.tier} plan has been activated successfully.`,
         });
 
         // console.log("subscription activated");
+
+        return res.status(200).json({ status: "ok" });
+
 
     }
 
@@ -177,6 +176,9 @@ export const razorpayWebhookHandler = async (req, res) => {
             title: "Subscription paused",
             message: "Your subscription has been paused successfully."
         });
+
+        return res.status(200).json({ status: "ok" });
+
     }
 
     else if (req.body.event === "subscription.resumed") {   // resumed
@@ -207,7 +209,7 @@ export const razorpayWebhookHandler = async (req, res) => {
         await sendSubscriptionMail({
             type: "RESUMED",
             user: await User.findById(updatedSubscription?.userId),
-            meta: { plan: plans[updatedSubscription?.planId].tier },
+            meta: { plan: plans[updatedSubscription?.planId]?.tier },
         });
 
         // notification about resumption
@@ -217,6 +219,9 @@ export const razorpayWebhookHandler = async (req, res) => {
             title: "Subscription resumed",
             message: "Your subscription has been resumed successfully."
         });
+
+        return res.status(200).json({ status: "ok" });
+
 
     }
 
@@ -263,6 +268,8 @@ export const razorpayWebhookHandler = async (req, res) => {
         });
 
         // console.log("Subscription expired ");
+        return res.status(200).json({ status: "ok" });
+
 
     }
 
@@ -293,24 +300,25 @@ export const razorpayWebhookHandler = async (req, res) => {
         await sendSubscriptionMail({
             type: "CANCELLED",
             user: await User.findById(updatedSubscription?.userId),
-            meta: { plan: plans[updatedSubscription?.planId].tier }
+            meta: { plan: plans[updatedSubscription?.planId]?.tier }
         });
 
 
         // notification about cancellation
         await createNotification({
-            userId: updatedSubscription.userId,
+            userId: updatedSubscription?.userId,
             type: "subscription",
             title: "Subscription cancelled",
             message: "Your subscription has been cancelled. You will continue to have access until the end of the current billing cycle."
         });
 
         // console.log("Subscription cancelled ");
+        return res.status(200).json({ status: "ok" });
 
     }
 
 
-    return res.status(200).json({ message: "Webhook received successfully" });
+    // return res.status(200).json({ message: "Webhook received successfully" });
 
 }
 

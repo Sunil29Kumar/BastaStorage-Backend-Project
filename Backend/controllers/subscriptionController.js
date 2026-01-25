@@ -17,13 +17,14 @@ export const createSubscription = async (req, res) => {
             return res.status(404).json({ error: "Plan not found" });
         }
 
-        const totalCount = plan.period === 'monthly' ? 1 : 12;
+        const totalCount = plan.period === 'monthly' ? 12 : 1;
 
 
         // Create subscription on Razorpay
         const subscription = await razor.subscriptions.create({
             plan_id: planId,
             total_count: totalCount,
+            customer_notify: 1,
             notes: {
                 userId: req.user._id.toString()
             }
@@ -49,7 +50,7 @@ export const createSubscription = async (req, res) => {
         await newSubscription.save();
 
         console.log("add new subscription in db");
-        
+
         console.log("new Subscription =", newSubscription);
 
         return res.status(200).json({ subscriptionId: subscription.id, });

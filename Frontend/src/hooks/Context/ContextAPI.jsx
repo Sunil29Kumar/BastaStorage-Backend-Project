@@ -198,24 +198,24 @@ function ContextAPI({ children }) {
   // subscription and payment
   const PLAN_CATALOG = {
     monthly: [
-      // {
-      //   id: "free_plan",
-      //   name: "Free",
-      //   tagline: "Basic storage for personal use",
-      //   storage: "500 MB",
-      //   price: 0,
-      //   period: "/forever",
-      //   cta: "Current Plan",
-      //   features: [
-      //     "500 MB Secure Cloud Storage",
-      //     "Personal Folder Limit (20 max)",
-      //     "Basic File Sharing (20 max)",
-      //     "GD Import (Max 50MB per file)",
-      //     "Single File/Folder Deletion",
-      //     "Access on 1 Device only",
-      //   ],
-      //   popular: false,
-      // },
+      {
+        id: "free_plan",
+        name: "Free",
+        tagline: "Basic storage for personal use",
+        storage: "500 MB",
+        price: 0,
+        period: "/forever",
+        cta: "Current Plan",
+        features: [
+          "500 MB Secure Cloud Storage",
+          "Personal Folder Limit (20 max)",
+          "Basic File Sharing (20 max)",
+          "GD Import (Max 50MB per file)",
+          "Single File/Folder Deletion",
+          "Access on 1 Device only",
+        ],
+        popular: false,
+      },
       {
         id: "plan_Rlq3ab5HeGgjyG",
         name: "Starter",
@@ -279,25 +279,24 @@ function ContextAPI({ children }) {
     ],
 
     yearly: [
-      // Tip: Yearly features same raheinge, bas Price aur Period update hoga
-      // {
-      //   id: "free_plan",
-      //   name: "Free",
-      //   tagline: "Basic storage for personal use",
-      //   storage: "500 MB",
-      //   price: 0,
-      //   period: "/forever",
-      //   cta: "Current Plan",
-      //   features: [
-      //     "500 MB Secure Cloud Storage",
-      //     "Personal Folder Limit (20 max)",
-      //     "Basic File Sharing (20 max)",
-      //     "GD Import (Max 50MB per file)",
-      //     "Single File/Folder Deletion",
-      //     "Access on 1 Device only",
-      //   ],
-      //   popular: false,
-      // },
+      {
+        id: "free_plan",
+        name: "Free",
+        tagline: "Basic storage for personal use",
+        storage: "500 MB",
+        price: 0,
+        period: "/forever",
+        cta: "Current Plan",
+        features: [
+          "500 MB Secure Cloud Storage",
+          "Personal Folder Limit (20 max)",
+          "Basic File Sharing (20 max)",
+          "GD Import (Max 50MB per file)",
+          "Single File/Folder Deletion",
+          "Access on 1 Device only",
+        ],
+        popular: false,
+      },
       {
         id: "plan_Rlq6UhmQHI5dOm",
         name: "Starter",
@@ -1577,6 +1576,7 @@ function ContextAPI({ children }) {
     const rzp = new Razorpay({
       key: "rzp_test_Rlt6OLxXwUqVXj",
       subscription_id: data.subscriptionId,
+       recurring: 1,
       name: "BastaStorage",
       description: "Subscription Payment",
       handler: function (response) {
@@ -1608,6 +1608,8 @@ function ContextAPI({ children }) {
       );
 
       const data = await res.json();
+      console.log("status =", data.status);
+      
 
       if (data.status === "active" || data.status === "completed") {
         clearInterval(interval);

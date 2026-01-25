@@ -22,7 +22,7 @@ export const subscriptionActivatedTemplate = ({ name, plan }) => {
           </div>
 
           <div style="text-align: center; margin-bottom: 30px;">
-            <a href="https://bastastorage.com/dashboard" 
+            <a href=${process.env.CLIENT_URL} target="_blank"
                style="background-color: ${brandColor}; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
                Start Using Your Account
             </a>

@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { sendMail } from "./index.js";
 import { subscriptionActivatedTemplate } from "./templates/subscriptionActivated.js";
 import { subscriptionPausedTemplate } from "./templates/subscriptionPaused.js";
@@ -51,6 +54,6 @@ export const sendSubscriptionMail = async ({
     await sendMail({
         to: user?.email,
         subject: event.subject,
-        html: event.template({ name: user.name, ...meta }),
+        html: event.template({ name: user?.name, ...meta }),
     });
 };
