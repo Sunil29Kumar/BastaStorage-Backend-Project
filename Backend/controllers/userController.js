@@ -14,6 +14,7 @@ import z from "zod/v4";
 import { loginSchema, registerSchema, updateUserRoleSchema } from "../validators/userSchema.js";
 import { createGetSignedUrl, deleteFileFromS3, generateSignedUrl, s3Client } from "../services/s3.js";
 import path from "path";
+import { sendWelcomeMail } from "../services/mail/welcomeMail.js";
 
 
 
@@ -100,6 +101,8 @@ export const registerUser = async (req, res, next) => {
     await directory.save({ session });
 
     await session.commitTransaction();
+
+    await sendWelcomeMail(email, name);
 
     return res.status(200).json({ message: "User Register" });
 
