@@ -1,6 +1,9 @@
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
+import { Resend } from "resend";
+
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function inviteUserByEmail(
   ownerEmail,
@@ -12,16 +15,9 @@ async function inviteUserByEmail(
   token
 ) {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.USER_EMAIL,
-        pass: process.env.USER_PASSWORD, // Gmail App Password
-      },
-    });
 
-    const info = await transporter.sendMail({
-      from: `"${ownerName} via BastaStorage" <${process.env.USER_EMAIL}>`,
+    const { data, error } = await resend.emails.send({
+      from: `"${ownerName} via BastaStorage" <invite@bastastorage.me>`,
       to: receiverEmail,
       subject: `${ownerEmail} shared a file with you`,
       html: `
@@ -39,12 +35,12 @@ async function inviteUserByEmail(
     </div>
 
     <p style="margin:0 0 20px;">Click the button below to view the file securely:</p>
-    <a href="http://localhost:5173/share/${fileId}/view/${token}" target="_blank"
+    <a href="${process.env.CLIENT_URL}/share/${fileId}/view/${token}" target="_blank"
        style="display:inline-block; padding:12px 20px; background:#2563eb; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold;">
       Open File
     </a>
     <p style="font-size:12px; color:#6b7280; margin-top:15px;">If the button doesn’t work, copy and paste this link into your browser: <br>
-      <a href="http://localhost:5173/share/${fileId}/view/${token}" style="color:#2563eb;">http://localhost:5173/share/${fileId}/view/${token}</a>
+      <a href="${process.env.CLIENT_URL}/share/${fileId}/view/${token}" style="color:#2563eb;">${process.env.CLIENT_URL}/share/${fileId}/view/${token}</a>
     </p>
   </div>
 
@@ -57,10 +53,14 @@ async function inviteUserByEmail(
       `,
 
     });
+    if (error) {
+      return console.error({ error });
+    }
 
-    // console.log(`Invitation sent: ${info.messageId}`);
   } catch (err) {
     console.error("Error sending email:", err);
+    return { success: false, error: err.message };
+
   }
 }
 
