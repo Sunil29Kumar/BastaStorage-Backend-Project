@@ -50,7 +50,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          process.env.CLIENT_URL ,
+          process.env.CLIENT_URL,
           "https://checkout.razorpay.com",
         ],
 
@@ -63,7 +63,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://www.gstatic.com",
-          process.env.CLIENT_URL ,
+          process.env.CLIENT_URL,
         ],
 
         // ✅ Allow connections to Google API endpoints
@@ -74,8 +74,8 @@ app.use(
           "https://www.googleapis.com",
           "https://content.googleapis.com",
           "https://drive.google.com",
-          process.env.BASE_URL ,
-          process.env.CLIENT_URL ,
+          process.env.BASE_URL,
+          process.env.CLIENT_URL,
         ],
 
         // ✅ For OAuth popups and Google Drive iframes
@@ -124,9 +124,22 @@ app.use(cookieParser(process.env.SECRET_KEY));
 
 
 // Allowing CORS
+const whitelist = [
+  process.env.CLIENT_URL_1,
+  process.env.CLIENT_URL_2,
+  process.env.CLIENT_URL_3,
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: function (origin, callback) {
+      // origin undefined hota hai agar request direct (jaise Postman) se aaye
+      if (!origin || whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
