@@ -33,7 +33,7 @@ export async function generateSignedUrl({ fileName, fileType }) {
         };
 
     } catch (error) {
-        return res.status(500).json({ error: "Could not generate signed URL", details: error.message });
+        return { error: "Could not generate signed URL", details: error.message };
     }
 }
 

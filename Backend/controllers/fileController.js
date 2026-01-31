@@ -65,12 +65,6 @@ export const createFile = async (req, res) => {
       return res.status(400).json({ error: "You have exceeded your storage limit." });
     }
 
-    // ckeck user is pro or free for uploaded Under Plan
-    // const subscription = await Subscription.findOne({ userId: req.user._id });
-    // if (subscription?.status.includes("created", "paused", "cancelled", "expired", "pending", "failed")) {
-    //   return res.status(403).json({ error: `Your Subscription is ${subscription.status}. File upload is not allowed.` });
-    // }
-
 
     // create file in database
     const fileData = await File.create({
