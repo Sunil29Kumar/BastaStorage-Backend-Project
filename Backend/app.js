@@ -127,7 +127,6 @@ app.use(cookieParser(process.env.SECRET_KEY));
 const whitelist = [
   process.env.CLIENT_URL_1,
   process.env.CLIENT_URL_2,
-  process.env.CLIENT_URL_3,
 ];
 
 app.use(
