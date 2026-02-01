@@ -31,6 +31,8 @@ await connectRedis();
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // csp middleware 
 app.use(
   helmet({
