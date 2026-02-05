@@ -17,7 +17,7 @@ export const createSubscription = async (req, res) => {
             return res.status(404).json({ error: "Plan not found" });
         }
 
-        const totalCount = plan.period === 'monthly' ? 12 : 1;
+        const totalCount = plan.period === 'monthly' ? 12 : 5;
 
 
         // Create subscription on Razorpay
@@ -150,7 +150,13 @@ export const pauseSubscription = async (req, res) => {
         return res.status(200).json({ message: "Subscription paused successfully" });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Failed to pause subscription" });
+        // return res.status(500).json({ error: "Failed to pause subscription" });
+
+        const errorMessage = error.description || error.error?.description || "Failed to pause subscription";
+        return res.status(500).json({
+            error: errorMessage,
+            code: error.code // Razorpay ka error code (e.g., BAD_REQUEST_ERROR)
+        });
     }
 };
 
