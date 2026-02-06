@@ -23,12 +23,10 @@ export const sendGoogleDriveFile = async (req, res) => {
     const { success, data, error } = sendGoogleDriveFileSchema.safeParse(req.body)
     if (!success) {
       // return res.status(400).json({ error: z.flattenError(error).fieldErrors })
-      console.log(error);
       return res.status(400).json({ error: "Invalid data format" })
     }
 
     const { file } = data; // frontend se metadata aayega (id, name, mimeType, size)
-    // console.log("req.file:", req.file);
 
     const parentDirId = req.params.parentDirId || req.user.rootDirId;
     const userId = req.user._id;
@@ -164,7 +162,6 @@ export const sendGoogleDriveFile = async (req, res) => {
 
   } catch (error) {
 
-    console.error(error);
     res.status(500).json({ error: "Failed to upload file from Google Drive" });
   }
 };

@@ -425,7 +425,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log("all File", data);
 
     if (response.ok) {
       setAllFileDirectoriesList({ directories: data.directories, files: data.files });
@@ -518,7 +517,6 @@ function ContextAPI({ children }) {
             credentials: "include",
           });
 
-          // console.log("✅ Uploaded to S3 successfully");
           setIsFileInProgress(false);
           setIsFileUploaded(true);
 
@@ -546,7 +544,6 @@ function ContextAPI({ children }) {
 
     if (xhrRef.current && xhrRef.current.readyState !== XMLHttpRequest.DONE) {
       xhrRef.current.abort();
-      // console.log("Upload cancelled.");
       setIsFileUploaded(false);
 
       setTimeout(() => {
@@ -574,8 +571,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log(data);
-    console.log(data.error);
     if (response.status === 200) {
       setDirUploadMessage({ message: data.message, error: "" })
       setNewDirname("");
@@ -622,7 +617,6 @@ function ContextAPI({ children }) {
         setFileDeleteMessage({ message: "", error: "" })
       }, 4000);
     }
-    console.log(data);
   }
 
   // ------ delete directroy
@@ -633,7 +627,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log(data);
     if (response.status === 200) {
       setDirDeleteMessage({ message: data.message, error: "" })
       setIsClickOnDeleteFileFolderButton(false);
@@ -653,7 +646,6 @@ function ContextAPI({ children }) {
 
   // rename file , directory
   async function renameFile(id, oldFilename) {
-    console.log("Renaming folder with ID:", id, "and name:", oldFilename);
     setNewFilename(oldFilename);
     setSelectedId(id);
   }
@@ -671,7 +663,6 @@ function ContextAPI({ children }) {
       body: JSON.stringify({ newFilename }),
     });
     const data = await response.json();
-    console.log(data);
     if (response.status === 200) {
       setNewFilename("");
       setSelectedId(null);
@@ -705,7 +696,6 @@ function ContextAPI({ children }) {
       body: JSON.stringify({ newDirName: newFilename }),
     });
     const data = await response.json();
-    console.log(data);
     if (response.status === 200) {
       setDirRenameMessage({ message: data.message, error: "" })
       setNewFilename("");
@@ -732,7 +722,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log("Recent file = ", data);
 
     if (response.ok) {
       setRecentFilesList(data);
@@ -747,7 +736,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log(data);
     if (response.ok) {
       setFavoriteFileMessage({ message: data.message, error: "" })
       await getDirectoryItems();
@@ -775,9 +763,6 @@ function ContextAPI({ children }) {
         body: JSON.stringify({ ...registerData, otp }),
       });
       const data = await response.json();
-      // console.log(data.error);
-      // console.log("reg data", data);
-      // return
 
       if (data.detail) {
         setErrorRegister(data.detail);
@@ -785,7 +770,6 @@ function ContextAPI({ children }) {
 
 
       if (response.ok) {
-        // console.log(data);
         setIsClickOnRegisterButton(false);
         navigate("/Login");
         setRegisterData({
@@ -914,7 +898,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const userData = await response.json();
-    console.log("userprofle = ", userData);
 
     if (response.ok) {
       setStoreUserData(userData);
@@ -936,7 +919,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log(data);
     setLoggedIn(false);
     navigate("/");
     getDirectoryItems();
@@ -947,7 +929,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log(data);
     setLoggedIn(false);
     navigate("/");
     getDirectoryItems();
@@ -991,14 +972,12 @@ function ContextAPI({ children }) {
         setIsOtpWrong(false);
       }
     } catch (error) {
-      console.error("Fetch Error:", error);
       setOtpError("Network error, please try again.");
     }
   }
 
   // verify opt
   async function verifyUserOtp({ email, otp }) {
-    console.log("otp emil =", email, otp);
 
     const response = await fetch(`${BASE_URL}/auth/verifyOtp`, {
       method: "POST",
@@ -1018,7 +997,6 @@ function ContextAPI({ children }) {
       setIsVerifyOtpWrong(true);
       setVerifyOtpMessage(data.error);
     }
-    console.log(data);
   }
 
 
@@ -1094,8 +1072,6 @@ function ContextAPI({ children }) {
     });
     const data = await response.json()
 
-    console.log("cpass da =", data);
-
 
     if (response.ok) {
       setGooglePasswordSuccessMessage(data.message);
@@ -1135,12 +1111,9 @@ function ContextAPI({ children }) {
 
     window.addEventListener("message", (event) => {
       if (event.data.success) {
-        // console.log(event.data.success);
-        // console.log("Google Drive login successful!");
         getGoogleDriveFilesFolder(); // files auto fetch
       }
       else if (event.data.error) {
-        // console.log(event.data.error);
         console.error("Google Drive login failed:", event.data.error);
       }
     })
@@ -1225,7 +1198,6 @@ function ContextAPI({ children }) {
         const data = error.response.data;
         const text = await data.text();
         const jsonData = JSON.parse(text);
-        console.log("Google Drive Blob Error JSON:", jsonData);
 
         setFileuploadMessage({ message: "", error: jsonData.error });
         setTransferProgress({ progress: 0, fileName: "", fileSize: 0 })
@@ -1390,7 +1362,6 @@ function ContextAPI({ children }) {
       body: JSON.stringify({ userId, newRole }),
     });
     const data = await response.json();
-    console.log(data);
 
     if (response.ok) {
       getAllUsers(); // Refresh user list
@@ -1424,7 +1395,6 @@ function ContextAPI({ children }) {
     if (response.status === 404) {
       setIsShareLinkCopied(false);
     }
-    console.log(data);
   }
   // share file thwough email with permission 
   async function inviteUser(email, permission, fileId) {
@@ -1440,7 +1410,6 @@ function ContextAPI({ children }) {
         body: JSON.stringify({ email, permission })
       })
       const data = await response.json();
-      console.log("dsfsdf", data);
 
       if (response.ok) {
         setInviteUserMessage({ message: data.message, error: "" });
@@ -1494,7 +1463,6 @@ function ContextAPI({ children }) {
         body: JSON.stringify({ email, updatePermission })
       });
       const data = await response.json();
-      console.log(data);
 
       if (response.ok) {
         fetchSharedUsers(fileId);
@@ -1526,7 +1494,6 @@ function ContextAPI({ children }) {
       },
     });
     const data = await response.json();
-    console.log(data);
 
     if (response.ok) {
       setInviteUserMessage({ message: data.message, error: "" });
@@ -1546,7 +1513,7 @@ function ContextAPI({ children }) {
   // create subscription
   async function createSubscription(planId) {
     setIsClickOnSubscribe(true);
-    
+
     // step 1: create subscription on backend
     const respone = await fetch(`${BASE_URL}/subscription`, {
       method: "POST",
@@ -1558,8 +1525,7 @@ function ContextAPI({ children }) {
     });
 
     const data = await respone.json();
-    console.log("Subscription created:", data);
-    console.log("plain id", planId);
+
 
 
     if (respone.status === 400 || respone.status === 403 || respone.status === 404 || respone.status === 422 || respone.status === 429) {
@@ -1576,7 +1542,7 @@ function ContextAPI({ children }) {
     const rzp = new Razorpay({
       key: "rzp_test_Rlt6OLxXwUqVXj",
       subscription_id: data.subscriptionId,
-       recurring: 1,
+      recurring: 1,
       name: "BastaStorage",
       description: "Subscription Payment",
       handler: function (response) {
@@ -1608,8 +1574,7 @@ function ContextAPI({ children }) {
       );
 
       const data = await res.json();
-      console.log("status =", data.status);
-      
+
 
       if (data.status === "active" || data.status === "completed") {
         clearInterval(interval);
@@ -1628,7 +1593,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await res.json();
-    console.log("current subscription =>", data);
     setCurrentSubscription(data.subscription);
   }
 
@@ -1639,7 +1603,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log("Subscription paused:", data);
     if (response.ok) {
       setSubscriptionMessage(data.message || "");
       fetchCurrentSubscription();
@@ -1664,7 +1627,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log("Subscription resumed:", data);
     if (response.ok) {
       setSubscriptionMessage(data.message || "");
       fetchCurrentSubscription();
@@ -1674,7 +1636,6 @@ function ContextAPI({ children }) {
     }
     if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422 || response.status === 429) {
       setSubscriptionMessage(data.error);
-      console.log("Subscription cancelled:", data);
 
       fetchCurrentSubscription();
       setTimeout(() => {
@@ -1699,7 +1660,6 @@ function ContextAPI({ children }) {
     }
     if (response.status === 400 || response.status === 403 || response.status === 404 || response.status === 422 || response.status === 429) {
       setSubscriptionMessage(data.error);
-      console.log("Subscription cancelled:", data);
 
       fetchCurrentSubscription();
       setTimeout(() => {
@@ -1718,10 +1678,7 @@ function ContextAPI({ children }) {
     });
     const data = await response.json();
     if (response.ok) {
-
-      console.log("notification data", data);
       setNotificationsData(data.notifications);
-      console.log(notificationsData);
     }
 
   }
@@ -1740,8 +1697,6 @@ function ContextAPI({ children }) {
 
     });
     const data = await response.json();
-    console.log(data);
-
     if (response.ok) {
       fetchNotifications();
     }
@@ -1755,7 +1710,6 @@ function ContextAPI({ children }) {
       credentials: "include",
     });
     const data = await response.json();
-    console.log(data);
     if (response.ok) {
       fetchNotifications();
     }

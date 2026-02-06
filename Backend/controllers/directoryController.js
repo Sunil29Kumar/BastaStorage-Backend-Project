@@ -112,8 +112,6 @@ export const getDirectoryById = async (req, res) => {
     if (!directories) {
       return res.status(404).json({ error: "directories is undefind" });
     } else {
-      // console.log("dd = ", directoryData.path);
-      // console.log("d = ", directories);
 
       return res.status(200).json({
         ...directoryData,
@@ -124,7 +122,6 @@ export const getDirectoryById = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
     return res.status(404).json({ error: "Directory not found" });
   }
 };
@@ -210,7 +207,6 @@ export const deleteDirectoryById = async (req, res) => {
     return res.status(200).json({ message: `Directory deleted successfully` });
 
   } catch (error) {
-    console.log(error);
     return res.status(404).json({ error: "Directory not deleted" });
   }
 };

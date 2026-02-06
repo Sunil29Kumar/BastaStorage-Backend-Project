@@ -49,14 +49,9 @@ export const createSubscription = async (req, res) => {
 
         await newSubscription.save();
 
-        console.log("add new subscription in db");
-
-        console.log("new Subscription =", newSubscription);
-
         return res.status(200).json({ subscriptionId: subscription.id, });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "Failed to create subscription" });
     }
 };
@@ -72,7 +67,6 @@ export const getSubscriptionStatus = async (req, res) => {
         }
         return res.status(200).json({ status: subscription.status });
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "Failed to fetch subscription status" });
     }
 };
@@ -86,7 +80,6 @@ export const getCurrentSubscription = async (req, res) => {
         }
         return res.status(200).json({ subscription });
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "Failed to fetch current subscription" });
     }
 };
@@ -127,8 +120,6 @@ export const getInvoice = async (req, res) => {
 export const pauseSubscription = async (req, res) => {
     try {
         const { subscriptionId } = req.params;
-        console.log("subid=", subscriptionId);
-
         const userId = req.user._id;
 
         // Verify subscription belongs to user
@@ -149,8 +140,6 @@ export const pauseSubscription = async (req, res) => {
 
         return res.status(200).json({ message: "Subscription paused successfully" });
     } catch (error) {
-        console.error(error);
-        // return res.status(500).json({ error: "Failed to pause subscription" });
 
         const errorMessage = error.description || error.error?.description || "Failed to pause subscription";
         return res.status(500).json({
@@ -165,7 +154,6 @@ export const pauseSubscription = async (req, res) => {
 export const resumeSubscription = async (req, res) => {
     try {
         const { subscriptionId } = req.params;
-        console.log("subid=", subscriptionId);
 
         const userId = req.user._id;
         // Verify subscription belongs to user
@@ -180,7 +168,6 @@ export const resumeSubscription = async (req, res) => {
             resume_at: "immediate",
             reason: "User requested resume"
         });
-        console.log("resume sub result =", resumedSubscription);
 
         if (!resumedSubscription) {
             return res.status(404).json({ error: "Subscription not found or could not be resumed" });
@@ -189,7 +176,6 @@ export const resumeSubscription = async (req, res) => {
 
         return res.status(200).json({ message: "Subscription resumed successfully" });
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "Failed to resume subscription" });
     }
 };
@@ -199,7 +185,6 @@ export const resumeSubscription = async (req, res) => {
 export const cancelSubscription = async (req, res) => {
     try {
         const { subscriptionId } = req.params;
-        console.log("subid=", subscriptionId);
         const userId = req.user._id;
 
         // Verify subscription belongs to user
@@ -250,7 +235,6 @@ export const cancelSubscription = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "Failed to cancel subscription" });
     }
 };

@@ -350,7 +350,6 @@ export const loginWithGoogle = async (req, res, next) => {
 
   } catch (err) {
     session.abortTransaction();
-    // console.log(err);
     return res.status(400).json({ error: "invalid fields", details: err });
   }
 
@@ -479,7 +478,6 @@ export const googleCallback = async (req, res) => {
       </script>
     `);
   } catch (err) {
-    // console.error("Error in Google Callback:", err);
     res.status(500).send("Google auth failed");
   }
 };
@@ -490,7 +488,6 @@ export const googleDriveFilesFolder = async (req, res) => {
   try {
 
     const googleToken = await GoogleTokens.findOne({ userId });
-    // console.log(googleToken);
 
     oauth2Client.setCredentials(googleToken.tokens);
     const drive = google.drive({ version: "v3", auth: oauth2Client });
@@ -500,11 +497,9 @@ export const googleDriveFilesFolder = async (req, res) => {
       fields: "files(id, name, size, mimeType, webViewLink, thumbnailLink, createdTime)"
     });
 
-    // console.log("Files in folder:", result.data.files);
     return res.status(200).json({ files: result.data.files });
 
   } catch (err) {
-    // console.error("Error in Google Drive Files Folder:", err);
     res.status(500).send("Google Drive API failed");
   }
 };
@@ -538,7 +533,6 @@ export const getGoogleDriveFileBlob = async (req, res) => {
     driveResponse.data.pipe(res);
 
   } catch (err) {
-    // console.error("Error in Google Drive File Blob:", err);
     res.status(500).send("Google Drive API failed");
   }
 };
