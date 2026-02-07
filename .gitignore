@@ -1,8 +1,28 @@
-# .gitignore
+# Dependency folders
 node_modules/
-.env
+jspm_packages/
+
+# Build folders
 dist/
-task.md
-.vscode/
+build/
+.cache/
+
+# Environment files (Very Important to ignore)
+.env
+.env.local
+.env.production
+.env.development
 Backend/.env
 Frontend/.env
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.log
+
+# Deployment scripts (Security ke liye agar keys/IDs hain)
+deploy.sh
+
+# Project specific
+task.md
