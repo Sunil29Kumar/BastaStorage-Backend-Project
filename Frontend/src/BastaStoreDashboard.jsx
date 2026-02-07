@@ -18,11 +18,8 @@ import StorageFullMessage from "./Components/Total Storage/StorageFullMessage.js
 import GoogleLoginSetPasswordMessage from "./Auth/GoogleLoginSetPasswordMessage.jsx";
 import ShareFilesDashboard from "./Components/Share files/ShareFilesDashboard.jsx";
 import LinkCopiedMessage from "./Components/Share files/LinkCopiedMessage.jsx";
-import GoogleDriveLayout from "./Components/Google Drive/GoogleDriveLayout.jsx";
-import MyFiles from "./Components/MyFiles.jsx";
 import FileDeleteRenameMessage from "./Components/progress file folder/FileDeleteRenameMessage.jsx";
 import DirDeleteRenameMessage from "./Components/progress file folder/DirDeleteRenameMessage.jsx";
-import StorageOverview from "./Components/Total Storage/StorageOverview .jsx";
 import Notification from "./Components/Notification/Notification.jsx";
 import CookieConsent from "./CookieConsent.jsx";
 import FavoriteFileMessage from "./Components/progress file folder/FavoriteFileMessage.jsx";
@@ -43,15 +40,14 @@ function BastaStoreDashboard() {
     isFileInProgress,
     fileRenameMessage, fileDeleteMessage,
     dirRenameMessage, dirDeleteMessage,
-    isFileUploaded,
-    isFileUploadingCancle,
+
     isManageProfileShowing,
     isStorageFull,
     storeUserData,
     showShareFile,
     isShareLinkCopied,
     isGDBoxOpen,
-    dirUploadMessage, isClickOnNotificationBell, isNavMinimized, setIsNavMinimized
+    dirUploadMessage, isClickOnNotificationBell,
   } = useContext(BastaStorageContext);
 
 // 1285 
@@ -60,7 +56,6 @@ function BastaStoreDashboard() {
       <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl  flex relative  ">
         <SideBar />
         <FilesFolderList />
-        {isGDBoxOpen && <GoogleDriveLayout />}
         {showInputBox && <CreateFolderInputBox />}
         {showFileRenameInputBox && <RenameFileInputBox />}
         {showFolderRenameInputBox && <RenameFolderInputBox />}

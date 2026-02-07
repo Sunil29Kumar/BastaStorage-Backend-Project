@@ -66,6 +66,14 @@ function App() {
         }
       />
       <Route
+        path="/my-file/google-drive"
+        element={
+          <BastaStorageProvider>
+            <BastaStoreDashboard />
+          </BastaStorageProvider>
+        }
+      />
+      <Route
         path="/storageOverview"
         element={
           <BastaStorageProvider>

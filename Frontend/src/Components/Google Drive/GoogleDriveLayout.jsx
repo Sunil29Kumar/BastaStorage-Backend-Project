@@ -13,7 +13,7 @@ function GoogleDriveLayout() {
 
 
     return (
-        <div className={` relative top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[90vh]    rounded-r-4xl  flex flex-col p-4 overflow-x-auto z-[1] ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black "}`}>
+        <div className={` flex flex-col gap-5 p-4 mt-2 rounded-b-4xl rounded-t-2xl overflow-x-auto h-full  ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-black "}`}>
 
             {googleDriveFilesData.length > 0 && googleDriveFilesData ?
 
@@ -36,19 +36,19 @@ function GoogleDriveLayout() {
                 </>
 
                 :
-                <div className="relative flex flex-col items-center justify-center h-full p-10 overflow-hidden">
+                <div className=" flex flex-col items-center justify-center h-full p-10 ">
 
                     {/* Close Button - Top Left */}
-                    <button
+                    <Link to={"/my-files"}
                         onClick={() => setIsGDBoxOpen(false)}
-                        className={`absolute top-6 left-6 p-3 rounded-2xl transition-all active:scale-90 ${isDarkMode ? "bg-white/5 text-white hover:bg-white/10" : "bg-gray-100 text-black hover:bg-gray-200"
+                        className={` p-3 rounded-2xl transition-all active:scale-90 ${isDarkMode ? "bg-white/5 text-white hover:bg-white/10" : " text-black hover:bg-gray-200"
                             }`}
                     >
-                        <i className="ri-close-large-fill text-xl"></i>
-                    </button>
+                        <i className="ri-arrow-left-line text-md"></i>Back to My Files
+                    </Link>
 
                     {/* Main Animated Logo Container */}
-                    <div className="relative flex items-center justify-center mb-10">
+                    <div className="relative flex items-center justify-center ">
 
                         {/* Outer Ripples */}
                         <div className="absolute w-32 h-32 bg-blue-500/20 rounded-full animate-ping opacity-20"></div>

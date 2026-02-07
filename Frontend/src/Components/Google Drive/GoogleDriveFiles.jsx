@@ -12,7 +12,7 @@ function GoogleDriveFiles() {
   // Loading Skeletons dikhayenge jab tak data load ho raha hai
   if (googleDriveFileLoading) {
     return (
-      <div className="grid grid-cols-2 gap-4 w-full">
+      <div className="grid grid-cols-3 gap-4 w-full">
         {/* Hum 4 Skeleton cards dikhayenge taki layout khali na lage */}
         {[1, 2, 3, 4].map((i) => (
           <div
@@ -54,7 +54,7 @@ function GoogleDriveFiles() {
 
 
   return (
-    <div className="grid md:grid-cols-1  lg:grid-cols-2  gap-3">
+    <div className="grid md:grid-cols-1  lg:grid-cols-2 xl:grid-cols-4  gap-3">
       {googleDriveFilesData
         .filter(
           (f) =>
@@ -75,10 +75,10 @@ function GoogleDriveFiles() {
               })
             }
             }
-            className={`group rounded-md cursor-pointer overflow-hidden transition 
+            className={`group rounded-xl cursor-pointer overflow-hidden transition 
               ${isDarkMode
                 ? "bg-gray-800 hover:bg-gray-700"
-                : "bg-gray-100 hover:shadow-lg"
+                : "bg-gray-200 hover:shadow-lg"
               }`}
           >
             {/* IMAGE */}

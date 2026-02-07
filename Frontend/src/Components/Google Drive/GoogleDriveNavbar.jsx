@@ -1,48 +1,46 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { BastaStorageContext } from '../../hooks/Context/ContextAPI';
-import { RiArrowRightDoubleLine } from 'react-icons/ri';
+import { Link } from 'react-router-dom';
 
 function GoogleDriveNavbar({ activeTab, setActiveTab }) {
     const { isDarkMode, setIsGDBoxOpen } = useContext(BastaStorageContext);
-
     const tabs = ['All', 'Folder', 'Files'];
 
     return (
-        <div className="mb-6">
-            {/* Top Bar: Logo & Close */}
-            <div className='flex justify-between items-center mb-6'>
-                <div className='flex items-center gap-3'>
-                    <div className='w-10 h-10 p-1 bg-white rounded-xl shadow-sm overflow-hidden'>
+        <div className="space-y-6">
+            <div className='flex justify-between items-center'>
+                <div className='flex items-center gap-4'>
+                    <div className='w-12 h-12 p-2 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transform -rotate-3'>
                         <img src='/google drive.png' alt="GD" className="w-full h-full object-contain" />
                     </div>
                     <div>
-                        <h1 className={`text-xl font-black tracking-tight ${isDarkMode ? "text-white" : "text-gray-800"}`}>
-                            Google Drive
-                        </h1>
-                        <div className="h-1 w-8 bg-blue-500 rounded-full mt-[-2px]"></div>
+                        <h1 className="text-2xl font-black tracking-tighter">Google Drive</h1>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-500">External Storage</p>
                     </div>
                 </div>
 
-                <button 
+                <Link to="/my-files" 
                     onClick={() => setIsGDBoxOpen(false)}
-                    className={`group flex items-center justify-center w-10 h-10 rounded-full transition-all ${
-                        isDarkMode ? "hover:bg-white/10 text-white" : "hover:bg-gray-100 text-black"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs tracking-widest transition-all ${
+                        isDarkMode 
+                        ? "bg-white/5 hover:bg-red-500/20 text-white border border-white/10" 
+                        : "bg-white hover:bg-gray-100 text-blue-400 shadow-sm border border-gray-200"
                     }`}
                 >
-                    <RiArrowRightDoubleLine className="text-2xl group-hover:translate-x-1 transition-transform" />
-                </button>
+                    Back to My Files
+                </Link>
             </div>
 
-            {/* Tab Navigation */}
-            <div className={`flex items-center gap-2 p-1 rounded-2xl ${isDarkMode ? "bg-white/5" : "bg-gray-100"}`}>
+            {/* Segmented Control Picker */}
+            <div className={`flex p-1.5 rounded-2xl ${isDarkMode ? "bg-black/40 border border-white/5" : "bg-gray-200/50 border border-gray-200"}`}>
                 {tabs.map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`flex-1 py-2 text-[11px] cursor-pointer font-black uppercase tracking-widest rounded-xl transition-all ${
+                        className={`flex-1 py-3 text-[10px] cursor-pointer font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-300 ${
                             activeTab === tab 
-                            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" 
-                            : `opacity-50 hover:opacity-100 ${isDarkMode ? "text-white" : "text-black"}`
+                            ? "bg-blue-600 text-white shadow-xl shadow-blue-500/40 transform scale-[1.02]" 
+                            : `hover:opacity-100 opacity-40 ${isDarkMode ? "text-white" : "text-black"}`
                         }`}
                     >
                         {tab}
@@ -50,7 +48,7 @@ function GoogleDriveNavbar({ activeTab, setActiveTab }) {
                 ))}
             </div>
         </div>
-    )
+    );
 }
 
 export default GoogleDriveNavbar;

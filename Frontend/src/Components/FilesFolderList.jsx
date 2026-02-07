@@ -11,6 +11,7 @@ import HelpSupport from "./Help and support/HelpSupport";
 import Settings from "./Settings/Settings";
 import RecentFiles from "./RecentFiles";
 import Favorites from "./Favorites";
+import GoogleDriveLayout from "./Google Drive/GoogleDriveLayout";
 function FilesFolderList() {
   const { isDarkMode, isNavMinimized, windowWidth } = useContext(BastaStorageContext);
 
@@ -19,6 +20,7 @@ function FilesFolderList() {
   const components = {
     "/": <Home />,
     "/recent-files": <RecentFiles />,
+    "/my-file/google-drive": <GoogleDriveLayout />,
     "/favorites": <Favorites />,
     "/storageOverview": <StorageOverview />,
     "/storageAnalytics": <StorageAnalytics />,

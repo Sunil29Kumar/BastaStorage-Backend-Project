@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import { BastaStorageContext } from "../../hooks/Context/ContextAPI";
 import { FaGoogleDrive } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 function GoogleDrive() {
   const {
@@ -24,10 +25,9 @@ function GoogleDrive() {
 
 
   return (
-    <button
+    <Link to={"/my-file/google-drive"}
       onClick={() => {
         handleClick()
-        setIsNavMinimized(true);
         setShowFileFolderMenu(false);
       }}
       className={`
@@ -51,7 +51,7 @@ function GoogleDrive() {
       {(!isNavMinimized || windowWidth < 1000) && (
         <span className="text-[15px] font-medium">Google Drive</span>
       )}
-    </button>
+    </Link>
   );
 }
 
