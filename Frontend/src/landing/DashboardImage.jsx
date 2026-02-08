@@ -1,6 +1,6 @@
 const DashboardImage = () => {
   return (
-    <section className="relative py-20 px-6 flex justify-center bg-white">
+    <section  className="relative py-20 px-6 flex justify-center bg-white">
       {/* Glow Effect behind the image */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[60%] bg-blue-600/10 blur-[120px] -z-10 rounded-full"></div>
 

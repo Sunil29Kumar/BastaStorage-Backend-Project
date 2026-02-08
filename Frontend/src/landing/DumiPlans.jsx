@@ -170,7 +170,7 @@ const DumiPlans = () => {
     const currentPlans = PLAN_CATALOG[billingCycle];
 
     return (
-        <section id="plans" className="py-24 bg-slate-50">
+        <section id="demoPlans" className="py-24 bg-slate-50">
             <div className="max-w-7xl mx-auto px-6 text-center">
                 {/* Header */}
                 <div className="mb-12">

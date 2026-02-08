@@ -20,7 +20,7 @@ const Footer = () => (
           <h4 className="text-white font-bold mb-6 italic">Product</h4>
           <ul className="space-y-4 text-sm font-medium">
             <li><a href="#features" className="hover:text-blue-400 transition">Features</a></li>
-            <li><Link to="/plans" className="hover:text-blue-400 transition">Pricing Plans</Link></li>
+            <li><Link to="#demoPlans" className="hover:text-blue-400 transition">Pricing Plans</Link></li>
             <li><a href="#faq" className="hover:text-blue-400 transition">FAQs</a></li>
           </ul>
         </div>
@@ -31,24 +31,10 @@ const Footer = () => (
           <ul className="space-y-4 text-sm font-medium">
             <li><Link to="/privacy-policy" className="hover:text-blue-400 transition text-blue-400/80">Privacy Policy</Link></li>
             <li><Link to="/terms" className="hover:text-blue-400 transition">Terms of Service</Link></li>
-            <li><a href="#" className="hover:text-blue-400 transition">Cookie Policy</a></li>
           </ul>
         </div>
 
-        {/* Contact/Support */}
-        <div>
-          <h4 className="text-white font-bold mb-6 italic">Support</h4>
-          <ul className="space-y-4 text-sm font-medium">
-            <li className="flex items-center gap-2">
-              <i className="ri-mail-line text-blue-500"></i>
-              <span>support@bastastorage.me</span>
-            </li>
-            <li className="flex items-center gap-2 text-xs opacity-60">
-              <i className="ri-map-pin-line text-blue-500"></i>
-              <span>Available Globally</span>
-            </li>
-          </ul>
-        </div>
+       
       </div>
 
       <div className=" flex justify-center items-end  border-t border-slate-800  text-xs font-bold tracking-widest opacity-50">
