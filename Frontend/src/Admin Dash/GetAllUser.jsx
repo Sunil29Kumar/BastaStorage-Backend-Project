@@ -43,7 +43,7 @@ function GetAllUser() {
       <nav className={`sticky top-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center backdrop-blur-md border-b ${isDarkMode ? "bg-[#1c1f23]/80 border-white/5" : "bg-white/80 border-gray-100 shadow-sm"}`}>
         <div className="flex items-center gap-3 md:gap-6">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/home")}
             className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all cursor-pointer active:scale-95 ${isDarkMode ? "bg-white/5 hover:bg-white/10 text-blue-400" : "bg-blue-50 hover:bg-blue-100 text-blue-600"}`}
           >
             <i className="ri-home-4-fill text-lg"></i>

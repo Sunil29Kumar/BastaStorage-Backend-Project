@@ -65,7 +65,7 @@ export default function SubscriptionController() {
             {/* TOP NAVIGATION */}
             <div className="max-w-6xl mx-auto mb-10">
                 <div className={`flex items-center justify-between backdrop-blur-2xl rounded-[2.5rem] px-8 py-5 border ${isDarkMode ? "bg-white/5 border-white/10 shadow-2xl shadow-black" : "bg-white/80 border-slate-200 shadow-xl shadow-blue-500/5"}`}>
-                    <Link to="/" className="flex items-center gap-2 text-blue-500 font-black text-xs uppercase tracking-widest hover:opacity-70 transition">
+                    <Link to="/home" className="flex items-center gap-2 text-blue-500 font-black text-xs uppercase tracking-widest hover:opacity-70 transition">
                         <i className="ri-arrow-left-line text-lg"></i> Dashboard
                     </Link>
                     <h1 className="text-xl font-black tracking-tight">Billing Center</h1>

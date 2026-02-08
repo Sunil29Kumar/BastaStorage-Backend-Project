@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
         <div className="min-h-screen bg-[#f8fafc]">
             {/* Header */}
             <header className="sticky top-0 z-50 flex bg-white/80 backdrop-blur-md items-center justify-between px-6 md:px-16 py-4 border-b border-slate-100">
-                <Link to="/" className="flex items-center">
+                <Link to="/home" className="flex items-center">
                     <img src="/bst logo.png" className="w-10 h-10 object-contain " alt="logo" />
                     <span className="ml-3 font-black text-xl tracking-tight text-slate-900">BastaStorage</span>
                 </Link>

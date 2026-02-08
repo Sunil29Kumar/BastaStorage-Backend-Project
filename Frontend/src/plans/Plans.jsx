@@ -40,7 +40,7 @@ function Plans() {
         <div className="mx-auto max-w-6xl px-4 py-10">
             {/* Hero Section */}
             <div className="text-center mb-10">
-                <Link to="/" className="text-blue-600 font-bold text-md mb-4 inline-block">🏡 Back to Home</Link>
+                <Link to="/home" className="text-blue-600 font-bold text-md mb-4 inline-block">🏡 Back to Home</Link>
                 <h1 className="text-4xl font-bold text-slate-900">BastaStorage Plans</h1>
                 <h1 className="text-2xl  text-slate-500">Choose Your Plan</h1>
 
