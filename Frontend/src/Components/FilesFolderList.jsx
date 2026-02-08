@@ -18,7 +18,7 @@ function FilesFolderList() {
   const location = useLocation();
 
   const components = {
-    "/": <Home />,
+    "/home": <Home />,
     "/recent-files": <RecentFiles />,
     "/my-file/google-drive": <GoogleDriveLayout />,
     "/favorites": <Favorites />,

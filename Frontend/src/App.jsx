@@ -17,13 +17,20 @@ import Terms from "./Components/legal/Terms";
 import PrivacyPolicy from "./Components/legal/PrivacyPolicy";
 import Plans from "./plans/Plans.jsx";
 import RecentFiles from "./Components/RecentFiles.jsx";
+import LandingPage from "./landing/LandingPage.jsx";
 
 function App() {
   return (
     <Routes>
+
+      {/* landing page route */}
+      <Route path="/" element={
+          <LandingPage />
+      } />
+
       {/* BastaStoreDashboard ko context se wrap karna */}
       <Route
-        path="/"
+        path="/home"
         element={
           <BastaStorageProvider>
             <BastaStoreDashboard />

@@ -1,19 +1,30 @@
-import { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import LoginWithGoogle from "./LoginWithGoogle";
 import LoginWithGithub from "./LoginWithGithub";
 import TermsPrivacyFooter from "../Components/legal/TermsPrivacyFooter";
 
 function Login() {
-  const { loginData, setLoginData, handleLogin, loginError, loginLimiter, isDarkMode, isClickOnLoginButton, isGoogleLoginLoading } =
+  const { loginData, setLoginData, handleLogin, loginError, loginLimiter, isDarkMode, isClickOnLoginButton, isGoogleLoginLoading, storeUserData } =
     useContext(BastaStorageContext);
 
   const [showPassword, setShowPassword] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
+
+
+  useEffect(() => {
+    if(storeUserData) {
+      console.log("User is already logged in, redirecting to home...");
+      navigate("/home");
+    }
+  },[ navigate, storeUserData]);
+
 
   return (
     <>

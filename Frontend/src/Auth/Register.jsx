@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { BastaStorageContext } from "../hooks/Context/ContextAPI";
 import OTP from "./OTP.jsx";
 import LoginWithGoogle from "./LoginWithGoogle.jsx";
@@ -19,16 +19,25 @@ function Register() {
     isDarkMode,
     otpSent,
     isClickOnRegisterButton,
-    isGoogleLoginLoading
+    isGoogleLoginLoading,
+    storeUserData
   } = useContext(BastaStorageContext);
 
   const [showPassword, setShowPassword] = useState(false);
-  console.log(otpError?.name);
 
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
   };
+
+  
+  useEffect(() => {
+    if(storeUserData) {
+      console.log("User is already logged in, redirecting to home...");
+      navigate("/home");
+    }
+  },[ navigate, storeUserData]);
 
   // Reusable Error Component for consistency
   const ErrorMsg = ({ msg }) => (
