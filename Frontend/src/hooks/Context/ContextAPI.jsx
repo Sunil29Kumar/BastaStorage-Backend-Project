@@ -1115,6 +1115,7 @@ function ContextAPI({ children }) {
       }
       else if (event.data.error) {
         console.error("Google Drive login failed:", event.data.error);
+        navigate("/");
       }
     })
   };
