@@ -838,7 +838,7 @@ function ContextAPI({ children }) {
           setStoreUserData(userData);
           setLoggedIn(true);
           await getDirectoryItems();
-          navigate("/");
+          navigate("/home");
         }
       }
 
@@ -1051,7 +1051,7 @@ function ContextAPI({ children }) {
           setIsGoogleLoginLoading(false);
         }, 1000);
         await getDirectoryItems();
-        navigate("/");
+        navigate("/home");
       }
     }
 
@@ -1116,7 +1116,7 @@ function ContextAPI({ children }) {
       }
       else if (event.data.error) {
         // console.error("Google Drive login failed:", event.data.error);
-        navigate("/");
+        navigate("/home");
       }
     })
   };
