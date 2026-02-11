@@ -1127,6 +1127,9 @@ function ContextAPI({ children }) {
 
     window.gapi.load('picker', {
       callback: () => {
+        window.gapi.client.setToken({ access_token: token });
+        const view = new window.google.picker.DocsView(window.google.picker.ViewId.DOCS);
+        view.setIncludeFolders(true);
         const picker = new window.google.picker.PickerBuilder()
           .addView(window.google.picker.ViewId.DOCS)
           .setOAuthToken(token)
@@ -1135,7 +1138,6 @@ function ContextAPI({ children }) {
           .setOrigin(window.location.origin)
           .setCallback((data) => {
             if (data.action === window.google.picker.Action.PICKED) {
-              // User ne file choose kar li, ab backend ko bhejo
               const file = data.docs[0];
               sendDriveFilesData(file, token);
             }
