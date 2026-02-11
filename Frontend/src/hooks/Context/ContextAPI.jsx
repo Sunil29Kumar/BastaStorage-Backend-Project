@@ -1124,24 +1124,29 @@ function ContextAPI({ children }) {
 
   const openPicker = (token) => {
     if (!window.gapi) return;
+    window.gapi.client.setToken({ access_token: token });
 
     window.gapi.load('picker', {
       callback: () => {
-        const picker = new window.google.picker.PickerBuilder()
-          .addView(window.google.picker.ViewId.DOCS)
-          .setOAuthToken(token)
-          .setDeveloperKey(import.meta.env.VITE_GOOGLE_API_KEY)
-          .setAppId("336157970356") // Aapka Project Number
-          .setOrigin(window.location.origin)
-          .setCallback((data) => {
-            if (data.action === window.google.picker.Action.PICKED) {
-              // User ne file choose kar li, ab backend ko bhejo
-              const file = data.docs[0];
-              sendDriveFilesData(file, token);
-            }
-          })
-          .build();
-        picker.setVisible(true);
+        setTimeout(() => {
+          const view = new window.google.picker.DocsView(window.google.picker.ViewId.DOCS);
+          view.setIncludeFolders(true);
+
+          const picker = new window.google.picker.PickerBuilder()
+            .addView(view)
+            .setOAuthToken(token) // Fresh token
+            .setDeveloperKey(import.meta.env.VITE_GOOGLE_API_KEY)
+            .setAppId("336157970356")
+            .setOrigin(window.location.origin)
+            .setCallback((data) => {
+              if (data.action === window.google.picker.Action.PICKED) {
+                const file = data.docs[0];
+                sendDriveFilesData(file, token);
+              }
+            })
+            .build();
+          picker.setVisible(true);
+        }, 200);
       }
     });
   };
