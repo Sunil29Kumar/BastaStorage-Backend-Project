@@ -471,9 +471,10 @@ export const googleCallback = async (req, res) => {
       }
     }
 
+    const finalToken = tokens.access_token;
     return res.send(`
       <script>
-        window.opener.postMessage({ success: true, token:"${existingGoogleToken.tokens.access_token}" }, "*");
+        window.opener.postMessage({ success: true, token:"${finalToken}" }, "*");
         window.close();
       </script>
     `);
