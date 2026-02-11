@@ -1125,13 +1125,18 @@ function ContextAPI({ children }) {
   const openPicker = (token) => {
     if (!window.gapi) return;
 
-    window.gapi.load('picker', {
+    window.gapi.load('client:picker', {
       callback: () => {
-        window.gapi.client.setToken({ access_token: token });
+
+        if (window.gapi.client) {
+          window.gapi.client.setToken({ access_token: token });
+        }
+
         const view = new window.google.picker.DocsView(window.google.picker.ViewId.DOCS);
         view.setIncludeFolders(true);
+
         const picker = new window.google.picker.PickerBuilder()
-          .addView(window.google.picker.ViewId.DOCS)
+          .addView(view)
           .setOAuthToken(token)
           .setDeveloperKey(import.meta.env.VITE_GOOGLE_API_KEY)
           .setAppId("336157970356") // Aapka Project Number
