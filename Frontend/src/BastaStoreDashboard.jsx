@@ -23,6 +23,7 @@ import DirDeleteRenameMessage from "./Components/progress file folder/DirDeleteR
 import Notification from "./Components/Notification/Notification.jsx";
 import CookieConsent from "./CookieConsent.jsx";
 import FavoriteFileMessage from "./Components/progress file folder/FavoriteFileMessage.jsx";
+import GoogleDriveFileProgress from "./Components/Google Drive/GoogleDriveFileProgress.jsx";
 
 
 function BastaStoreDashboard() {
@@ -47,10 +48,11 @@ function BastaStoreDashboard() {
     showShareFile,
     isShareLinkCopied,
     isGDBoxOpen,
+    googleDriveFileLoading,
     dirUploadMessage, isClickOnNotificationBell,
   } = useContext(BastaStorageContext);
 
-// 1285 
+  // 1285 
   return (
     <div className={` ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"} h-[100vh]`}>
       <div className="bastaStoreContainer w-[100%] h-[100%] rounded-xl  flex relative  ">
@@ -66,7 +68,7 @@ function BastaStoreDashboard() {
         {showFileFolderMenu && <CreateUploadFFList />}
         {isFileInProgress && <FileProgress />}
         <FileUploadCancleMessage />
-        <FavoriteFileMessage/>
+        <FavoriteFileMessage />
         {isManageProfileShowing && <ManageUserProfile />}
         {isStorageFull && <StorageFullMessage />}
         {storeUserData?.isPasswordSet === false && <GoogleLoginSetPasswordMessage />}
@@ -75,6 +77,8 @@ function BastaStoreDashboard() {
         {((fileRenameMessage.message.length > 0 || fileRenameMessage.error.length > 0) || (fileDeleteMessage.message.length > 0 || fileDeleteMessage.error.length > 0)) && <FileDeleteRenameMessage />}
         {((dirRenameMessage.message.length > 0 || dirRenameMessage.error.length > 0) || (dirDeleteMessage.message.length > 0 || dirDeleteMessage.error.length > 0) || (dirUploadMessage.message.length > 0 || dirUploadMessage.error.length > 0)) && <DirDeleteRenameMessage />}
         {isClickOnNotificationBell && <Notification />}
+        <GoogleDriveFileProgress />
+
         <CookieConsent />
 
       </div>

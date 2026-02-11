@@ -26,7 +26,8 @@ export const sendGoogleDriveFile = async (req, res) => {
       return res.status(400).json({ error: "Invalid data format" })
     }
 
-    const { file } = data; // frontend se metadata aayega (id, name, mimeType, size)
+    const { token } = data; 
+    const file = req.body.file; 
 
     const parentDirId = req.params.parentDirId || req.user.rootDirId;
     const userId = req.user._id;
@@ -48,12 +49,7 @@ export const sendGoogleDriveFile = async (req, res) => {
 
     // extension
     const extension = path.extname(file.name) || "";
-    const size = file.size || 0;
-
-    // check storage limit
-    // if (user.usedSpace + size > user.totalSpace) {
-    //   return res.status(400).json({ error: "You have exceeded your storage limit." });
-    // }
+    const size = file.sizeBytes || 0;
 
     // ----- File upload From Google Drive restrictions based on user plan
     // check subscription status
@@ -120,7 +116,7 @@ export const sendGoogleDriveFile = async (req, res) => {
         source: "Google Drive",
       },
       timeStamp: {
-        fileCreatedAt: new Date(file.createdTime),
+        fileCreatedAt: file.lastEditedUtc ? new Date(file.lastEditedUtc) : new Date(),
         opened: [],
         lastModified: [],
         lastDownload: [],
@@ -131,22 +127,38 @@ export const sendGoogleDriveFile = async (req, res) => {
     const fullFileName = `${googleDriveFileData._id}${extension}`;
 
     // Google Drive API client
-    const drive = google.drive({ version: "v3", auth: oauth2Client });
 
-    // download file from Google Drive
-    const driveResponse = await drive.files.get(
-      { fileId: file.id, alt: "media" },
-      { responseType: "stream" }
-    );
+    const auth = new google.auth.OAuth2();
+    auth.setCredentials({ access_token: token });
 
-    // upload to S3
+    const drive = google.drive({ version: "v3", auth: auth });
+
+    // 4. Download Logic (Smart handling for Google Docs)
+    let driveResponse;
+
+    // Check agar file Google Doc/Sheet hai toh
+    if (file.mimeType.includes("vnd.google-apps")) {
+      // Google Docs ko PDF ki tarah export karna padta hai
+      driveResponse = await drive.files.export(
+        { fileId: file.id, mimeType: "application/pdf" },
+        { responseType: "stream" }
+      );
+    } else {
+      // Normal files (Image, PDF, etc.)
+      driveResponse = await drive.files.get(
+        { fileId: file.id, alt: "media" },
+        { responseType: "stream" }
+      );
+    }
+
+    // 5. S3 Upload
     const upload = new Upload({
       client: s3Client,
       params: {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: fullFileName,
-        Body: driveResponse.data, //  Google Drive stream
-        ContentType: file.mimeType,
+        Body: driveResponse.data,
+        ContentType: file.mimeType.includes("vnd.google-apps") ? "application/pdf" : file.mimeType,
       },
     });
 

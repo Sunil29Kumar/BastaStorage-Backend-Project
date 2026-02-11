@@ -449,7 +449,7 @@ export const googleCallback = async (req, res) => {
       updateData["tokens.refresh_token"] = tokens.refresh_token;
     }
 
-    await GoogleTokens.updateOne(
+    const updatedGoogleToken = await GoogleTokens.updateOne(
       { userId },
       { $set: updateData },
       { upsert: true }
@@ -473,7 +473,7 @@ export const googleCallback = async (req, res) => {
 
     return res.send(`
       <script>
-        window.opener.postMessage({ success: true }, "*");
+        window.opener.postMessage({ success: true, token:"${existingGoogleToken.tokens.access_token}" }, "*");
         window.close();
       </script>
     `);
@@ -482,60 +482,6 @@ export const googleCallback = async (req, res) => {
   }
 };
 
-// fetch files and folder
-export const googleDriveFilesFolder = async (req, res) => {
-  const userId = req.user._id;
-  try {
-
-    const googleToken = await GoogleTokens.findOne({ userId });
-
-    oauth2Client.setCredentials(googleToken.tokens);
-    const drive = google.drive({ version: "v3", auth: oauth2Client });
-
-    const result = await drive.files.list({
-      pageSize: 1000,
-      fields: "files(id, name, size, mimeType, webViewLink, thumbnailLink, createdTime)"
-    });
-
-    return res.status(200).json({ files: result.data.files });
-
-  } catch (err) {
-    res.status(500).send("Google Drive API failed");
-  }
-};
-
-
-// get google drive file blob by file id 
-export const getGoogleDriveFileBlob = async (req, res) => {
-  const userId = req.user._id;
-  const fileId = req.params.fileId;
-
-  try {
-    const googleToken = await GoogleTokens.findOne({ userId });
-    oauth2Client.setCredentials(googleToken.tokens);
-    const drive = google.drive({ version: "v3", auth: oauth2Client });
-
-    // 1. Pehle file ka metadata lein (taaki MimeType pata chale)
-    const metadata = await drive.files.get({ fileId: fileId, fields: "mimeType, name , size" });
-
-    // 2. Ab media fetch karein
-    const driveResponse = await drive.files.get(
-      { fileId: fileId, alt: "media" },
-      { responseType: "stream" }
-    );
-
-    // 3. Headers set karein (Zaroori Fix)
-    res.setHeader("Content-Type", metadata.data.mimeType);
-    res.setHeader("Content-Disposition", `attachment; filename="${metadata.data.name}"`);
-    res.setHeader("Content-Length", metadata.data.size);
-    // res.setHeader("token", "google-drive");
-
-    driveResponse.data.pipe(res);
-
-  } catch (err) {
-    res.status(500).send("Google Drive API failed");
-  }
-};
 
 // request recovery  
 export const requestRecovery = async (req, res) => {

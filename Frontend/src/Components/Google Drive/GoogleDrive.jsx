@@ -25,7 +25,7 @@ function GoogleDrive() {
 
 
   return (
-    <Link to={"/my-file/google-drive"}
+    <Link
       onClick={() => {
         handleClick()
         setShowFileFolderMenu(false);

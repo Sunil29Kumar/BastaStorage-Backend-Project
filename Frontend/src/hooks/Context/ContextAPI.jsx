@@ -1111,107 +1111,104 @@ function ContextAPI({ children }) {
 
     window.addEventListener("message", (event) => {
       if (event.data.success) {
-        getGoogleDriveFilesFolder(); // files auto fetch
+        const token = event.data.token;
+        openPicker(token);
       }
       else if (event.data.error) {
-        console.error("Google Drive login failed:", event.data.error);
+        // console.error("Google Drive login failed:", event.data.error);
         navigate("/");
       }
     })
   };
 
-  // get Google Drive files
-  async function getGoogleDriveFilesFolder() {
-    const response = await fetch(`${BASE_URL}/auth/google-drive/list-file`, {
-      credentials: "include",
+
+  const openPicker = (token) => {
+    if (!window.gapi) return;
+
+    window.gapi.load('picker', {
+      callback: () => {
+        const picker = new window.google.picker.PickerBuilder()
+          .addView(window.google.picker.ViewId.DOCS)
+          .setOAuthToken(token)
+          .setDeveloperKey(import.meta.env.VITE_GOOGLE_API_KEY)
+          .setAppId("336157970356") // Aapka Project Number
+          .setOrigin(window.location.origin)
+          .setCallback((data) => {
+            if (data.action === window.google.picker.Action.PICKED) {
+              // User ne file choose kar li, ab backend ko bhejo
+              const file = data.docs[0];
+              sendDriveFilesData(file, token);
+            }
+          })
+          .build();
+        picker.setVisible(true);
+      }
     });
-    const data = await response.json();
-
-    if (response.ok) {
-      setGoogleDriveFilesData(data.files);
-    } else {
-      console.error("Failed to fetch Google Drive files:", data.error);
-    }
-  }
+  };
 
 
 
-  // send google drive files data to backend
-  async function sendDriveFilesData(file) {
-    setTransferProgress({ progress: 0, fileName: file.name, fileSize: file.size });
+  async function sendDriveFilesData(file, token) {
+    // --- STEP 1: INSTANT UI UPDATE (Optimistic) ---
+    // Jaise hi function call hua, turant progress bar dikhao
+    setTransferProgress({
+      progress: 5, // 5% se shuru karo taaki "Life" dikhe
+      fileName: file.name,
+      fileSize: file.sizeBytes || 0
+    });
     setGoogleDriveFileLoading(true);
+
+    // --- STEP 2: START SIMULATION IMMEDIATELY ---
+    // Ye 80% tak smooth jayega jab tak backend kaam kar raha hai
+    const progressInterval = setInterval(() => {
+      setTransferProgress(prev => {
+        if (prev.progress >= 92) return prev; // 92% par hold karo
+        const increment = prev.progress < 50 ? 8 : 2; // Shuru mein fast, fir slow
+        return { ...prev, progress: prev.progress + increment };
+      });
+    }, 600);
+
     try {
-
-      // step 1: get file blob from google drive for file progress
+      // --- STEP 3: ACTUAL BACKEND CALL ---
       const response = await axios({
-        url: `${BASE_URL}/auth/google-drive/file/${file.id}`,
-        method: 'GET',
-        responseType: 'blob',
+        url: `${BASE_URL}/google-drive/file/${dirId || ""}`,
+        method: "POST",
         withCredentials: true,
-
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setTransferProgress(prev => ({ ...prev, progress: percentage }));
-          }
-          setTimeout(() => setTransferProgress({ progress: 0, fileName: "", fileSize: 0 }), 2000);
-        },
-
+        data: { file, token }
       });
 
-      // step 2 : send file to backend
-      if (response.statusText === "OK" || response.status === 200) {
+      // --- STEP 4: ON SUCCESS ---
+      clearInterval(progressInterval);
+      setTransferProgress(prev => ({ ...prev, progress: 100 })); // Direct 100%
 
-        const response = await fetch(`${BASE_URL}/google-drive/file/${dirId || ""}`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ file })
-        });
-        const data = await response.json()
-        if (response.ok) {
-          setFileuploadMessage({ message: data.message, error: "" })
-          setTimeout(() => setTransferProgress({ progress: 0, fileName: "", fileSize: 0 }), 2000);
-          setGoogleDriveFileLoading(false);
-          getDirectoryItems();
-          setTimeout(() => {
-            setFileuploadMessage({ message: "", error: "" })
-          }, 4000);
-        }
-        else if (response.status === 400 || response.status === 403) {
-          setFileuploadMessage({ message: "", error: data.error })
-          setTimeout(() => setTransferProgress({ progress: 0, fileName: "", fileSize: 0 }), 2000);
-          setGoogleDriveFileLoading(false);
-          setTimeout(() => {
-            setFileuploadMessage({ message: "", error: "" })
-          }, 4000);
-        }
-      }
+      // 3 second baad widget gayab karo
+      setTimeout(() => {
+        setTransferProgress({ progress: 0, fileName: "", fileSize: 0 });
+        setGoogleDriveFileLoading(false);
+      }, 2000);
 
+      setTimeout(() => {
+        setFileuploadMessage({ message: response.data.message, error: "" });
+        getDirectoryItems();
+      }, 2500);
+
+
+      setTimeout(() => {
+        setFileuploadMessage({ message: "", error: "" });
+      }, 6000);
 
     } catch (error) {
-      console.error("Error sending Google Drive file data:", error);
+      // --- STEP 5: ON ERROR ---
+      clearInterval(progressInterval);
+      setGoogleDriveFileLoading(false);
+      setTransferProgress({ progress: 0, fileName: "", fileSize: 0 });
 
-      // Agar Axios ya Fetch se error response aaya hai
-      if (error.response) {
-        const data = error.response.data;
-        const text = await data.text();
-        const jsonData = JSON.parse(text);
+      const errorMsg = error.response?.data?.error || "Drive transfer failed";
+      setFileuploadMessage({ message: "", error: errorMsg });
 
-        setFileuploadMessage({ message: "", error: jsonData.error });
-        setTransferProgress({ progress: 0, fileName: "", fileSize: 0 })
-        setGoogleDriveFileLoading(false);
-        setTimeout(() => {
-          setFileuploadMessage({ message: "", error: "" })
-        }, 4000);
-      }
-
+      setTimeout(() => setFileuploadMessage({ message: "", error: "" }), 6000);
     }
   }
-
-
 
 
 
@@ -1837,7 +1834,7 @@ function ContextAPI({ children }) {
         setIsManageProfileShowing,
 
         // googleDriveFiles 
-        googleDriveFiles, getGoogleDriveFilesFolder, googleDriveFilesData, isGDBoxOpen, setIsGDBoxOpen, transferProgress,
+        googleDriveFiles, googleDriveFilesData, isGDBoxOpen, setIsGDBoxOpen, transferProgress,
 
         // sending google drive files data to backend 
         sendDriveFilesData,

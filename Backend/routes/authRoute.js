@@ -1,5 +1,5 @@
 import express from "express";
-import { getGoogleDriveFileBlob, githubCallback, googleCallback, googleDriveFilesFolder, loginWithGithub, loginWithGoogle, recoverAccount, requestRecovery, sendOTPUser, setGooglePassword, verifyOtp } from "../controllers/authController.js";
+import {  githubCallback, googleCallback, loginWithGithub, loginWithGoogle, recoverAccount, requestRecovery, sendOTPUser, setGooglePassword, verifyOtp } from "../controllers/authController.js";
 import { googleDriveAuthUrl } from "../utils/googleDriveAuthService.js";
 import checkAuth from "../middleware/authMiddleware.js";
 import { blockIfExpired, blockIfPaused } from "../middleware/subscriptionMiddleware.js";
@@ -19,9 +19,6 @@ route.post("/google/set-password", checkAuth, setGooglePassword);
 
 route.get("/google/drive", googleDriveAuthUrl);
 route.get("/google/callback", checkAuth, googleCallback);
-route.get("/google-drive/list-file", checkAuth, googleDriveFilesFolder);
-
-route.get("/google-drive/file/:fileId", checkAuth, blockIfPaused,blockIfExpired, getGoogleDriveFileBlob);
 
 // recovery account 
 route.post("/recover-request", requestRecovery)
