@@ -1112,8 +1112,6 @@ function ContextAPI({ children }) {
     window.addEventListener("message", (event) => {
       if (event.data.success) {
         const token = event.data.token;
-        console.log(token);
-        
         openPicker(token);
       }
       else if (event.data.error) {

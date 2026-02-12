@@ -59,8 +59,8 @@ app.use(
         // // ✅ For dynamically loaded scripts (important for OAuth popup)
         "script-src-elem": [
           "'self'",
-          "'unsafe-inline'",
-          "'unsafe-eval'",
+          // "'unsafe-inline'",
+          // "'unsafe-eval'",
           "https://apis.google.com",
           "https://accounts.google.com",
           "https://drive.google.com",
@@ -86,8 +86,7 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://content.googleapis.com",
-          "https://www.gstatic.com",
-          "https://api.razorpay.com", "https://checkout.razorpay.com"
+          "https://checkout.razorpay.com",
         ],
 
         // ✅ Allow images from Google Drive / user uploads
@@ -95,25 +94,15 @@ app.use(
           "'self'",
           "data:",
           "blob:",
-          "https://lh3.googleusercontent.com",
+          "https://*.googleusercontent.com",
+          "https://*.gstatic.com",
           "https://drive.google.com",
-          "https://content.googleapis.com",
-          "https://www.gstatic.com",
         ],
 
-        // ✅ Styles and fonts
-        "style-src": [
-          "'self'",
-          // "'unsafe-inline'",
-          "https://fonts.googleapis.com",
-        ],
-        "font-src": [
-          "'self'",
-          "https://fonts.gstatic.com",
-        ],
-
-        // ✅ Worker or blob-based file uploads
+        "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        "font-src": ["'self'", "https://fonts.gstatic.com"],
         "worker-src": ["'self'", "blob:"],
+        "upgrade-insecure-requests": [], // Auto-upgrade HTTP to HTTPS
       },
     },
   })
