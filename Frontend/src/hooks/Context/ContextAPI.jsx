@@ -1585,7 +1585,7 @@ function ContextAPI({ children }) {
         clearInterval(interval);
         setChecking(false);
         setIsClickOnSubscribe(false);
-        navigate("/");
+        navigate("/home");
         getDirectoryItems();
       }
     }, 3000);
