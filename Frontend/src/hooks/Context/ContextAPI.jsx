@@ -1112,6 +1112,8 @@ function ContextAPI({ children }) {
     window.addEventListener("message", (event) => {
       if (event.data.success) {
         const token = event.data.token;
+        console.log(token);
+        
         openPicker(token);
       }
       else if (event.data.error) {
@@ -1140,7 +1142,7 @@ function ContextAPI({ children }) {
           .setOAuthToken(token)
           .setDeveloperKey(import.meta.env.VITE_GOOGLE_API_KEY)
           .setAppId("336157970356") // Aapka Project Number
-          .setOrigin("https://www.bastastorage.me")
+          .setOrigin(import.meta.env.VITE_CLIENT_URL_1) // Aapka frontend URL
           .setCallback((data) => {
             if (data.action === window.google.picker.Action.PICKED) {
               const file = data.docs[0];
