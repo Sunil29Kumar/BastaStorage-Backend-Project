@@ -86,7 +86,8 @@ app.use(
           "https://accounts.google.com",
           "https://drive.google.com",
           "https://content.googleapis.com",
-          "https://checkout.razorpay.com",
+          "https://www.gstatic.com",
+          "https://api.razorpay.com", "https://checkout.razorpay.com"
         ],
 
         // ✅ Allow images from Google Drive / user uploads
@@ -94,15 +95,20 @@ app.use(
           "'self'",
           "data:",
           "blob:",
-          "https://*.googleusercontent.com",
-          "https://*.gstatic.com",
+          "https://lh3.googleusercontent.com",
           "https://drive.google.com",
+          "https://content.googleapis.com",
+          "https://www.gstatic.com",
         ],
 
-        "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        "font-src": ["'self'", "https://fonts.gstatic.com"],
+        // ✅ Styles and fonts
+        "style-src": [
+          "'self'", "https://fonts.googleapis.com",
+        ],
+        "font-src": [
+          "'self'", "https://fonts.gstatic.com",
+        ],
         "worker-src": ["'self'", "blob:"],
-        "upgrade-insecure-requests": [], // Auto-upgrade HTTP to HTTPS
       },
     },
   })
