@@ -59,8 +59,8 @@ app.use(
         // // ✅ For dynamically loaded scripts (important for OAuth popup)
         "script-src-elem": [
           "'self'",
-          // "'unsafe-inline'",
-          // "'unsafe-eval'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
           "https://apis.google.com",
           "https://accounts.google.com",
           "https://drive.google.com",
@@ -103,11 +103,16 @@ app.use(
 
         // ✅ Styles and fonts
         "style-src": [
-          "'self'", "https://fonts.googleapis.com",
+          "'self'",
+          // "'unsafe-inline'",
+          "https://fonts.googleapis.com",
         ],
         "font-src": [
-          "'self'", "https://fonts.gstatic.com",
+          "'self'",
+          "https://fonts.gstatic.com",
         ],
+
+        // ✅ Worker or blob-based file uploads
         "worker-src": ["'self'", "blob:"],
       },
     },
