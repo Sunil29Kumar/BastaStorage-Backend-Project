@@ -1142,7 +1142,7 @@ function ContextAPI({ children }) {
           .setOAuthToken(token)
           .setDeveloperKey(import.meta.env.VITE_GOOGLE_API_KEY)
           .setAppId("336157970356") // Aapka Project Number
-          .setOrigin(import.meta.env.VITE_CLIENT_URL_1) // Aapka frontend URL
+          .setOrigin(window.location.origin) // Aapka frontend URL
           .setCallback((data) => {
             if (data.action === window.google.picker.Action.PICKED) {
               const file = data.docs[0];
