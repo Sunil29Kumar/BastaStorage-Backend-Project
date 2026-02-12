@@ -1140,7 +1140,7 @@ function ContextAPI({ children }) {
           .setOAuthToken(token)
           .setDeveloperKey(import.meta.env.VITE_GOOGLE_API_KEY)
           .setAppId("336157970356") // Aapka Project Number
-          .setOrigin(window.location.origin)
+          .setOrigin("https://www.bastastorage.me")
           .setCallback((data) => {
             if (data.action === window.google.picker.Action.PICKED) {
               const file = data.docs[0];
