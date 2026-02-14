@@ -151,7 +151,7 @@ export const githubCallback = async (req, res, next) => {
     });
     await User.updateOne({ email }, { $set: { loginWith: "github" } });
 
-    return res.redirect(process.env.CLIENT_URL);
+    return res.redirect(process.env.CLIENT_URL_1 || process.env.CLIENT_URL_2);
 
   }
 
@@ -214,7 +214,7 @@ export const githubCallback = async (req, res, next) => {
 
     await session.commitTransaction();
 
-    return res.redirect(process.env.CLIENT_URL);
+    return res.redirect(process.env.CLIENT_URL_1 || process.env.CLIENT_URL_2);
   }
   catch (err) {
     await session.abortTransaction();
@@ -498,13 +498,13 @@ export const requestRecovery = async (req, res) => {
     await RecoveryEmail.create({ email, token });
 
 
-    const link = `${process.env.CLIENT_URL}/recover-account?token=${token}`;
-    
+    const link = `${process.env.CLIENT_URL_1 || process.env.CLIENT_URL_2}/recover-account?token=${token}`;
+
     await sendAccountRecoveryEmail(email, link);
 
     return res.status(200).json({ message: `Recovery email sent to ${email}` });
   }
-  catch {
+  catch (err) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
