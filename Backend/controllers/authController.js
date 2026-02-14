@@ -151,7 +151,7 @@ export const githubCallback = async (req, res, next) => {
     });
     await User.updateOne({ email }, { $set: { loginWith: "github" } });
 
-    return res.redirect(process.env.CLIENT_URL_1 || process.env.CLIENT_URL_2);
+    return res.redirect(`${process.env.CLIENT_URL_1}/home` || `${process.env.CLIENT_URL_2}/home`);
 
   }
 
