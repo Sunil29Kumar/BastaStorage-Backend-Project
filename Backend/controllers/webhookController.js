@@ -6,6 +6,7 @@ import Subscription from "../models/subscriptionModel.js";
 import User from "../models/userModel.js";
 import { sendSubscriptionMail } from "../services/mail/mailEvents.js";
 import { createNotification } from "../utils/createNotification.js";
+import { spawn } from "child_process"
 
 
 export const razorpayWebhookHandler = async (req, res) => {
@@ -310,3 +311,32 @@ export const razorpayWebhookHandler = async (req, res) => {
 
 }
 
+
+export const githubWebhookHandler = async (req, res) => {
+    const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh"])
+
+    bashchildProcess.stdout.on("data", (data) => {  
+        process.stdout.write(data)
+    })
+
+    bashchildProcess.stderr.on("data", (data) => {
+        process.stderr.write(data)
+    })
+
+    bashchildProcess.on("close", (code) => {
+        res.status(200).json({ message: "ok" });
+        if (code == 0) {
+            console.log("Script executed successfully");
+        }
+        else {
+            console.log("Script failed");
+        }
+    })
+
+    bashchildProcess.on("error", (err) => {
+        res.status(200).json({ message: "ok" });
+
+        console.log("Error in spawning the proecss");
+        console.log(err);
+    })
+}
