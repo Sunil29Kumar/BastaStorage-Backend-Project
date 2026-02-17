@@ -324,6 +324,8 @@ export const githubWebhookHandler = async (req, res) => {
     })
 
     bashchildProcess.on("close", (code) => {
+        console.log(req.headers);
+        
         res.status(200).json({ message: "ok" });
         if (code == 0) {
             console.log("Script executed successfully");
