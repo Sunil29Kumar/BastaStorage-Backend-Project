@@ -313,6 +313,8 @@ export const razorpayWebhookHandler = async (req, res) => {
 
 
 export const githubWebhookHandler = async (req, res) => {
+    console.log(req.body);
+    
     const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh"])
 
     bashchildProcess.stdout.on("data", (data) => {  
@@ -324,8 +326,6 @@ export const githubWebhookHandler = async (req, res) => {
     })
 
     bashchildProcess.on("close", (code) => {
-        console.log(req.headers);
-        
         res.status(200).json({ message: "ok" });
         if (code == 0) {
             console.log("Script executed successfully");
