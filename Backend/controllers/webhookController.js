@@ -313,6 +313,8 @@ export const razorpayWebhookHandler = async (req, res) => {
 
 
 export const githubWebhookHandler = async (req, res) => {
+    console.log("body");
+    
     console.log(req.body);
     
     const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh"])
