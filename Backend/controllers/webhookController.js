@@ -313,13 +313,15 @@ export const razorpayWebhookHandler = async (req, res) => {
 
 
 export const githubWebhookHandler = async (req, res) => {
+    res.status(200).json({ message: "ok" });
+
     console.log("body");
-    
+
     console.log(req.body);
-    
+
     const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh"])
 
-    bashchildProcess.stdout.on("data", (data) => {  
+    bashchildProcess.stdout.on("data", (data) => {
         process.stdout.write(data)
     })
 
@@ -328,7 +330,6 @@ export const githubWebhookHandler = async (req, res) => {
     })
 
     bashchildProcess.on("close", (code) => {
-        res.status(200).json({ message: "ok" });
         if (code == 0) {
             console.log("Script executed successfully");
         }
@@ -338,7 +339,6 @@ export const githubWebhookHandler = async (req, res) => {
     })
 
     bashchildProcess.on("error", (err) => {
-        res.status(200).json({ message: "ok" });
 
         console.log("Error in spawning the proecss");
         console.log(err);
