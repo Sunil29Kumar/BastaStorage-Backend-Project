@@ -314,11 +314,19 @@ export const razorpayWebhookHandler = async (req, res) => {
 
 export const githubWebhookHandler = async (req, res) => {
     res.json({ message: "ok" });
-    console.log(req.body);
-    console.log(req.headers);
-    
-     
+    console.log("Received GitHub webhook:", req.body);
+    console.log("Headers:", req.headers);
+
+
+    // Verify the webhook signature
     const receive_signature = req.headers["x-hub-signature-256"]
+    const key = process.env.GITHUB_WEBHOOK_SECRET;
+    const message = JSON.stringify(req.body);
+    const expected_signature = "sha256=" + crypto.createHmac("sha256", key).update(message).digest("hex")
+
+    if (receive_signature !== expected_signature) {
+        return res.status(400).json({ message: "Invalid signature" });
+    }
 
     const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh"])
 
@@ -340,7 +348,7 @@ export const githubWebhookHandler = async (req, res) => {
     })
 
     bashchildProcess.on("error", (err) => {
-        console.log("Error in spawning the proecss");
+        console.log("Error in spawning the process");
         console.log(err);
     })
 }
