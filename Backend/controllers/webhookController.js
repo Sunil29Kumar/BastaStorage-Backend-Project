@@ -314,10 +314,11 @@ export const razorpayWebhookHandler = async (req, res) => {
 
 export const githubWebhookHandler = async (req, res) => {
     res.status(200).json({ message: "ok" });
-
-    console.log("body");
-
     console.log(req.body);
+    console.log(req.headers);
+    
+     
+    const receive_signature = req.headers["x-hub-signature-256"]
 
     const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh"])
 
@@ -339,7 +340,6 @@ export const githubWebhookHandler = async (req, res) => {
     })
 
     bashchildProcess.on("error", (err) => {
-
         console.log("Error in spawning the proecss");
         console.log(err);
     })
