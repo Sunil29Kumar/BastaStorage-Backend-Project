@@ -314,18 +314,14 @@ export const razorpayWebhookHandler = async (req, res) => {
 
 export const githubWebhookHandler = async (req, res) => {
     res.json({ message: "ok" });
-    console.log("Received GitHub webhook:", req.body);
+    // console.log("Received GitHub webhook:", req.body);
     console.log("Headers:", req.headers);
-
 
     // Verify the webhook signature
     const receive_signature = req.headers["x-hub-signature-256"]
     const key = process.env.GITHUB_WEBHOOK_SECRET;
     const message = JSON.stringify(req.body);
     const expected_signature = "sha256=" + crypto.createHmac("sha256", key).update(message).digest("hex")
-
-    console.log("es =", expected_signature);
-
 
     if (receive_signature !== expected_signature) {
         return res.status(400).json({ message: "Invalid signature" });
