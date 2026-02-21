@@ -354,37 +354,54 @@ export const githubWebhookHandler = async (req, res) => {
 
     res.json({ message: "ok" });
 
-
-    let bashchildProcess;
+    
     // 2. Decision Making
     if (isBackendChange) {
         console.log("🚀 Deploying Backend...");
-        bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh", isPackageJsonModified.toString()]);
+        const backendProc = spawn("bash", ["/home/ubuntu/deploy-backend.sh", isPackageJsonModified.toString()]);
+
+
+        // Log the output and errors from the script
+        backendProc.stdout.on("data", (data) => { process.stdout.write(data) })
+        backendProc.stderr.on("data", (data) => { process.stderr.write(data) })
+
+        // Handle script completion
+        backendProc.on("close", (code) => {
+            if (code == 0) console.log("Script executed successfully");
+            else console.log("Script failed");
+        })
+
+        // Handle errors in spawning the process
+        backendProc.on("error", (err) => {
+            console.log("Error in spawning the process");
+            // console.log(err);
+        })
     }
-    else if (isFrontendChange) {
+
+    if (isFrontendChange) {
         console.log("🎨 Deploying Frontend...");
-        bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-frontend.sh"]);
+        const frontendProc = spawn("bash", ["/home/ubuntu/deploy-frontend.sh"]);
+
+        // Log the output and errors from the script
+        frontendProc.stdout.on("data", (data) => { process.stdout.write(data) })
+        frontendProc.stderr.on("data", (data) => { process.stderr.write(data) })
+
+        // Handle script completion
+        frontendProc.on("close", (code) => {
+            if (code == 0) console.log("Script executed successfully");
+            else console.log("Script failed");
+        })
+
+        // Handle errors in spawning the process
+        frontendProc.on("error", (err) => {
+            console.log("Error in spawning the process");
+            // console.log(err);
+        })
     }
 
-    if (!bashchildProcess) {
-        console.log("ℹ️ No relevant changes detected (Backend/Frontend). Skipping script execution.");
-        return; // Yahan se wapas chale jao, niche ke listeners mat chalao
+    if (!isBackendChange && !isFrontendChange) {
+        console.log("ℹ️ No relevant changes for Backend or Frontend.");
     }
 
 
-    // Log the output and errors from the script
-    bashchildProcess.stdout.on("data", (data) => { process.stdout.write(data) })
-    bashchildProcess.stderr.on("data", (data) => { process.stderr.write(data) })
-
-    // Handle script completion
-    bashchildProcess.on("close", (code) => {
-        if (code == 0) console.log("Script executed successfully");
-        else console.log("Script failed");
-    })
-
-    // Handle errors in spawning the process
-    bashchildProcess.on("error", (err) => {
-        console.log("Error in spawning the process");
-        // console.log(err);
-    })
 }
