@@ -343,7 +343,7 @@ export const githubWebhookHandler = async (req, res) => {
                 if (file.includes("package.json")) isPackageJsonModified = true;
             }
             // Frontend folder mein change check karo
-            if (file.startsWith("Frontend/")) {
+            if (file.startWith("Frontend/")) {
                 isFrontendChange = true;
             }
         })
