@@ -324,6 +324,9 @@ export const githubWebhookHandler = async (req, res) => {
     const message = JSON.stringify(req.body);
     const expected_signature = "sha256=" + crypto.createHmac("sha256", key).update(message).digest("hex")
 
+    console.log("es =", expected_signature);
+
+
     if (receive_signature !== expected_signature) {
         return res.status(400).json({ message: "Invalid signature" });
     }
