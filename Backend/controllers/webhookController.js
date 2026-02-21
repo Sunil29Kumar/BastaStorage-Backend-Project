@@ -314,7 +314,7 @@ export const razorpayWebhookHandler = async (req, res) => {
 
 export const githubWebhookHandler = async (req, res) => {
     res.json({ message: "ok" });
-    // console.log("Received GitHub webhook:", req.body);
+    console.log("Received GitHub webhook:", req.body);
     console.log("Headers:", req.headers);
 
     // Verify the webhook signature
