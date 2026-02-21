@@ -327,32 +327,36 @@ export const githubWebhookHandler = async (req, res) => {
         return res.status(400).json({ message: "Invalid signature" });
     }
 
+
+    const commits = req.body.commits || []
+    let isPackageJsonModified = false;
+
+    commits.forEach(commit => {
+        const allChanges = [...commit.modified, ...commit.added, ...commit.removed]
+        if (allChanges.includes("Backend/package.json")) {
+            isPackageJsonModified = true;
+        }
+    })
+
     res.json({ message: "ok" });
 
-    const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh"])
 
+    const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh", isPackageJsonModified.toString()]);
+
+    
     // Log the output and errors from the script
-    bashchildProcess.stdout.on("data", (data) => {
-        process.stdout.write(data)
-    })
-
-    bashchildProcess.stderr.on("data", (data) => {
-        process.stderr.write(data)
-    })
+    bashchildProcess.stdout.on("data", (data) => { process.stdout.write(data) })
+    bashchildProcess.stderr.on("data", (data) => { process.stderr.write(data) })
 
     // Handle script completion
     bashchildProcess.on("close", (code) => {
-        if (code == 0) {
-            console.log("Script executed successfully");
-        }
-        else {
-            console.log("Script failed");
-        }
+        if (code == 0) console.log("Script executed successfully");
+        else console.log("Script failed");
     })
 
     // Handle errors in spawning the process
     bashchildProcess.on("error", (err) => {
         console.log("Error in spawning the process");
-        console.log(err);
+        // console.log(err);
     })
 }
