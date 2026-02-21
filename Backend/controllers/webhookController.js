@@ -335,7 +335,7 @@ export const githubWebhookHandler = async (req, res) => {
     let isFrontendChange = false;
 
     commits.forEach(commit => {
-        const allFiles = [...commit.modified, ...commit.added, ...commit.removed]
+        const allFiles = [...(commit.added || []), ...(commit.modified || []), ...(commit.removed || [])];
         allFiles.forEach(file => {
             // Backend folder mein change check karo
             if (file.startsWith("Backend/")) {
