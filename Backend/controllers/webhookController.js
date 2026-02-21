@@ -328,22 +328,41 @@ export const githubWebhookHandler = async (req, res) => {
     }
 
 
+    // Handle the webhook event
     const commits = req.body.commits || []
     let isPackageJsonModified = false;
+    let isBackendChange = false;
+    let isFrontendChange = false;
 
     commits.forEach(commit => {
-        const allChanges = [...commit.modified, ...commit.added, ...commit.removed]
-        if (allChanges.includes("Backend/package.json")) {
-            isPackageJsonModified = true;
-        }
+        const allFiles = [...commit.modified, ...commit.added, ...commit.removed]
+        allFiles.forEach(file => {
+            // Backend folder mein change check karo
+            if (file.startWith("Backend/")) {
+                isBackendChange = true
+                if (file.includes("package.json")) isPackageJsonModified = true;
+            }
+            // Frontend folder mein change check karo
+            if (file.startsWith("Frontend/")) {
+                isFrontendChange = true;
+            }
+        })
     })
 
     res.json({ message: "ok" });
 
+    // 2. Decision Making
+    if (isBackendChange) {
+        console.log("🚀 Deploying Backend...");
+        spawn("bash", ["/home/ubuntu/deploy-backend.sh", isPackageJsonModified.toString()]);
+    }
 
-    const bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh", isPackageJsonModified.toString()]);
+    if (isFrontendChange) {
+        console.log("🎨 Deploying Frontend...");
+        spawn("bash", ["/home/ubuntu/deploy-frontend.sh"]);
+    }
 
-    
+
     // Log the output and errors from the script
     bashchildProcess.stdout.on("data", (data) => { process.stdout.write(data) })
     bashchildProcess.stderr.on("data", (data) => { process.stderr.write(data) })
