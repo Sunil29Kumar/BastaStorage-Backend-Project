@@ -341,12 +341,12 @@ export const githubWebhookHandler = async (req, res) => {
 
         allFiles.forEach(file => {
             // Backend folder mein change check karo
-            if (file.startsWith("Backend/")) {
+            if (file?.startsWith("Backend/")) {
                 isBackendChange = true
                 if (file.includes("package.json")) isPackageJsonModified = true;
             }
             // Frontend folder mein change check karo
-            if (file.startsWith("Frontend/")) {
+            if (file?.startsWith("Frontend/")) {
                 isFrontendChange = true;
             }
         })
