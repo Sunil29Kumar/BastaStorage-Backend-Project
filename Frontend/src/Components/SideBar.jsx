@@ -105,7 +105,7 @@ function SideBar() {
               {isNavMinimized ? "••" : "General"}
             </p>
 
-            <NavLink to="/homee" icon="ri-home-2-line" label="Home" size={100}
+            <NavLink to="/home" icon="ri-home-2-line" label="Home" size={100}
               active={location.pathname === "/"}
               isNavMinimized={isNavMinimized}
               baseClass={baseClass}
