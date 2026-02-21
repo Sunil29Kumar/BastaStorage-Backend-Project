@@ -331,7 +331,7 @@ export const githubWebhookHandler = async (req, res) => {
     // Handle the webhook event
     const commits = req.body.commits || []
     console.log(commits);
-    
+
     let isPackageJsonModified = false;
     let isBackendChange = false;
     let isFrontendChange = false;
@@ -361,10 +361,14 @@ export const githubWebhookHandler = async (req, res) => {
         console.log("🚀 Deploying Backend...");
         bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh", isPackageJsonModified.toString()]);
     }
-
-    if (isFrontendChange) {
+    else if (isFrontendChange) {
         console.log("🎨 Deploying Frontend...");
         bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-frontend.sh"]);
+    }
+
+    if (!bashchildProcess) {
+        console.log("ℹ️ No relevant changes detected (Backend/Frontend). Skipping script execution.");
+        return; // Yahan se wapas chale jao, niche ke listeners mat chalao
     }
 
 
