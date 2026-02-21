@@ -354,15 +354,17 @@ export const githubWebhookHandler = async (req, res) => {
 
     res.json({ message: "ok" });
 
+
+    let bashchildProcess;
     // 2. Decision Making
     if (isBackendChange) {
         console.log("🚀 Deploying Backend...");
-        spawn("bash", ["/home/ubuntu/deploy-backend.sh", isPackageJsonModified.toString()]);
+        bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-backend.sh", isPackageJsonModified.toString()]);
     }
 
     if (isFrontendChange) {
         console.log("🎨 Deploying Frontend...");
-        spawn("bash", ["/home/ubuntu/deploy-frontend.sh"]);
+        bashchildProcess = spawn("bash", ["/home/ubuntu/deploy-frontend.sh"]);
     }
 
 
