@@ -102,7 +102,7 @@ function SideBar() {
               ${isNavMinimized ? "h-[70vh] " : windowWidth < 1000 ? "h-[65vh]" : "h-[55vh] "} 
             `}>
             <p className={`text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 ${isNavMinimized ? "text-center px-0" : ""}`}>
-              {isNavMinimized ? "••" : "Generall"}
+              {isNavMinimized ? "••" : "General"}
             </p>
 
             <NavLink to="/home" icon="ri-home-2-line" label="Home" size={100}
