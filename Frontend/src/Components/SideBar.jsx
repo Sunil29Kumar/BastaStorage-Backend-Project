@@ -128,14 +128,14 @@ function SideBar() {
               activeClass={activeClass}
               setIsNavMinimized={setIsNavMinimized}
               windowWidth={windowWidth} />
-
+{/* 
             <NavLink to="/trash" icon="ri-delete-bin-line" label="Trash"
               active={location.pathname === "/trash"}
               isNavMinimized={isNavMinimized}
               baseClass={baseClass}
               activeClass={activeClass}
               setIsNavMinimized={setIsNavMinimized}
-              windowWidth={windowWidth} />
+              windowWidth={windowWidth} /> */}
 
             <NavLink to="/recent-files" icon="ri-file-list-line" label="Recent Files"
               active={location.pathname === "/recent-files"}
