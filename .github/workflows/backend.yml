@@ -1,0 +1,56 @@
+name: Deploy BastaStorage Backend
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - "Backend/**"
+    workflow_dispatch:
+
+    jobs:
+        deploy:
+            runs-on: ubuntu-latest
+            defaults:
+                run:
+                    working-directory: ./Backend
+            env:
+                SSH_HOST: 3.109.146.28
+                SSH_USER: ubuntu
+                REMOTE_PATH: /home/ubuntu/BastaStorage-Backend-Project
+                PM2_APP_NAME: BastaStorage
+
+            steps:
+                # checkout current repository
+                -name: Clone backend repository ( Checkout code )
+                 uses: actions/checkout@v4
+
+                - name: Setup SSH
+                    run: |
+                        mkdir -p ~/.ssh
+                        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+                        chmod 600 ~/.ssh/id_rsa
+
+                        # Add server host key so SSH does not ask for confirmation
+                        ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+                # 2. Deploy to remote server
+                - name: Deploy backend on EC2
+                    run: |
+                        ssh "${SSH_USER}@${SSH_HOST}" 'bash -s' << 'EOF'
+                            set -e
+
+                            cd ${REMOTE_PATH}
+                            git pull origin main
+
+                            cd Backend
+
+                            echo "Installing backend dependencies (npm ci)..."
+                            npm ci --no-audit --no-fund
+
+                            echo "Reloading PM2 app..."
+                            pm2 reload ${PM2_APP_NAME}
+
+                            echo "Backend Deployed Successfully..."
+                        EOF
+
+
+                
