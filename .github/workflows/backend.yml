@@ -41,7 +41,7 @@ jobs:
             cd Backend
 
             echo "📥 Installing dependencies..."
-            npm ci --production
+            npm ci --no-audit --no-fund
 
             echo "🔄 Reloading PM2..."
             pm2 reload ${PM2_APP_NAME} || pm2 start index.js --name ${PM2_APP_NAME}
