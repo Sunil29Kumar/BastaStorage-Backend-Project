@@ -162,7 +162,7 @@ app.use("/notification", checkAuth, notificationRoutes)
 
 
 app.get("/", (req, res) => {
-  res.send("BastaStorage Backend running...");
+  res.send("BastaStorage Backend running... 🌷");
 });
 
 
