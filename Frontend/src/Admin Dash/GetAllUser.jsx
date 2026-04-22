@@ -47,7 +47,7 @@ function GetAllUser() {
             className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all cursor-pointer active:scale-95 ${isDarkMode ? "bg-white/5 hover:bg-white/10 text-blue-400" : "bg-blue-50 hover:bg-blue-100 text-blue-600"}`}
           >
             <i className="ri-home-4-fill text-lg"></i>
-            <span className="hidden sm:inline">Home</span>
+            <span className="hidden sm:inline">Back to Home</span>
           </button>
           <div className="h-6 w-[1px] bg-gray-500/20 hidden sm:block"></div>
           <h1 className="text-sm md:text-lg font-black tracking-tight whitespace-nowrap">
