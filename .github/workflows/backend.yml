@@ -1,53 +1,50 @@
 name: Deploy BastaStorage Backend
 
 on:
-    push:
-        branches: [main]
-        paths:
-            - "Backend/**"
-    workflow_dispatch:
+  push:
+    branches: [main]
+  # Sirf Backend folder mein change ho tabhi chale
+    paths:
+      - "Backend/**"
+  workflow_dispatch:
 
-    jobs:
-        deploy:
-            runs-on: ubuntu-latest
-            defaults:
-                run:
-                    working-directory: ./Backend
-            env:
-                SSH_HOST: 3.109.146.28
-                SSH_USER: ubuntu
-                REMOTE_PATH: /home/ubuntu/BastaStorage-Backend-Project
-                PM2_APP_NAME: BastaStorage
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    env:
+      SSH_HOST: 3.109.146.28
+      SSH_USER: ubuntu
+      REMOTE_PATH: /home/ubuntu/BastaStorage-Backend-Project
+      PM2_APP_NAME: BastaStorage
 
-            steps:
-                # 1. Setup SSH
-                - name: Setup SSH
-                    run: |
-                        mkdir -p ~/.ssh
-                        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-                        chmod 600 ~/.ssh/id_rsa
+    steps:
+        # setup SSH
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
-                        # Add server host key so SSH does not ask for confirmation
-                        ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
-                # 2. Deploy to remote server
-                - name: Deploy backend on EC2
-                    run: |
-                        ssh "${SSH_USER}@${SSH_HOST}" 'bash -s' << 'EOF'
-                            set -e
+      - name: Deploy backend on EC2
+        run: |
+          ssh "${SSH_USER}@${SSH_HOST}" 'bash -s' << EOF
+            set -e
+            echo "📂 Navigating to Project Root..."
+            cd ${REMOTE_PATH}
+            
+            echo "📥 Pulling latest code..."
+            git pull origin main
 
-                            cd ${REMOTE_PATH}
-                            git pull origin main
+            echo "📁 Navigating to Backend folder..."
+            cd Backend
 
-                            cd Backend
+            echo "📥 Installing dependencies..."
+            npm ci --production
 
-                            echo "Installing backend dependencies (npm ci)..."
-                            npm ci --no-audit --no-fund
+            echo "🔄 Reloading PM2..."
+            pm2 reload ${PM2_APP_NAME} || pm2 start index.js --name ${PM2_APP_NAME}
 
-                            echo "Reloading PM2 app..."
-                            pm2 reload ${PM2_APP_NAME}
-
-                            echo "Backend Deployed Successfully..."
-                        EOF
-
-
-                
+            echo "✅ Backend Deployed Successfully!"
+          EOF
