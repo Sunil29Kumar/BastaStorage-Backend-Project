@@ -288,7 +288,7 @@ export const updateUserProfile = async (req, res) => {
 
   const userId = req.user._id;
   const { sid } = req.signedCookies;
-  const { name } = req.body;
+  const { name } = req.body; 
 
   let updateData = { name };
 
