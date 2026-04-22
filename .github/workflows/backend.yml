@@ -20,10 +20,7 @@ on:
                 PM2_APP_NAME: BastaStorage
 
             steps:
-                # checkout current repository
-                -name: Clone backend repository ( Checkout code )
-                 uses: actions/checkout@v4
-
+                # 1. Setup SSH
                 - name: Setup SSH
                     run: |
                         mkdir -p ~/.ssh
